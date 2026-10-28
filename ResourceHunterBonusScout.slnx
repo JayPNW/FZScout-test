@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ResourceHunterBonusScout/ResourceHunterBonusScout.csproj" />
+  <Project Path="ResourceHunterBonusScout.Tests/ResourceHunterBonusScout.Tests.csproj" />
+</Solution>
