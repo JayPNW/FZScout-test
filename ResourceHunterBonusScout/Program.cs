@@ -4,8 +4,6 @@ namespace ResourceHunterBonusScout;
 
 static class Program
 {
-    const string MutexName = @"Local\ResourceHunterBonusScout";
-    const string ShowSettingsEventName = @"Local\ResourceHunterBonusScout.ShowSettings";
 
     [STAThread]
     static void Main()
@@ -13,15 +11,13 @@ static class Program
         // Handles install and update hooks, and applies a downloaded update.
         VelopackApp.Build().Run();
 
+        const string MutexName = @"Local\ResourceHunterBonusScout";
         using var mutex = new Mutex(true, MutexName, out var isFirstInstance);
-        if (!isFirstInstance)
+        if (isFirstInstance)
         {
-            return;
+            var app = new App();
+            app.InitializeComponent();
+            app.Run();
         }
-
-        using var showSettingsRequested = new EventWaitHandle(false, EventResetMode.AutoReset, ShowSettingsEventName);
-        var app = new App(showSettingsRequested);
-        app.InitializeComponent();
-        app.Run();
     }
 }

@@ -15,7 +15,6 @@ public partial class App : Application
     static readonly string DataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ResourceHunterBonusScout");
     static readonly string Version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0.0.0";
 
-    readonly EventWaitHandle showSettingsRequested;
     readonly CancellationTokenSource stopping = new();
     readonly DailyFileLog log = new(Path.Combine(DataFolder, "logs"), TimeProvider.System);
     readonly CredentialApiKeyStore apiKeyStore = new();
@@ -23,9 +22,8 @@ public partial class App : Application
     TrayIcon? trayIcon;
     SettingsWindow? settingsWindow;
 
-    public App(EventWaitHandle showSettingsRequested)
+    public App()
     {
-        this.showSettingsRequested = showSettingsRequested;
         settings = new(apiKeyStore, new RegistryStartWithWindows());
     }
 
@@ -52,8 +50,6 @@ public partial class App : Application
         var scout = new Scout(new EqProcesses(), new BonusApi(httpClient), apiKeyStore, new TrayNotifier(trayIcon, ShowSettings), log, TimeProvider.System);
         trayViewModel.Status = scout.Status;
         scout.StatusChanged += (_, _) => trayViewModel.Status = scout.Status;
-
-        ThreadPool.RegisterWaitForSingleObject(showSettingsRequested, (_, _) => Dispatcher.BeginInvoke(ShowSettings), null, Timeout.Infinite, executeOnlyOnce: false);
 
         if (apiKeyStore.Read() is null)
             ShowSettings();
