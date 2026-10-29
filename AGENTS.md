@@ -1,5 +1,7 @@
 When you're reading a doc anytime you see `@AI:`, it indicates a note or instruction for the AI to fill in or complete.
 
+Don't bother touching line endings and BOMs. Let tidy_code handle that as needed.
+
 ## Secrets
 
 Always obscure API keys and other secrets, especially in saved screenshots.
@@ -12,6 +14,8 @@ Then have a discussion.
 This formatting applies every time you present a decision, even a quick one — don't let a short or informal-feeling exchange skip it.
 
 ## C#
+
+A `switch` should only ever have a single statement in a case. If it's going to be more than that, extract.
 
 ### MVVM
 
