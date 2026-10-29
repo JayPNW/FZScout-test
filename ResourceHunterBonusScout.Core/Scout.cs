@@ -118,9 +118,7 @@ public class Scout
         tracker.IsIdleTimerOn = this._settings.Read().IdleTimer;
         var report = tracker.Handle(logEvent, serverLists);
 
-        var timer = tracker.NoBonusAt is { } at && at != noBonusAtBefore ? $"; waiting for timeout at {ClockTime(at)}"
-            : tracker.NoBonusAt is null && noBonusAtBefore is not null ? logEvent is LogEvent.CampStarted ? "; timeout paused" : "; timeout cancelled"
-            : "";
+        var timer = TimerChange(logEvent, noBonusAtBefore, tracker.NoBonusAt);
         if (logEvent is LogEvent.ZoneEntered || timer.Length > 0)
         {
             var what = logEvent switch
@@ -152,6 +150,14 @@ public class Scout
             await this._reporter.ReportAsync(report);
         }
     }
+
+    string TimerChange(LogEvent logEvent, DateTimeOffset? before, DateTimeOffset? after) => (before, after) switch
+    {
+        (_, { } at) when at != before => $"; waiting for timeout at {ClockTime(at)}",
+        (not null, null) when logEvent is LogEvent.CampStarted => "; timeout paused",
+        (not null, null) => "; timeout cancelled",
+        _ => "",
+    };
 
     string ClockTime(DateTimeOffset at) => TimeZoneInfo.ConvertTime(at, this._time.LocalTimeZone).ToString("HH:mm:ss", CultureInfo.InvariantCulture);
 
