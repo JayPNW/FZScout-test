@@ -27,4 +27,44 @@ public class AppStatusTests
     {
         Assert.Equal(TrayIconState.Error, new AppStatus([Bowslinger], HasApiKey: true, LastOperationFailed: true, EqRunning: true).IconState);
     }
+
+    [Fact]
+    public void ToolTipSaysWhenEqIsNotRunning()
+    {
+        Assert.Equal("Resource Hunter Bonus Scout\nEverQuest is not running.", new AppStatus([Bowslinger], HasApiKey: true, LastOperationFailed: false, EqRunning: false).ToolTip);
+    }
+
+    [Fact]
+    public void ToolTipSaysWhenNoLogIsTailed()
+    {
+        Assert.Equal("Resource Hunter Bonus Scout\nNo EverQuest log is being watched.", new AppStatus([], HasApiKey: true, LastOperationFailed: false, EqRunning: true).ToolTip);
+    }
+
+    [Fact]
+    public void ToolTipListsEachCharactersZone()
+    {
+        CharacterStatus lost = new("Lostling", "Fangbreaker", Zone: null);
+
+        Assert.Equal("Resource Hunter Bonus Scout\nThe Halls of Honor\nunknown zone", new AppStatus([Bowslinger, lost], HasApiKey: true, LastOperationFailed: false, EqRunning: true).ToolTip);
+    }
+
+    [Fact]
+    public void ToolTipSaysWhenWaitingForBonus()
+    {
+        var at = new DateTimeOffset(2026, 10, 29, 22, 42, 10, TimeSpan.Zero);
+        var waiting = Bowslinger with { Zone = "Crushbone", NoBonusAt = at };
+
+        Assert.Equal($"Resource Hunter Bonus Scout\nCrushbone, waiting for bonus until {at.ToLocalTime():T}", new AppStatus([waiting], HasApiKey: true, LastOperationFailed: false, EqRunning: true).ToolTip);
+    }
+
+    [Fact]
+    public void ToolTipIsTruncatedTo127Characters()
+    {
+        var characters = Enumerable.Repeat(Bowslinger, 10).ToList();
+
+        var toolTip = new AppStatus(characters, HasApiKey: true, LastOperationFailed: false, EqRunning: true).ToolTip;
+
+        Assert.Equal(127, toolTip.Length);
+        Assert.EndsWith("…", toolTip);
+    }
 }

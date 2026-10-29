@@ -7,6 +7,5 @@
         <BooleanToVisibilityConverter x:Key="VisibleWhenTrue" />
         <views:InverseBooleanToVisibilityConverter x:Key="VisibleWhenFalse" />
         <views:IconStateToImageConverter x:Key="IconStateToImage" />
-        <views:StatusToToolTipConverter x:Key="StatusToToolTip" />
     </Application.Resources>
 </Application>

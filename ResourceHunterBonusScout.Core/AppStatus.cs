@@ -9,4 +9,37 @@ public record AppStatus(IReadOnlyList<CharacterStatus> Characters, bool HasApiKe
         => LastOperationFailed || !HasApiKey ? TrayIconState.Error
         : Characters.Count > 0 ? TrayIconState.Active
         : TrayIconState.Idle;
+
+    // Windows cuts tray tooltips off at 127 characters.
+    const int MaxToolTipLength = 127;
+
+    public string ToolTip
+    {
+        get
+        {
+            var text = string.Join("\n", ["Resource Hunter Bonus Scout", .. ToolTipLines()]);
+            return text.Length <= MaxToolTipLength ? text : text[..(MaxToolTipLength - 1)] + "…";
+        }
+    }
+
+    IEnumerable<string> ToolTipLines()
+    {
+        if (!EqRunning)
+        {
+            return ["EverQuest is not running."];
+        }
+
+        if (Characters.Count == 0)
+        {
+            return ["No EverQuest log is being watched."];
+        }
+
+        return Characters.Select(ToolTipLine);
+    }
+
+    static string ToolTipLine(CharacterStatus c)
+    {
+        var line = c.Zone ?? "unknown zone";
+        return c.NoBonusAt is { } at ? $"{line}, waiting for bonus until {at.ToLocalTime():T}" : line;
+    }
 }
