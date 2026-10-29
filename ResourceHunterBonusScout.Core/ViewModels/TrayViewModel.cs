@@ -8,9 +8,9 @@ public partial class TrayViewModel : ObservableObject
     [ObservableProperty]
     public partial AppStatus Status { get; set; } = new([], HasApiKey: false, LastOperationFailed: false);
 
-    public event EventHandler SettingsRequested = delegate{};
-    public event EventHandler LogRequested = delegate{};
-    public event EventHandler ExitRequested = delegate{};
+    public event EventHandler SettingsRequested = delegate { };
+    public event EventHandler LogRequested = delegate { };
+    public event EventHandler ExitRequested = delegate { };
 
     [RelayCommand]
     void ShowSettings() => SettingsRequested(this, EventArgs.Empty);
