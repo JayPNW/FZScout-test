@@ -5,20 +5,6 @@ namespace ResourceHunterBonusScout.Logs;
 /// <summary>A log line that matters for reporting.</summary>
 public abstract partial record LogEvent
 {
-    /// <summary>The zone name as the log spells it.</summary>
-    public record ZoneEntered(string Zone) : LogEvent;
-
-    public record BonusMessage(string BonusKey) : LogEvent;
-
-    /// <summary><c>You have slain {mob}!</c></summary>
-    public record Kill : LogEvent;
-
-    public record CampStarted : LogEvent;
-
-    public record CampAbandoned : LogEvent;
-
-    public record DailyReset : LogEvent;
-
     static readonly (string Ending, string BonusKey)[] BonusMessages =
     [
         ("improving the experiences of all who venture here.", "experience"),
@@ -39,23 +25,37 @@ public abstract partial record LogEvent
         var text = StripTimestamp(line);
 
         if (ZoneEnteredRegex().Match(text) is { Success: true } zoneEntered)
+        {
             return new ZoneEntered(zoneEntered.Groups["zone"].Value);
+        }
 
         foreach (var (ending, bonusKey) in BonusMessages)
+        {
             if (text.EndsWith(ending, StringComparison.Ordinal))
+            {
                 return new BonusMessage(bonusKey);
+            }
+        }
 
         if (text.StartsWith("You have slain ", StringComparison.Ordinal) && text.EndsWith('!'))
+        {
             return new Kill();
+        }
 
         if (text == "It will take you about 30 seconds to prepare your camp.")
+        {
             return new CampStarted();
+        }
 
         if (text == "You abandon your preparations to camp.")
+        {
             return new CampAbandoned();
+        }
 
         if (text.StartsWith("Fonts of unstable magic are erupting", StringComparison.Ordinal))
+        {
             return new DailyReset();
+        }
 
         return null;
     }
@@ -67,8 +67,25 @@ public abstract partial record LogEvent
     static string StripTimestamp(string line)
     {
         if (!line.StartsWith('['))
+        {
             return line;
+        }
+
         var end = line.IndexOf("] ", StringComparison.Ordinal);
         return end < 0 ? line : line[(end + 2)..];
     }
+
+    /// <summary>The zone name as the log spells it.</summary>
+    public record ZoneEntered(string Zone) : LogEvent;
+
+    public record BonusMessage(string BonusKey) : LogEvent;
+
+    /// <summary><c>You have slain {mob}!</c></summary>
+    public record Kill : LogEvent;
+
+    public record CampStarted : LogEvent;
+
+    public record CampAbandoned : LogEvent;
+
+    public record DailyReset : LogEvent;
 }

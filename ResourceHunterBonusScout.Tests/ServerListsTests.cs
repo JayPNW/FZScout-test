@@ -2,7 +2,7 @@
 
 public class ServerListsTests
 {
-    readonly ServerLists lists = new(["experience"],
+    readonly ServerLists _lists = new(["experience"],
     [
         "Halls of Honor", "The Feerrott", "Thurgadin", "The Ruins of Illsalin", "Kael Drakkal",
         "Deepest Guk", "Deepest Guk: The Rescue", "Tirranun's Delve",
@@ -20,7 +20,7 @@ public class ServerListsTests
     [InlineData("Tirranun's Delve: Grounding the Drakes", "Tirranun's Delve")]
     public void FindsTheSiteSpelling(string logZone, string siteZone)
     {
-        Assert.Equal(siteZone, lists.FindZone(logZone));
+        Assert.Equal(siteZone, this._lists.FindZone(logZone));
     }
 
     [Theory]
@@ -29,6 +29,6 @@ public class ServerListsTests
     [InlineData("Guild Hall: Bowslinger's Guild")]
     public void UnknownZone(string logZone)
     {
-        Assert.Null(lists.FindZone(logZone));
+        Assert.Null(this._lists.FindZone(logZone));
     }
 }

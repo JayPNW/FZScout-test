@@ -9,31 +9,31 @@ public class Scout
 {
     public static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(1);
 
-    readonly LogWatcher watcher;
-    readonly ServerListCache lists;
-    readonly BonusReporter reporter;
-    readonly ErrorState errors = new();
-    readonly IApiKeyStore apiKeyStore;
-    readonly INotifier notifier;
-    readonly IAppLog log;
-    readonly TimeProvider time;
-    readonly Dictionary<string, CharacterTracker> trackers = new(StringComparer.OrdinalIgnoreCase);
+    readonly LogWatcher _watcher;
+    readonly ServerListCache _lists;
+    readonly BonusReporter _reporter;
+    readonly ErrorState _errors = new();
+    readonly IApiKeyStore _apiKeyStore;
+    readonly INotifier _notifier;
+    readonly IAppLog _log;
+    readonly TimeProvider _time;
+    readonly Dictionary<string, CharacterTracker> _trackers = new(StringComparer.OrdinalIgnoreCase);
 
     public Scout(IEqProcesses eqProcesses, IBonusApi api, IApiKeyStore apiKeyStore, INotifier notifier, IAppLog log, TimeProvider time)
     {
-        this.apiKeyStore = apiKeyStore;
-        this.notifier = notifier;
-        this.log = log;
-        this.time = time;
-        watcher = new(eqProcesses, log, time);
-        lists = new(api, errors, log, time);
-        reporter = new(api, apiKeyStore, lists, errors, notifier, log, time);
+        this._apiKeyStore = apiKeyStore;
+        this._notifier = notifier;
+        this._log = log;
+        this._time = time;
+        this._watcher = new(eqProcesses, log, time);
+        this._lists = new(api, this._errors, log, time);
+        this._reporter = new(api, apiKeyStore, this._lists, this._errors, notifier, log, time);
         Status = CurrentStatus();
     }
 
-    public AppStatus Status { get; private set; }
-
     public event EventHandler StatusChanged = delegate { };
+
+    public AppStatus Status { get; private set; }
 
     /// <summary>Loads every server's lists. The lists are public, so this can't check the API key.</summary>
     /// <returns>The servers whose sites can't be reached.</returns>
@@ -41,58 +41,82 @@ public class Scout
     {
         var unreachable = new List<Server>();
         foreach (var server in Server.All)
-            if (await lists.LoadAsync(server) == LoadOutcome.CouldNotConnect)
+        {
+            if (await this._lists.LoadAsync(server) == LoadOutcome.CouldNotConnect)
+            {
                 unreachable.Add(server);
+            }
+        }
+
         UpdateStatus();
         return unreachable;
     }
 
     public async Task PollAsync()
     {
-        var poll = watcher.Poll();
+        var poll = this._watcher.Poll();
         if (poll.LoggingHintNeeded)
-            notifier.LoggingOff();
+        {
+            this._notifier.LoggingOff();
+        }
 
         await SyncTrackersAsync();
 
         foreach (var (activeLog, lines) in poll.NewLines)
+        {
             foreach (var line in lines)
-                await HandleAsync(trackers[activeLog.Path], line);
+            {
+                await HandleAsync(this._trackers[activeLog.Path], line);
+            }
+        }
 
-        foreach (var tracker in trackers.Values.ToList())
+        foreach (var tracker in this._trackers.Values.ToList())
+        {
             if (tracker.Tick() is { } report)
-                await reporter.ReportAsync(report);
+            {
+                await this._reporter.ReportAsync(report);
+            }
+        }
 
-        await lists.TickAsync();
-        await reporter.TickAsync();
+        await this._lists.TickAsync();
+        await this._reporter.TickAsync();
         UpdateStatus();
     }
 
     async Task SyncTrackersAsync()
     {
-        var active = watcher.ActiveLogs;
-        foreach (var path in trackers.Keys.Except(active.Select(l => l.Path), StringComparer.OrdinalIgnoreCase).ToList())
-            trackers.Remove(path);
-
-        foreach (var activeLog in active.Where(l => !trackers.ContainsKey(l.Path)))
+        var active = this._watcher.ActiveLogs;
+        foreach (var path in this._trackers.Keys.Except(active.Select(l => l.Path), StringComparer.OrdinalIgnoreCase).ToList())
         {
-            trackers[activeLog.Path] = new(activeLog.Character, activeLog.Server, time);
-            await lists.GetAsync(activeLog.Server);
+            this._trackers.Remove(path);
+        }
+
+        foreach (var activeLog in active.Where(l => !this._trackers.ContainsKey(l.Path)))
+        {
+            this._trackers[activeLog.Path] = new(activeLog.Character, activeLog.Server, this._time);
+            await this._lists.GetAsync(activeLog.Server);
         }
     }
 
     async Task HandleAsync(CharacterTracker tracker, string line)
     {
         if (LogEvent.Parse(line) is not { } logEvent)
+        {
             return;
+        }
 
-        var serverLists = logEvent is LogEvent.ZoneEntered or LogEvent.BonusMessage ? await lists.GetAsync(tracker.Server) : null;
+        var serverLists = logEvent is LogEvent.ZoneEntered or LogEvent.BonusMessage ? await this._lists.GetAsync(tracker.Server) : null;
         var report = tracker.Handle(logEvent, serverLists);
 
         if (logEvent is LogEvent.ZoneEntered entered)
-            log.Write($"{tracker.Character} ({tracker.Server}) entered {entered.Zone}{(tracker.Zone is null ? ", which isn't on the zones list" : "")}");
+        {
+            this._log.Write($"{tracker.Character} ({tracker.Server}) entered {entered.Zone}{(tracker.Zone is null ? ", which isn't on the zones list" : "")}");
+        }
+
         if (report is not null)
-            await reporter.ReportAsync(report);
+        {
+            await this._reporter.ReportAsync(report);
+        }
     }
 
     void UpdateStatus()
@@ -101,14 +125,16 @@ public class Scout
         if (status.HasApiKey == Status.HasApiKey
             && status.LastOperationFailed == Status.LastOperationFailed
             && status.Characters.SequenceEqual(Status.Characters))
+        {
             return;
+        }
 
         Status = status;
         StatusChanged(this, EventArgs.Empty);
     }
 
     AppStatus CurrentStatus() => new(
-        trackers.Values.Select(t => new CharacterStatus(t.Character, t.Server.Name, t.Zone)).ToList(),
-        HasApiKey: apiKeyStore.Read() is not null,
-        errors.LastOperationFailed);
+        [.. this._trackers.Values.Select(t => new CharacterStatus(t.Character, t.Server.Name, t.Zone))],
+        HasApiKey: this._apiKeyStore.Read() is not null,
+        this._errors.LastOperationFailed);
 }

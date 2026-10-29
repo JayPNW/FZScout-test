@@ -15,26 +15,26 @@ public partial class App : Application
     static readonly string DataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ResourceHunterBonusScout");
     static readonly string Version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0.0.0";
 
-    readonly CancellationTokenSource stopping = new();
-    readonly DailyFileLog log = new(Path.Combine(DataFolder, "logs"), TimeProvider.System);
-    readonly CredentialApiKeyStore apiKeyStore = new();
-    readonly Settings settings;
-    TrayIcon? trayIcon;
-    SettingsWindow? settingsWindow;
+    readonly CancellationTokenSource _stopping = new();
+    readonly DailyFileLog _log = new(Path.Combine(DataFolder, "logs"), TimeProvider.System);
+    readonly CredentialApiKeyStore _apiKeyStore = new();
+    readonly Settings _settings;
+    TrayIcon? _trayIcon;
+    SettingsWindow? _settingsWindow;
 
     public App()
     {
-        settings = new(apiKeyStore, new RegistryStartWithWindows());
+        this._settings = new(this._apiKeyStore, new RegistryStartWithWindows());
     }
 
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        log.Write(new string('-', 80));
-        log.Write($"Started version {Version}");
+        this._log.Write(new string('-', 80));
+        this._log.Write($"Started version {Version}");
         DispatcherUnhandledException += (_, args) =>
         {
-            log.Write($"Unexpected error: {args.Exception}");
+            this._log.Write($"Unexpected error: {args.Exception}");
             args.Handled = true;
         };
 
@@ -42,25 +42,32 @@ public partial class App : Application
         trayViewModel.SettingsRequested += delegate { ShowSettings(); };
         trayViewModel.LogRequested += delegate { OpenTodaysLog(); };
         trayViewModel.ExitRequested += delegate { Quit(); };
-        trayIcon = new TrayIcon { DataContext = trayViewModel };
-        trayIcon.ForceCreate(enablesEfficiencyMode: false);
+        this._trayIcon = new TrayIcon { DataContext = trayViewModel };
+        this._trayIcon.ForceCreate(enablesEfficiencyMode: false);
 
         var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         httpClient.DefaultRequestHeaders.UserAgent.Add(new("ResourceHunterBonusScout", Version));
-        var scout = new Scout(new EqProcesses(), new BonusApi(httpClient), apiKeyStore, new TrayNotifier(trayIcon, ShowSettings), log, TimeProvider.System);
+        var scout = new Scout(new EqProcesses(), new BonusApi(httpClient), this._apiKeyStore, new TrayNotifier(this._trayIcon, ShowSettings), this._log, TimeProvider.System);
         trayViewModel.Status = scout.Status;
         scout.StatusChanged += (_, _) => trayViewModel.Status = scout.Status;
 
-        if (apiKeyStore.Read() is null)
+        if (this._apiKeyStore.Read() is null)
+        {
             ShowSettings();
+        }
+
         if (TrayPin.ShouldShowHint())
+        {
             MessageWindow.ShowTrayIconHidden();
+        }
 
         var unreachable = await scout.CheckConnectionAsync();
         if (unreachable.Count > 0)
+        {
             MessageWindow.ShowCantConnect(unreachable);
+        }
 
-        _ = Updater.RunAsync(log, stopping.Token);
+        _ = Updater.RunAsync(this._log, this._stopping.Token);
         await PollAsync(scout);
     }
 
@@ -69,7 +76,7 @@ public partial class App : Application
         using var timer = new PeriodicTimer(Scout.PollInterval);
         try
         {
-            while (await timer.WaitForNextTickAsync(stopping.Token))
+            while (await timer.WaitForNextTickAsync(this._stopping.Token))
             {
                 try
                 {
@@ -77,7 +84,7 @@ public partial class App : Application
                 }
                 catch (Exception e)
                 {
-                    log.Write($"Unexpected error: {e}");
+                    this._log.Write($"Unexpected error: {e}");
                 }
             }
         }
@@ -88,26 +95,26 @@ public partial class App : Application
 
     void ShowSettings()
     {
-        if (settingsWindow is null)
+        if (this._settingsWindow is null)
         {
-            settingsWindow = new SettingsWindow(new SettingsViewModel(settings));
-            settingsWindow.Closed += delegate { settingsWindow = null; };
-            settingsWindow.Show();
+            this._settingsWindow = new SettingsWindow(new SettingsViewModel(this._settings));
+            this._settingsWindow.Closed += delegate { this._settingsWindow = null; };
+            this._settingsWindow.Show();
         }
-        settingsWindow.Activate();
+        this._settingsWindow.Activate();
     }
 
     void OpenTodaysLog()
     {
-        var path = File.Exists(log.TodaysFile) ? log.TodaysFile : Path.GetDirectoryName(log.TodaysFile)!;
+        var path = File.Exists(this._log.TodaysFile) ? this._log.TodaysFile : Path.GetDirectoryName(this._log.TodaysFile)!;
         Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
     }
 
     void Quit()
     {
-        log.Write("Exiting");
-        stopping.Cancel();
-        trayIcon?.Dispose();
+        this._log.Write("Exiting");
+        this._stopping.Cancel();
+        this._trayIcon?.Dispose();
         Shutdown();
     }
 }

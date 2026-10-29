@@ -5,7 +5,7 @@ namespace ResourceHunterBonusScout.Logs;
 /// <summary>Reads lines as they're added to a log file.</summary>
 public class LogTail(string path, long position)
 {
-    readonly StringBuilder partialLine = new();
+    readonly StringBuilder _partialLine = new();
 
     public string Path => path;
 
@@ -20,10 +20,12 @@ public class LogTail(string path, long position)
             {
                 // The file was replaced or truncated.
                 position = 0;
-                partialLine.Clear();
+                this._partialLine.Clear();
             }
             if (stream.Length == position)
+            {
                 return [];
+            }
 
             stream.Position = position;
             var bytes = new byte[stream.Length - position];
@@ -40,13 +42,15 @@ public class LogTail(string path, long position)
             return [];
         }
 
-        partialLine.Append(text);
-        var all = partialLine.ToString();
+        this._partialLine.Append(text);
+        var all = this._partialLine.ToString();
         var end = all.LastIndexOf('\n');
         if (end < 0)
+        {
             return [];
+        }
 
-        partialLine.Clear().Append(all[(end + 1)..]);
-        return all[..end].Split('\n').Select(line => line.TrimEnd('\r')).ToList();
+        this._partialLine.Clear().Append(all[(end + 1)..]);
+        return [.. all[..end].Split('\n').Select(line => line.TrimEnd('\r'))];
     }
 }

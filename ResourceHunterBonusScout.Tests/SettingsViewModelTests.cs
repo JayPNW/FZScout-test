@@ -4,22 +4,22 @@ namespace ResourceHunterBonusScout.Tests;
 
 public class SettingsViewModelTests
 {
-    readonly InMemoryApiKeyStore apiKeyStore = new();
-    readonly FakeStartWithWindows startWithWindows = new();
-    int closeRequests;
+    readonly InMemoryApiKeyStore _apiKeyStore = new();
+    readonly FakeStartWithWindows _startWithWindows = new();
+    int _closeRequests;
 
     SettingsViewModel Open()
     {
-        var viewModel = new SettingsViewModel(new Settings(apiKeyStore, startWithWindows));
-        viewModel.CloseRequested += (_, _) => closeRequests++;
+        var viewModel = new SettingsViewModel(new Settings(this._apiKeyStore, this._startWithWindows));
+        viewModel.CloseRequested += (_, _) => this._closeRequests++;
         return viewModel;
     }
 
     [Fact]
     public void OpensWithStoredValues()
     {
-        apiKeyStore.ApiKey = "fz_live_abc";
-        startWithWindows.IsEnabled = false;
+        this._apiKeyStore.ApiKey = "fz_live_abc";
+        this._startWithWindows.IsEnabled = false;
 
         var viewModel = Open();
 
@@ -38,10 +38,10 @@ public class SettingsViewModelTests
 
         viewModel.SaveCommand.Execute(null);
 
-        Assert.Equal("fz_live_abc", apiKeyStore.ApiKey);
-        Assert.True(startWithWindows.IsEnabled);
+        Assert.Equal("fz_live_abc", this._apiKeyStore.ApiKey);
+        Assert.True(this._startWithWindows.IsEnabled);
         Assert.False(viewModel.IsApiKeyRejected);
-        Assert.Equal(1, closeRequests);
+        Assert.Equal(1, this._closeRequests);
     }
 
     [Fact]
@@ -53,8 +53,8 @@ public class SettingsViewModelTests
         viewModel.SaveCommand.Execute(null);
 
         Assert.True(viewModel.IsApiKeyRejected);
-        Assert.Null(apiKeyStore.ApiKey);
-        Assert.Equal(0, closeRequests);
+        Assert.Null(this._apiKeyStore.ApiKey);
+        Assert.Equal(0, this._closeRequests);
     }
 
     [Fact]
@@ -71,13 +71,13 @@ public class SettingsViewModelTests
     [Fact]
     public void CancelClosesWithoutSaving()
     {
-        apiKeyStore.ApiKey = "fz_live_old";
+        this._apiKeyStore.ApiKey = "fz_live_old";
         var viewModel = Open();
         viewModel.ApiKey = "fz_live_new";
 
         viewModel.CancelCommand.Execute(null);
 
-        Assert.Equal("fz_live_old", apiKeyStore.ApiKey);
-        Assert.Equal(1, closeRequests);
+        Assert.Equal("fz_live_old", this._apiKeyStore.ApiKey);
+        Assert.Equal(1, this._closeRequests);
     }
 }

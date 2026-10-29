@@ -7,31 +7,11 @@ namespace ResourceHunterBonusScout.Services;
 
 public class BonusApi(HttpClient http) : IBonusApi
 {
-    record Response<T>(bool Ok, T[]? Data);
-    record BonusType(string Key);
-    record Zone(string Name);
-    record Bonus(string ServerName, string ZoneName, string BonusKey);
-
     public async Task<IReadOnlyList<string>> GetBonusKeysAsync(Server server)
-        => (await GetAsync<BonusType>(server, "types")).Select(t => t.Key).ToList();
+        => [.. (await GetAsync<BonusType>(server, "types")).Select(t => t.Key)];
 
     public async Task<IReadOnlyList<string>> GetZonesAsync(Server server)
-        => (await GetAsync<Zone>(server, "zones")).Select(z => z.Name).ToList();
-
-    async Task<T[]> GetAsync<T>(Server server, string list)
-    {
-        var uri = new Uri(server.Site, $"api/servers/{server.Name.ToLowerInvariant()}/bonuses/{list}");
-        try
-        {
-            var response = await http.GetFromJsonAsync<Response<T>>(uri);
-            return response?.Data ?? throw new HttpRequestException($"{uri} returned no data");
-        }
-        // A timeout counts as a network error.
-        catch (Exception e) when (e is JsonException or TaskCanceledException)
-        {
-            throw new HttpRequestException($"{uri}: {e.Message}", e);
-        }
-    }
+        => [.. (await GetAsync<Zone>(server, "zones")).Select(z => z.Name)];
 
     public async Task<HttpStatusCode> ReportAsync(BonusReport report, string apiKey)
     {
@@ -50,4 +30,24 @@ public class BonusApi(HttpClient http) : IBonusApi
             throw new HttpRequestException($"{request.RequestUri}: {e.Message}", e);
         }
     }
+
+    async Task<T[]> GetAsync<T>(Server server, string list)
+    {
+        var uri = new Uri(server.Site, $"api/servers/{server.Name.ToLowerInvariant()}/bonuses/{list}");
+        try
+        {
+            var response = await http.GetFromJsonAsync<Response<T>>(uri);
+            return response?.Data ?? throw new HttpRequestException($"{uri} returned no data");
+        }
+        // A timeout counts as a network error.
+        catch (Exception e) when (e is JsonException or TaskCanceledException)
+        {
+            throw new HttpRequestException($"{uri}: {e.Message}", e);
+        }
+    }
+
+    record Response<T>(bool Ok, T[]? Data);
+    record BonusType(string Key);
+    record Zone(string Name);
+    record Bonus(string ServerName, string ZoneName, string BonusKey);
 }

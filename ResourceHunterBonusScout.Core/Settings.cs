@@ -7,29 +7,31 @@ public class Settings
 {
     public const string ApiKeyPrefix = "fz_live_";
 
-    readonly IApiKeyStore apiKeyStore;
-    readonly IStartWithWindows startWithWindows;
+    readonly IApiKeyStore _apiKeyStore;
+    readonly IStartWithWindows _startWithWindows;
 
     public Settings(IApiKeyStore apiKeyStore, IStartWithWindows startWithWindows)
     {
-        this.apiKeyStore = apiKeyStore;
-        this.startWithWindows = startWithWindows;
+        this._apiKeyStore = apiKeyStore;
+        this._startWithWindows = startWithWindows;
     }
 
-    public string ApiKey => apiKeyStore.Read() ?? "";
+    public string ApiKey => this._apiKeyStore.Read() ?? "";
 
     // With no key, nothing has been saved yet, so use the default.
-    public bool StartWithWindows => apiKeyStore.Read() is null || startWithWindows.IsEnabled;
+    public bool StartWithWindows => this._apiKeyStore.Read() is null || this._startWithWindows.IsEnabled;
 
     /// <returns>False, saving nothing, when the key doesn't start with <see cref="ApiKeyPrefix"/>.</returns>
     public bool TrySave(string apiKey, bool startWithWindows)
     {
         apiKey = apiKey.Trim();
         if (!apiKey.StartsWith(ApiKeyPrefix, StringComparison.Ordinal))
+        {
             return false;
+        }
 
-        apiKeyStore.Write(apiKey);
-        this.startWithWindows.IsEnabled = startWithWindows;
+        this._apiKeyStore.Write(apiKey);
+        this._startWithWindows.IsEnabled = startWithWindows;
         return true;
     }
 }

@@ -10,21 +10,17 @@ public class ServerListCache(IBonusApi api, ErrorState errors, IAppLog log, Time
     public static readonly TimeSpan MaxAge = TimeSpan.FromHours(1);
     public static readonly TimeSpan RetryDelay = TimeSpan.FromMinutes(1);
 
-    class Entry
-    {
-        public ServerLists? Lists;
-        public DateTimeOffset LoadedAt;
-        public DateTimeOffset? RetryAt;
-    }
-
-    readonly Dictionary<Server, Entry> entries = [];
+    readonly Dictionary<Server, Entry> _entries = [];
 
     /// <returns>The lists, loading them if they're missing or old. While a retry is waiting, the old lists, or null.</returns>
     public async Task<ServerLists?> GetAsync(Server server)
     {
         var entry = EntryFor(server);
         if (entry.RetryAt is null && (entry.Lists is null || time.GetUtcNow() - entry.LoadedAt >= MaxAge))
+        {
             await LoadAsync(server, isRetry: false);
+        }
+
         return entry.Lists;
     }
 
@@ -35,8 +31,10 @@ public class ServerListCache(IBonusApi api, ErrorState errors, IAppLog log, Time
     public async Task TickAsync()
     {
         var now = time.GetUtcNow();
-        foreach (var server in entries.Where(e => e.Value.RetryAt <= now).Select(e => e.Key).ToList())
+        foreach (var server in this._entries.Where(e => e.Value.RetryAt <= now).Select(e => e.Key).ToList())
+        {
             await LoadAsync(server, isRetry: true);
+        }
     }
 
     async Task<LoadOutcome> LoadAsync(Server server, bool isRetry)
@@ -59,15 +57,28 @@ public class ServerListCache(IBonusApi api, ErrorState errors, IAppLog log, Time
             errors.Failed();
             // After a failed retry, try again the next time the lists are needed.
             if (!isRetry)
+            {
                 entry.RetryAt = time.GetUtcNow() + RetryDelay;
+            }
+
             return e.StatusCode is null || (int)e.StatusCode >= 500 ? LoadOutcome.CouldNotConnect : LoadOutcome.Failed;
         }
     }
 
     Entry EntryFor(Server server)
     {
-        if (!entries.TryGetValue(server, out var entry))
-            entries[server] = entry = new();
+        if (!this._entries.TryGetValue(server, out var entry))
+        {
+            this._entries[server] = entry = new();
+        }
+
         return entry;
+    }
+
+    class Entry
+    {
+        public ServerLists? Lists;
+        public DateTimeOffset LoadedAt;
+        public DateTimeOffset? RetryAt;
     }
 }

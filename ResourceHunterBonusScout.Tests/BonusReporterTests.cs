@@ -8,56 +8,56 @@ public class BonusReporterTests
 {
     static readonly BonusReport CrushboneLoot = new("Bowslinger", Server.Fangbreaker, "Crushbone", "loot");
 
-    readonly FakeTimeProvider time = new();
-    readonly FakeBonusApi api = new();
-    readonly InMemoryApiKeyStore apiKeyStore = new() { ApiKey = "fz_live_abc" };
-    readonly ErrorState errors = new();
-    readonly FakeNotifier notifier = new();
-    readonly ListLog log = new();
-    readonly BonusReporter reporter;
+    readonly FakeTimeProvider _time = new();
+    readonly FakeBonusApi _api = new();
+    readonly InMemoryApiKeyStore _apiKeyStore = new() { ApiKey = "fz_live_abc" };
+    readonly ErrorState _errors = new();
+    readonly FakeNotifier _notifier = new();
+    readonly ListLog _log = new();
+    readonly BonusReporter _reporter;
 
     public BonusReporterTests()
     {
-        reporter = new(api, apiKeyStore, new(api, errors, log, time), errors, notifier, log, time);
+        this._reporter = new(this._api, this._apiKeyStore, new(this._api, this._errors, this._log, this._time), this._errors, this._notifier, this._log, this._time);
     }
 
     async Task WaitForRetry()
     {
-        time.Advance(BonusReporter.RetryDelay);
-        await reporter.TickAsync();
+        this._time.Advance(BonusReporter.RetryDelay);
+        await this._reporter.TickAsync();
     }
 
     [Fact]
     public async Task SendsTheReportWithTheKey()
     {
-        errors.Failed();
+        this._errors.Failed();
 
-        await reporter.ReportAsync(CrushboneLoot);
+        await this._reporter.ReportAsync(CrushboneLoot);
 
-        Assert.Equal([(CrushboneLoot, "fz_live_abc")], api.Reports);
-        Assert.False(errors.LastOperationFailed);
+        Assert.Equal([(CrushboneLoot, "fz_live_abc")], this._api.Reports);
+        Assert.False(this._errors.LastOperationFailed);
     }
 
     [Fact]
     public async Task NeverLogsTheKey()
     {
-        api.Respond = _ => HttpStatusCode.Unauthorized;
+        this._api.Respond = _ => HttpStatusCode.Unauthorized;
 
-        await reporter.ReportAsync(CrushboneLoot);
-        await reporter.ReportAsync(CrushboneLoot);
+        await this._reporter.ReportAsync(CrushboneLoot);
+        await this._reporter.ReportAsync(CrushboneLoot);
 
-        Assert.NotEmpty(log.Lines);
-        Assert.DoesNotContain(log.Lines, line => line.Contains("fz_live_abc"));
+        Assert.NotEmpty(this._log.Lines);
+        Assert.DoesNotContain(this._log.Lines, line => line.Contains("fz_live_abc"));
     }
 
     [Fact]
     public async Task NothingIsSentWithoutAKey()
     {
-        apiKeyStore.ApiKey = null;
+        this._apiKeyStore.ApiKey = null;
 
-        await reporter.ReportAsync(CrushboneLoot);
+        await this._reporter.ReportAsync(CrushboneLoot);
 
-        Assert.Empty(api.Reports);
+        Assert.Empty(this._api.Reports);
     }
 
     [Theory]
@@ -65,104 +65,104 @@ public class BonusReporterTests
     [InlineData(HttpStatusCode.TooManyRequests)]
     public async Task ServerErrorRetriesOnceAfterAMinute(HttpStatusCode status)
     {
-        api.Respond = _ => status;
+        this._api.Respond = _ => status;
 
-        await reporter.ReportAsync(CrushboneLoot);
-        Assert.True(errors.LastOperationFailed);
+        await this._reporter.ReportAsync(CrushboneLoot);
+        Assert.True(this._errors.LastOperationFailed);
 
-        time.Advance(BonusReporter.RetryDelay - TimeSpan.FromSeconds(1));
-        await reporter.TickAsync();
-        Assert.Single(api.Reports);
+        this._time.Advance(BonusReporter.RetryDelay - TimeSpan.FromSeconds(1));
+        await this._reporter.TickAsync();
+        Assert.Single(this._api.Reports);
 
-        time.Advance(TimeSpan.FromSeconds(1));
-        await reporter.TickAsync();
-        Assert.Equal(2, api.Reports.Count);
+        this._time.Advance(TimeSpan.FromSeconds(1));
+        await this._reporter.TickAsync();
+        Assert.Equal(2, this._api.Reports.Count);
 
         await WaitForRetry();
-        Assert.Equal(2, api.Reports.Count);
+        Assert.Equal(2, this._api.Reports.Count);
     }
 
     [Fact]
     public async Task NetworkErrorRetries()
     {
-        api.Respond = _ => throw new HttpRequestException("network");
+        this._api.Respond = _ => throw new HttpRequestException("network");
 
-        await reporter.ReportAsync(CrushboneLoot);
-        api.Respond = _ => HttpStatusCode.OK;
+        await this._reporter.ReportAsync(CrushboneLoot);
+        this._api.Respond = _ => HttpStatusCode.OK;
         await WaitForRetry();
 
-        Assert.Equal(2, api.Reports.Count);
-        Assert.False(errors.LastOperationFailed);
+        Assert.Equal(2, this._api.Reports.Count);
+        Assert.False(this._errors.LastOperationFailed);
     }
 
     [Fact]
     public async Task NewerReportReplacesAWaitingRetry()
     {
-        api.Respond = _ => HttpStatusCode.InternalServerError;
-        await reporter.ReportAsync(CrushboneLoot with { BonusKey = "none" });
-        await reporter.ReportAsync(CrushboneLoot with { Zone = "Thurgadin" });
-        await reporter.ReportAsync(CrushboneLoot);
+        this._api.Respond = _ => HttpStatusCode.InternalServerError;
+        await this._reporter.ReportAsync(CrushboneLoot with { BonusKey = "none" });
+        await this._reporter.ReportAsync(CrushboneLoot with { Zone = "Thurgadin" });
+        await this._reporter.ReportAsync(CrushboneLoot);
 
-        api.Reports.Clear();
+        this._api.Reports.Clear();
         await WaitForRetry();
 
-        Assert.Equal(["Crushbone loot", "Thurgadin loot"], api.Reports.Select(r => $"{r.Report.Zone} {r.Report.BonusKey}").Order());
+        Assert.Equal(["Crushbone loot", "Thurgadin loot"], this._api.Reports.Select(r => $"{r.Report.Zone} {r.Report.BonusKey}").Order());
     }
 
     [Fact]
     public async Task BadRequestIsNotRetried()
     {
-        api.Respond = _ => HttpStatusCode.BadRequest;
+        this._api.Respond = _ => HttpStatusCode.BadRequest;
 
-        await reporter.ReportAsync(CrushboneLoot);
+        await this._reporter.ReportAsync(CrushboneLoot);
         await WaitForRetry();
 
-        Assert.Single(api.Reports);
-        Assert.True(errors.LastOperationFailed);
+        Assert.Single(this._api.Reports);
+        Assert.True(this._errors.LastOperationFailed);
     }
 
     [Fact]
     public async Task RejectedKeyStopsReportingUntilTheKeyChanges()
     {
-        api.Respond = _ => HttpStatusCode.Unauthorized;
+        this._api.Respond = _ => HttpStatusCode.Unauthorized;
 
-        await reporter.ReportAsync(CrushboneLoot);
+        await this._reporter.ReportAsync(CrushboneLoot);
         await WaitForRetry();
-        await reporter.ReportAsync(CrushboneLoot with { Server = Server.Frostreaver });
+        await this._reporter.ReportAsync(CrushboneLoot with { Server = Server.Frostreaver });
 
-        Assert.Single(api.Reports);
-        Assert.Equal(["ApiKeyRejected"], notifier.Notifications);
+        Assert.Single(this._api.Reports);
+        Assert.Equal(["ApiKeyRejected"], this._notifier.Notifications);
 
-        apiKeyStore.ApiKey = "fz_live_new";
-        api.Respond = _ => HttpStatusCode.OK;
-        await reporter.ReportAsync(CrushboneLoot);
+        this._apiKeyStore.ApiKey = "fz_live_new";
+        this._api.Respond = _ => HttpStatusCode.OK;
+        await this._reporter.ReportAsync(CrushboneLoot);
 
-        Assert.Equal("fz_live_new", api.Reports[^1].ApiKey);
+        Assert.Equal("fz_live_new", this._api.Reports[^1].ApiKey);
     }
 
     [Fact]
     public async Task BannedStopsReportingToThatSite()
     {
-        api.Respond = r => r.Server == Server.Fangbreaker ? HttpStatusCode.Forbidden : HttpStatusCode.OK;
+        this._api.Respond = r => r.Server == Server.Fangbreaker ? HttpStatusCode.Forbidden : HttpStatusCode.OK;
 
-        await reporter.ReportAsync(CrushboneLoot);
-        await reporter.ReportAsync(CrushboneLoot);
-        await reporter.ReportAsync(CrushboneLoot with { Server = Server.Frostreaver });
+        await this._reporter.ReportAsync(CrushboneLoot);
+        await this._reporter.ReportAsync(CrushboneLoot);
+        await this._reporter.ReportAsync(CrushboneLoot with { Server = Server.Frostreaver });
 
-        Assert.Equal([Server.Fangbreaker, Server.Frostreaver], api.Reports.Select(r => r.Report.Server));
-        Assert.Equal(["Banned Fangbreaker"], notifier.Notifications);
+        Assert.Equal([Server.Fangbreaker, Server.Frostreaver], this._api.Reports.Select(r => r.Report.Server));
+        Assert.Equal(["Banned Fangbreaker"], this._notifier.Notifications);
     }
 
     [Fact]
     public async Task ZoneNotFoundReloadsTheLists()
     {
-        api.Respond = _ => HttpStatusCode.NotFound;
+        this._api.Respond = _ => HttpStatusCode.NotFound;
 
-        await reporter.ReportAsync(CrushboneLoot);
+        await this._reporter.ReportAsync(CrushboneLoot);
         await WaitForRetry();
 
-        Assert.Single(api.Reports);
-        Assert.Equal(1, api.ListLoads);
-        Assert.True(errors.LastOperationFailed);
+        Assert.Single(this._api.Reports);
+        Assert.Equal(1, this._api.ListLoads);
+        Assert.True(this._errors.LastOperationFailed);
     }
 }

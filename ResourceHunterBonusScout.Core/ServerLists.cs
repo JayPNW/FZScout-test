@@ -16,12 +16,12 @@ public class ServerLists
         ["Ruins of Lxanvom"] = "Crypt of Decay",
     };
 
-    readonly Dictionary<string, string> zones;
+    readonly Dictionary<string, string> _zones;
 
     public ServerLists(IEnumerable<string> bonusKeys, IEnumerable<string> zones)
     {
         BonusKeys = bonusKeys.ToHashSet();
-        this.zones = zones.DistinctBy(z => z, StringComparer.OrdinalIgnoreCase).ToDictionary(z => z, StringComparer.OrdinalIgnoreCase);
+        this._zones = zones.DistinctBy(z => z, StringComparer.OrdinalIgnoreCase).ToDictionary(z => z, StringComparer.OrdinalIgnoreCase);
     }
 
     public IReadOnlySet<string> BonusKeys { get; }
@@ -31,7 +31,9 @@ public class ServerLists
     public string? FindZone(string logZone)
     {
         if (Find(logZone) is { } zone)
+        {
             return zone;
+        }
 
         // Instances follow their parent zone.
         var separator = logZone.IndexOf(": ", StringComparison.Ordinal);
@@ -40,12 +42,21 @@ public class ServerLists
 
     string? Find(string logZone)
     {
-        if (zones.TryGetValue(logZone, out var zone))
+        if (this._zones.TryGetValue(logZone, out var zone))
+        {
             return zone;
-        if (logZone.StartsWith("The ", StringComparison.OrdinalIgnoreCase) && zones.TryGetValue(logZone[4..], out zone))
+        }
+
+        if (logZone.StartsWith("The ", StringComparison.OrdinalIgnoreCase) && this._zones.TryGetValue(logZone[4..], out zone))
+        {
             return zone;
-        if (Aliases.TryGetValue(logZone, out var alias) && zones.TryGetValue(alias, out zone))
+        }
+
+        if (Aliases.TryGetValue(logZone, out var alias) && this._zones.TryGetValue(alias, out zone))
+        {
             return zone;
+        }
+
         return null;
     }
 }

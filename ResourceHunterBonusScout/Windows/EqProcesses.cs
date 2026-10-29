@@ -13,9 +13,16 @@ class EqProcesses : IEqProcesses
     {
         var found = new List<EqProcess>();
         foreach (var process in Process.GetProcessesByName("eqgame"))
+        {
             using (process)
+            {
                 if (ExePath(process.Id) is { } path)
+                {
                     found.Add(new(process.Id, path));
+                }
+            }
+        }
+
         return found;
     }
 
@@ -24,7 +31,10 @@ class EqProcesses : IEqProcesses
     {
         var handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, processId);
         if (handle == IntPtr.Zero)
+        {
             return null;
+        }
+
         try
         {
             var path = new StringBuilder(1024);

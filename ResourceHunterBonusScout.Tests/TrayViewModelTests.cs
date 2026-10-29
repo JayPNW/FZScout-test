@@ -4,15 +4,16 @@ namespace ResourceHunterBonusScout.Tests;
 
 public class TrayViewModelTests
 {
-    readonly TrayViewModel viewModel = new();
+    readonly TrayViewModel _viewModel = new();
 
     [Fact]
     public void StatusChangeIsNotified()
     {
         var changed = new List<string?>();
-        viewModel.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+        this._viewModel.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 
-        viewModel.Status = viewModel.Status with { HasApiKey = true };
+        this._viewModel.Status = this._viewModel.Status with
+        { HasApiKey = true };
 
         Assert.Equal(["Status"], changed);
     }
@@ -21,13 +22,13 @@ public class TrayViewModelTests
     public void MenuCommandsRaiseEvents()
     {
         var raised = new List<string>();
-        viewModel.SettingsRequested += delegate { raised.Add("SettingsRequested"); };
-        viewModel.LogRequested += delegate { raised.Add("LogRequested"); };
-        viewModel.ExitRequested += delegate { raised.Add("ExitRequested"); };
+        this._viewModel.SettingsRequested += delegate { raised.Add("SettingsRequested"); };
+        this._viewModel.LogRequested += delegate { raised.Add("LogRequested"); };
+        this._viewModel.ExitRequested += delegate { raised.Add("ExitRequested"); };
 
-        viewModel.ShowSettingsCommand.Execute(null);
-        viewModel.OpenLogCommand.Execute(null);
-        viewModel.ExitCommand.Execute(null);
+        this._viewModel.ShowSettingsCommand.Execute(null);
+        this._viewModel.OpenLogCommand.Execute(null);
+        this._viewModel.ExitCommand.Execute(null);
 
         Assert.Equal(["SettingsRequested", "LogRequested", "ExitRequested"], raised);
     }

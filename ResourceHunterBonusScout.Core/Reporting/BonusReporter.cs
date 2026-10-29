@@ -8,14 +8,14 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
 {
     public static readonly TimeSpan RetryDelay = TimeSpan.FromMinutes(1);
 
-    readonly Dictionary<(string Character, Server Server, string Zone), (BonusReport Report, DateTimeOffset At)> retries = [];
-    readonly HashSet<Server> banned = [];
-    string? rejectedApiKey;
+    readonly Dictionary<(string Character, Server Server, string Zone), (BonusReport Report, DateTimeOffset At)> _retries = [];
+    readonly HashSet<Server> _banned = [];
+    string? _rejectedApiKey;
 
     public async Task ReportAsync(BonusReport report)
     {
         // A newer report replaces a waiting retry.
-        retries.Remove(RetryKey(report));
+        this._retries.Remove(RetryKey(report));
         await SendAsync(report, isRetry: false);
     }
 
@@ -23,9 +23,9 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
     public async Task TickAsync()
     {
         var now = time.GetUtcNow();
-        foreach (var (key, (report, _)) in retries.Where(r => r.Value.At <= now).ToList())
+        foreach (var (key, (report, _)) in this._retries.Where(r => r.Value.At <= now).ToList())
         {
-            retries.Remove(key);
+            this._retries.Remove(key);
             await SendAsync(report, isRetry: true);
         }
     }
@@ -37,8 +37,8 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
         var apiKey = apiKeyStore.Read();
         var skipReason =
             apiKey is null ? "no API key"
-            : apiKey == rejectedApiKey ? "the API key was rejected"
-            : banned.Contains(report.Server) ? $"banned on {report.Server}"
+            : apiKey == this._rejectedApiKey ? "the API key was rejected"
+            : this._banned.Contains(report.Server) ? $"banned on {report.Server}"
             : null;
         if (skipReason is not null)
         {
@@ -69,11 +69,11 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
             case HttpStatusCode.BadRequest:
                 break;
             case HttpStatusCode.Unauthorized:
-                rejectedApiKey = apiKey;
+                this._rejectedApiKey = apiKey;
                 notifier.ApiKeyRejected();
                 break;
             case HttpStatusCode.Forbidden:
-                banned.Add(report.Server);
+                this._banned.Add(report.Server);
                 notifier.Banned(report.Server);
                 break;
             case HttpStatusCode.NotFound:
@@ -81,7 +81,10 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
                 break;
             default:
                 if (!isRetry)
-                    retries[RetryKey(report)] = (report, time.GetUtcNow() + RetryDelay);
+                {
+                    this._retries[RetryKey(report)] = (report, time.GetUtcNow() + RetryDelay);
+                }
+
                 break;
         }
         // After the zones reload, so its success doesn't hide this failure.

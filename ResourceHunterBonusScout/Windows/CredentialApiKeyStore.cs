@@ -15,7 +15,10 @@ class CredentialApiKeyStore : IApiKeyStore
     public string? Read()
     {
         if (!CredRead(Target, CRED_TYPE_GENERIC, 0, out var credential))
+        {
             return null;
+        }
+
         try
         {
             var value = Marshal.PtrToStructure<CREDENTIAL>(credential);
@@ -42,13 +45,24 @@ class CredentialApiKeyStore : IApiKeyStore
                 UserName = Environment.UserName,
             };
             if (!CredWrite(ref credential, 0))
+            {
                 throw new Win32Exception();
+            }
         }
         finally
         {
             Marshal.ZeroFreeCoTaskMemUnicode(blob);
         }
     }
+
+    [DllImport("advapi32.dll", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
+    static extern bool CredRead(string target, uint type, uint flags, out IntPtr credential);
+
+    [DllImport("advapi32.dll", EntryPoint = "CredWriteW", CharSet = CharSet.Unicode, SetLastError = true)]
+    static extern bool CredWrite(ref CREDENTIAL credential, uint flags);
+
+    [DllImport("advapi32.dll")]
+    static extern void CredFree(IntPtr buffer);
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     struct CREDENTIAL
@@ -66,13 +80,4 @@ class CredentialApiKeyStore : IApiKeyStore
         public string? TargetAlias;
         public string? UserName;
     }
-
-    [DllImport("advapi32.dll", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
-    static extern bool CredRead(string target, uint type, uint flags, out IntPtr credential);
-
-    [DllImport("advapi32.dll", EntryPoint = "CredWriteW", CharSet = CharSet.Unicode, SetLastError = true)]
-    static extern bool CredWrite(ref CREDENTIAL credential, uint flags);
-
-    [DllImport("advapi32.dll")]
-    static extern void CredFree(IntPtr buffer);
 }

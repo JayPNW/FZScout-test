@@ -7,138 +7,138 @@ namespace ResourceHunterBonusScout.Tests;
 
 public sealed class ScoutTests : IDisposable
 {
-    readonly FakeTimeProvider time = new();
-    readonly FakeEqProcesses processes = new();
-    readonly FakeBonusApi api = new();
-    readonly InMemoryApiKeyStore apiKeyStore = new() { ApiKey = "fz_live_abc" };
-    readonly FakeNotifier notifier = new();
-    readonly EqFolder eq = new();
-    readonly Scout scout;
-    readonly string bowslinger;
+    readonly FakeTimeProvider _time = new();
+    readonly FakeEqProcesses _processes = new();
+    readonly FakeBonusApi _api = new();
+    readonly InMemoryApiKeyStore _apiKeyStore = new() { ApiKey = "fz_live_abc" };
+    readonly FakeNotifier _notifier = new();
+    readonly EqFolder _eq = new();
+    readonly Scout _scout;
+    readonly string _bowslinger;
 
     public ScoutTests()
     {
-        scout = new(processes, api, apiKeyStore, notifier, new ListLog(), time);
-        bowslinger = eq.LogPath("Bowslinger", "fangbreaker");
-        processes.Running.Add(new(1, eq.ExePath));
+        this._scout = new(this._processes, this._api, this._apiKeyStore, this._notifier, new ListLog(), this._time);
+        this._bowslinger = this._eq.LogPath("Bowslinger", "fangbreaker");
+        this._processes.Running.Add(new(1, this._eq.ExePath));
     }
 
-    public void Dispose() => eq.Dispose();
+    public void Dispose() => this._eq.Dispose();
 
     async Task Poll()
     {
-        time.Advance(LogWatcher.ScanInterval);
-        await scout.PollAsync();
+        this._time.Advance(LogWatcher.ScanInterval);
+        await this._scout.PollAsync();
     }
 
     [Fact]
     public async Task ReportsBonusesFromTheLog()
     {
         await Poll();
-        eq.Append(bowslinger,
+        this._eq.Append(this._bowslinger,
             "Welcome to EverQuest!",
             "You have entered The Halls of Honor.",
             "You have slain a Stillmoon leopard!",
             "This land is saturated with unstable magic, multiplying the loot that may be found here.");
         await Poll();
 
-        Assert.Equal([new BonusReport("Bowslinger", Server.Fangbreaker, "Halls of Honor", "loot")], api.Reports.Select(r => r.Report));
+        Assert.Equal([new BonusReport("Bowslinger", Server.Fangbreaker, "Halls of Honor", "loot")], this._api.Reports.Select(r => r.Report));
     }
 
     [Fact]
     public async Task ReportsNoBonus()
     {
         await Poll();
-        eq.Append(bowslinger, "You have entered Crushbone.");
+        this._eq.Append(this._bowslinger, "You have entered Crushbone.");
         await Poll();
 
-        time.Advance(CharacterTracker.NoBonusDelay);
-        await scout.PollAsync();
+        this._time.Advance(CharacterTracker.NoBonusDelay);
+        await this._scout.PollAsync();
 
-        Assert.Equal([new BonusReport("Bowslinger", Server.Fangbreaker, "Crushbone", "none")], api.Reports.Select(r => r.Report));
+        Assert.Equal([new BonusReport("Bowslinger", Server.Fangbreaker, "Crushbone", "none")], this._api.Reports.Select(r => r.Report));
     }
 
     [Fact]
     public async Task TimerIsCancelledWhenEqExits()
     {
         await Poll();
-        eq.Append(bowslinger, "You have entered Crushbone.");
+        this._eq.Append(this._bowslinger, "You have entered Crushbone.");
         await Poll();
 
-        processes.Running.Clear();
+        this._processes.Running.Clear();
         await Poll();
-        time.Advance(CharacterTracker.NoBonusDelay);
-        await scout.PollAsync();
+        this._time.Advance(CharacterTracker.NoBonusDelay);
+        await this._scout.PollAsync();
 
-        Assert.Empty(api.Reports);
+        Assert.Empty(this._api.Reports);
     }
 
     [Fact]
     public async Task StatusListsCharactersAndZones()
     {
         var changes = 0;
-        scout.StatusChanged += (_, _) => changes++;
+        this._scout.StatusChanged += (_, _) => changes++;
 
         await Poll();
-        eq.Append(bowslinger, "You have entered The Halls of Honor.");
-        eq.Append(eq.LogPath("Kixu", "frostreaver"), "You have entered The Bazaar.");
+        this._eq.Append(this._bowslinger, "You have entered The Halls of Honor.");
+        this._eq.Append(this._eq.LogPath("Kixu", "frostreaver"), "You have entered The Bazaar.");
         await Poll();
         await Poll();
 
         Assert.Equal(1, changes);
-        Assert.Equal(TrayIconState.Active, scout.Status.IconState);
+        Assert.Equal(TrayIconState.Active, this._scout.Status.IconState);
         Assert.Equal(
             [new CharacterStatus("Bowslinger", "Fangbreaker", "Halls of Honor"), new CharacterStatus("Kixu", "Frostreaver", null)],
-            scout.Status.Characters.OrderBy(c => c.Name));
+            this._scout.Status.Characters.OrderBy(c => c.Name));
     }
 
     [Fact]
     public async Task LoadsListsWhenAServersFirstLogBecomesActive()
     {
         await Poll();
-        Assert.Equal(0, api.ListLoads);
+        Assert.Equal(0, this._api.ListLoads);
 
-        eq.Append(bowslinger, "Welcome to EverQuest!");
+        this._eq.Append(this._bowslinger, "Welcome to EverQuest!");
         await Poll();
-        Assert.Equal(1, api.ListLoads);
+        Assert.Equal(1, this._api.ListLoads);
     }
 
     [Fact]
     public async Task FailedReportShowsTheErrorIcon()
     {
-        api.Respond = _ => HttpStatusCode.InternalServerError;
+        this._api.Respond = _ => HttpStatusCode.InternalServerError;
         await Poll();
-        eq.Append(bowslinger, "You have entered Crushbone.", "This land is saturated with unstable magic, multiplying the coin that may be found here.");
+        this._eq.Append(this._bowslinger, "You have entered Crushbone.", "This land is saturated with unstable magic, multiplying the coin that may be found here.");
         await Poll();
 
-        Assert.Equal(TrayIconState.Error, scout.Status.IconState);
+        Assert.Equal(TrayIconState.Error, this._scout.Status.IconState);
     }
 
     [Fact]
     public async Task NoKeyShowsTheErrorIcon()
     {
-        apiKeyStore.ApiKey = null;
+        this._apiKeyStore.ApiKey = null;
         await Poll();
 
-        Assert.Equal(TrayIconState.Error, scout.Status.IconState);
+        Assert.Equal(TrayIconState.Error, this._scout.Status.IconState);
     }
 
     [Fact]
     public async Task LoggingHint()
     {
         await Poll();
-        time.Advance(LogWatcher.LoggingHintDelay);
-        await scout.PollAsync();
+        this._time.Advance(LogWatcher.LoggingHintDelay);
+        await this._scout.PollAsync();
 
-        Assert.Equal(["LoggingOff"], notifier.Notifications);
+        Assert.Equal(["LoggingOff"], this._notifier.Notifications);
     }
 
     [Fact]
     public async Task ConnectionCheckListsUnreachableSites()
     {
-        api.ListFailure = new("network");
+        this._api.ListFailure = new("network");
 
-        Assert.Equal(Server.All, await scout.CheckConnectionAsync());
-        Assert.Equal(TrayIconState.Error, scout.Status.IconState);
+        Assert.Equal(Server.All, await this._scout.CheckConnectionAsync());
+        Assert.Equal(TrayIconState.Error, this._scout.Status.IconState);
     }
 }

@@ -9,7 +9,7 @@ public partial class MessageWindow : Window
     {
         InitializeComponent();
         Title = title;
-        Message.Text = message;
+        this.Message.Text = message;
     }
 
     void OnOk(object sender, RoutedEventArgs e) => Close();

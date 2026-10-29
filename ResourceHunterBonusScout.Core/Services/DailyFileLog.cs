@@ -8,33 +8,36 @@ public class DailyFileLog : IAppLog
     public const int DaysKept = 14;
     const string DateFormat = "yyyy-MM-dd";
 
-    readonly string folder;
-    readonly TimeProvider time;
-    readonly Lock writing = new();
-    DateOnly? prunedOn;
+    readonly string _folder;
+    readonly TimeProvider _time;
+    readonly Lock _writing = new();
+    DateOnly? _prunedOn;
 
     public DailyFileLog(string folder, TimeProvider time)
     {
-        this.folder = folder;
-        this.time = time;
+        this._folder = folder;
+        this._time = time;
     }
 
     public string TodaysFile => FileFor(Today);
 
-    DateOnly Today => DateOnly.FromDateTime(time.GetLocalNow().DateTime);
+    DateOnly Today => DateOnly.FromDateTime(this._time.GetLocalNow().DateTime);
 
-    string FileFor(DateOnly date) => Path.Combine(folder, $"{date.ToString(DateFormat, CultureInfo.InvariantCulture)}.log");
+    string FileFor(DateOnly date) => Path.Combine(this._folder, $"{date.ToString(DateFormat, CultureInfo.InvariantCulture)}.log");
 
     public void Write(string message)
     {
-        var now = time.GetLocalNow();
-        lock (writing)
+        var now = this._time.GetLocalNow();
+        lock (this._writing)
         {
             try
             {
-                Directory.CreateDirectory(folder);
-                if (prunedOn != Today)
+                Directory.CreateDirectory(this._folder);
+                if (this._prunedOn != Today)
+                {
                     Prune();
+                }
+
                 File.AppendAllText(TodaysFile, $"{now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)} {message}{Environment.NewLine}");
             }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException)
@@ -46,13 +49,15 @@ public class DailyFileLog : IAppLog
 
     void Prune()
     {
-        prunedOn = Today;
+        this._prunedOn = Today;
         var oldest = Today.AddDays(1 - DaysKept);
-        foreach (var file in Directory.GetFiles(folder, "*.log"))
+        foreach (var file in Directory.GetFiles(this._folder, "*.log"))
         {
             if (DateOnly.TryParseExact(Path.GetFileNameWithoutExtension(file), DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
                 && date < oldest)
+            {
                 File.Delete(file);
+            }
         }
     }
 }

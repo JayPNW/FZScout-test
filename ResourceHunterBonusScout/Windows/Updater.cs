@@ -15,7 +15,9 @@ static class Updater
         var manager = new UpdateManager(new GithubSource(RepositoryUrl, null, false));
         // Not installed by Velopack, like when running from Visual Studio.
         if (!manager.IsInstalled)
+        {
             return;
+        }
 
         while (!stopping.IsCancellationRequested)
         {

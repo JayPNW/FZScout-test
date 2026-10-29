@@ -19,9 +19,13 @@ class RegistryStartWithWindows : IStartWithWindows
         {
             using var key = Registry.CurrentUser.CreateSubKey(RunKey);
             if (value)
+            {
                 key.SetValue(ValueName, $"\"{Environment.ProcessPath}\"");
+            }
             else
+            {
                 key.DeleteValue(ValueName, throwOnMissingValue: false);
+            }
         }
     }
 }

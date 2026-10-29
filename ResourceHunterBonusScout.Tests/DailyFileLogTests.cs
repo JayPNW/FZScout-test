@@ -5,42 +5,46 @@ namespace ResourceHunterBonusScout.Tests;
 
 public sealed class DailyFileLogTests : IDisposable
 {
-    readonly string folder = Path.Combine(Path.GetTempPath(), $"RHBS-{Guid.NewGuid()}");
-    readonly FakeTimeProvider time = new(new DateTimeOffset(2026, 10, 28, 19, 20, 1, TimeSpan.Zero));
-    readonly DailyFileLog log;
+    readonly string _folder = Path.Combine(Path.GetTempPath(), $"RHBS-{Guid.NewGuid()}");
+    readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 10, 28, 19, 20, 1, TimeSpan.Zero));
+    readonly DailyFileLog _log;
 
     public DailyFileLogTests()
     {
-        time.SetLocalTimeZone(TimeZoneInfo.Utc);
-        log = new(folder, time);
+        this._time.SetLocalTimeZone(TimeZoneInfo.Utc);
+        this._log = new(this._folder, this._time);
     }
 
     public void Dispose()
     {
-        if (Directory.Exists(folder))
-            Directory.Delete(folder, recursive: true);
+        if (Directory.Exists(this._folder))
+        {
+            Directory.Delete(this._folder, recursive: true);
+        }
     }
 
     [Fact]
     public void OneFilePerDay()
     {
-        log.Write("first");
-        time.Advance(TimeSpan.FromDays(1));
-        log.Write("second");
+        this._log.Write("first");
+        this._time.Advance(TimeSpan.FromDays(1));
+        this._log.Write("second");
 
-        Assert.Equal(["2026-10-28 19:20:01 first"], File.ReadAllLines(Path.Combine(folder, "2026-10-28.log")));
-        Assert.Equal(["2026-10-29 19:20:01 second"], File.ReadAllLines(log.TodaysFile));
+        Assert.Equal(["2026-10-28 19:20:01 first"], File.ReadAllLines(Path.Combine(this._folder, "2026-10-28.log")));
+        Assert.Equal(["2026-10-29 19:20:01 second"], File.ReadAllLines(this._log.TodaysFile));
     }
 
     [Fact]
     public void KeepsFourteenDays()
     {
-        Directory.CreateDirectory(folder);
+        Directory.CreateDirectory(this._folder);
         foreach (var name in new[] { "2026-10-14.log", "2026-10-15.log", "notes.log" })
-            File.WriteAllText(Path.Combine(folder, name), "");
+        {
+            File.WriteAllText(Path.Combine(this._folder, name), "");
+        }
 
-        log.Write("hello");
+        this._log.Write("hello");
 
-        Assert.Equal(["2026-10-15.log", "2026-10-28.log", "notes.log"], Directory.GetFiles(folder).Select(Path.GetFileName).Order());
+        Assert.Equal(["2026-10-15.log", "2026-10-28.log", "notes.log"], Directory.GetFiles(this._folder).Select(Path.GetFileName).Order());
     }
 }

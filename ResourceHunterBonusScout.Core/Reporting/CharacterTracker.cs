@@ -12,9 +12,9 @@ public class CharacterTracker(string character, Server server, TimeProvider time
     public static readonly TimeSpan AfterKillDelay = TimeSpan.FromSeconds(10);
 
     // When to report no bonus. Null when nothing is waiting, or while paused.
-    DateTimeOffset? noBonusAt;
+    DateTimeOffset? _noBonusAt;
     // How much was left on the timer when camping paused it.
-    TimeSpan? pausedRemaining;
+    TimeSpan? _pausedRemaining;
 
     public string Character => character;
     public Server Server => server;
@@ -39,20 +39,25 @@ public class CharacterTracker(string character, Server server, TimeProvider time
                 return lists is not null && lists.BonusKeys.Contains(bonus.BonusKey) ? Report(bonus.BonusKey) : null;
 
             case LogEvent.Kill:
-                if (noBonusAt is { } at)
-                    noBonusAt = Min(at, now + AfterKillDelay);
-                else if (pausedRemaining is { } remaining)
-                    pausedRemaining = Min(remaining, AfterKillDelay);
+                if (this._noBonusAt is { } at)
+                {
+                    this._noBonusAt = Min(at, now + AfterKillDelay);
+                }
+                else if (this._pausedRemaining is { } remaining)
+                {
+                    this._pausedRemaining = Min(remaining, AfterKillDelay);
+                }
+
                 return null;
 
-            case LogEvent.CampStarted when noBonusAt is { } pauseAt:
-                pausedRemaining = pauseAt - now;
-                noBonusAt = null;
+            case LogEvent.CampStarted when this._noBonusAt is { } pauseAt:
+                this._pausedRemaining = pauseAt - now;
+                this._noBonusAt = null;
                 return null;
 
-            case LogEvent.CampAbandoned when pausedRemaining is { } remaining:
-                noBonusAt = now + remaining;
-                pausedRemaining = null;
+            case LogEvent.CampAbandoned when this._pausedRemaining is { } remaining:
+                this._noBonusAt = now + remaining;
+                this._pausedRemaining = null;
                 return null;
 
             case LogEvent.DailyReset when Zone is not null:
@@ -67,16 +72,19 @@ public class CharacterTracker(string character, Server server, TimeProvider time
     /// <summary>Call regularly. Reports no bonus when the timer runs out.</summary>
     public BonusReport? Tick()
     {
-        if (noBonusAt is not { } at || time.GetUtcNow() < at || Zone is null)
+        if (this._noBonusAt is not { } at || time.GetUtcNow() < at || Zone is null)
+        {
             return null;
-        noBonusAt = null;
+        }
+
+        this._noBonusAt = null;
         return Report(BonusReport.NoBonus);
     }
 
     void StartTimer(TimeSpan? delay)
     {
-        noBonusAt = time.GetUtcNow() + delay;
-        pausedRemaining = null;
+        this._noBonusAt = time.GetUtcNow() + delay;
+        this._pausedRemaining = null;
     }
 
     BonusReport Report(string bonusKey) => new(character, server, Zone!, bonusKey);

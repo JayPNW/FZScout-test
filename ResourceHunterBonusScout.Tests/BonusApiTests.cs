@@ -6,19 +6,6 @@ namespace ResourceHunterBonusScout.Tests;
 
 public class BonusApiTests
 {
-    class Handler(HttpStatusCode status, string body) : HttpMessageHandler
-    {
-        public HttpRequestMessage? Request;
-        public string? RequestBody;
-
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            Request = request;
-            RequestBody = request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken);
-            return new(status) { Content = new StringContent(body, Encoding.UTF8, "application/json") };
-        }
-    }
-
     [Fact]
     public async Task BonusKeys()
     {
@@ -72,5 +59,18 @@ public class BonusApiTests
         Assert.Equal(["fz_live_abc"], handler.Request.Headers.GetValues("X-API-Key"));
         Assert.Equal("application/json", handler.Request.Content!.Headers.ContentType!.MediaType);
         Assert.Equal("""{"serverName":"Fangbreaker","zoneName":"Halls of Honor","bonusKey":"item-exp"}""", handler.RequestBody);
+    }
+
+    class Handler(HttpStatusCode status, string body) : HttpMessageHandler
+    {
+        public HttpRequestMessage? Request;
+        public string? RequestBody;
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            this.Request = request;
+            this.RequestBody = request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken);
+            return new(status) { Content = new StringContent(body, Encoding.UTF8, "application/json") };
+        }
     }
 }

@@ -6,16 +6,18 @@ namespace ResourceHunterBonusScout.Views;
 
 class TrayNotifier : INotifier
 {
-    readonly TaskbarIcon trayIcon;
-    bool clickOpensSettings;
+    readonly TaskbarIcon _trayIcon;
+    bool _clickOpensSettings;
 
     public TrayNotifier(TaskbarIcon trayIcon, Action showSettings)
     {
-        this.trayIcon = trayIcon;
+        this._trayIcon = trayIcon;
         trayIcon.TrayBalloonTipClicked += (_, _) =>
         {
-            if (clickOpensSettings)
+            if (this._clickOpensSettings)
+            {
                 showSettings();
+            }
         };
     }
 
@@ -30,7 +32,7 @@ class TrayNotifier : INotifier
 
     void Show(string title, string message, bool clickOpensSettings = false)
     {
-        this.clickOpensSettings = clickOpensSettings;
-        trayIcon.ShowNotification(title, message, NotificationIcon.Warning);
+        this._clickOpensSettings = clickOpensSettings;
+        this._trayIcon.ShowNotification(title, message, NotificationIcon.Warning);
     }
 }

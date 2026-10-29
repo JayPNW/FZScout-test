@@ -5,15 +5,18 @@ namespace ResourceHunterBonusScout.ViewModels;
 
 public partial class SettingsViewModel : ObservableObject
 {
-    readonly Settings settings;
+    readonly Settings _settings;
 
     /// <summary>Make a new one each time the window opens, so it shows what's stored and drops unsaved edits.</summary>
     public SettingsViewModel(Settings settings)
     {
-        this.settings = settings;
+        this._settings = settings;
         ApiKey = settings.ApiKey;
         StartWithWindows = settings.StartWithWindows;
     }
+
+    /// <summary>Save and Cancel both hide the window. The app keeps running in the tray.</summary>
+    public event EventHandler CloseRequested = delegate { };
 
     [ObservableProperty]
     public partial string ApiKey { get; set; }
@@ -27,17 +30,16 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsApiKeyRejected { get; set; }
 
-    /// <summary>Save and Cancel both hide the window. The app keeps running in the tray.</summary>
-    public event EventHandler CloseRequested = delegate { };
-
     partial void OnApiKeyChanged(string value) => IsApiKeyRejected = false;
 
     [RelayCommand]
     void Save()
     {
-        IsApiKeyRejected = !settings.TrySave(ApiKey, StartWithWindows);
+        IsApiKeyRejected = !this._settings.TrySave(ApiKey, StartWithWindows);
         if (!IsApiKeyRejected)
+        {
             CloseRequested(this, EventArgs.Empty);
+        }
     }
 
     [RelayCommand]

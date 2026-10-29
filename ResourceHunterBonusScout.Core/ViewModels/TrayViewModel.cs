@@ -5,12 +5,12 @@ namespace ResourceHunterBonusScout.ViewModels;
 
 public partial class TrayViewModel : ObservableObject
 {
-    [ObservableProperty]
-    public partial AppStatus Status { get; set; } = new([], HasApiKey: false, LastOperationFailed: false);
-
     public event EventHandler SettingsRequested = delegate { };
+
     public event EventHandler LogRequested = delegate { };
     public event EventHandler ExitRequested = delegate { };
+    [ObservableProperty]
+    public partial AppStatus Status { get; set; } = new([], HasApiKey: false, LastOperationFailed: false);
 
     [RelayCommand]
     void ShowSettings() => SettingsRequested(this, EventArgs.Empty);

@@ -12,7 +12,9 @@ public static partial class LogFileName
     {
         var match = Pattern().Match(Path.GetFileName(path));
         if (!match.Success)
+        {
             return null;
+        }
 
         var server = Server.FromLogName(match.Groups["server"].Value);
         return server is null ? null : (match.Groups["character"].Value, server);

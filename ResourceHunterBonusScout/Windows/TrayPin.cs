@@ -18,14 +18,18 @@ static class TrayPin
     {
         using var settings = Registry.CurrentUser.OpenSubKey(@"Control Panel\NotifyIconSettings");
         if (settings is null)
+        {
             return null;
+        }
 
         foreach (var name in settings.GetSubKeyNames())
         {
             using var key = settings.OpenSubKey(name);
             if (key?.GetValue("ExecutablePath") is string path
                 && string.Equals(ExpandKnownFolder(path), Environment.ProcessPath, StringComparison.OrdinalIgnoreCase))
+            {
                 return key.GetValue("IsPromoted") as int?;
+            }
         }
         return null;
     }
@@ -36,7 +40,10 @@ static class TrayPin
         var end = path.IndexOf('}');
         if (path.StartsWith('{') && end > 0 && Guid.TryParse(path[..(end + 1)], out var folderId)
             && SHGetKnownFolderPath(folderId, 0, IntPtr.Zero, out var folder) == 0)
+        {
             return folder + path[(end + 1)..];
+        }
+
         return path;
     }
 

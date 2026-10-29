@@ -2,39 +2,39 @@
 
 public class SettingsTests
 {
-    readonly InMemoryApiKeyStore apiKeyStore = new();
-    readonly FakeStartWithWindows startWithWindows = new();
-    readonly Settings settings;
+    readonly InMemoryApiKeyStore _apiKeyStore = new();
+    readonly FakeStartWithWindows _startWithWindows = new();
+    readonly Settings _settings;
 
     public SettingsTests()
     {
-        settings = new Settings(apiKeyStore, startWithWindows);
+        this._settings = new Settings(this._apiKeyStore, this._startWithWindows);
     }
 
     [Fact]
     public void FirstRunHasNoKeyAndStartsWithWindows()
     {
-        Assert.Equal("", settings.ApiKey);
-        Assert.True(settings.StartWithWindows);
+        Assert.Equal("", this._settings.ApiKey);
+        Assert.True(this._settings.StartWithWindows);
     }
 
     [Fact]
     public void ReadsStoredValues()
     {
-        apiKeyStore.ApiKey = "fz_live_abc";
-        startWithWindows.IsEnabled = false;
+        this._apiKeyStore.ApiKey = "fz_live_abc";
+        this._startWithWindows.IsEnabled = false;
 
-        Assert.Equal("fz_live_abc", settings.ApiKey);
-        Assert.False(settings.StartWithWindows);
+        Assert.Equal("fz_live_abc", this._settings.ApiKey);
+        Assert.False(this._settings.StartWithWindows);
     }
 
     [Fact]
     public void SaveTrimsKeyAndStoresValues()
     {
-        Assert.True(settings.TrySave("  fz_live_abc \n", true));
+        Assert.True(this._settings.TrySave("  fz_live_abc \n", true));
 
-        Assert.Equal("fz_live_abc", apiKeyStore.ApiKey);
-        Assert.True(startWithWindows.IsEnabled);
+        Assert.Equal("fz_live_abc", this._apiKeyStore.ApiKey);
+        Assert.True(this._startWithWindows.IsEnabled);
     }
 
     [Theory]
@@ -43,11 +43,11 @@ public class SettingsTests
     [InlineData("FZ_LIVE_abc")]
     public void SaveRejectsKeyWithoutPrefix(string apiKey)
     {
-        startWithWindows.IsEnabled = true;
+        this._startWithWindows.IsEnabled = true;
 
-        Assert.False(settings.TrySave(apiKey, false));
+        Assert.False(this._settings.TrySave(apiKey, false));
 
-        Assert.Null(apiKeyStore.ApiKey);
-        Assert.True(startWithWindows.IsEnabled);
+        Assert.Null(this._apiKeyStore.ApiKey);
+        Assert.True(this._startWithWindows.IsEnabled);
     }
 }
