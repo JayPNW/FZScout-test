@@ -1,0 +1,32 @@
+<Window x:Class="ResourceHunterBonusScout.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
+        Title="About Resource Hunter Bonus Scout" Icon="/Assets/Active.ico"
+        Width="520" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,8,0,0" />
+        </Style>
+        <Style TargetType="Hyperlink">
+            <EventSetter Event="RequestNavigate" Handler="OnRequestNavigate" />
+        </Style>
+    </Window.Resources>
+
+    <StackPanel Margin="20">
+        <TextBlock Text="Resource Hunter Bonus Scout" FontSize="16" FontWeight="SemiBold" Margin="0" />
+        <TextBlock x:Name="VersionText" Margin="0,2,0,0" />
+        <TextBlock>
+            <Hyperlink NavigateUri="https://github.com/JayBazuzi/ResourceHunterBonusScout">github.com/JayBazuzi/ResourceHunterBonusScout</Hyperlink>
+        </TextBlock>
+
+        <TextBlock Text="Thanks" FontWeight="SemiBold" Margin="0,16,0,0" />
+        <TextBlock>Extra super thanks to Winter.xo for creating the original site and all the work that she has put into making this.</TextBlock>
+
+        <mdxam:MarkdownScrollViewer x:Name="Credits" MarkdownStyleName="Compact" ClickAction="SafetyOpenBrowser"
+                                    VerticalScrollBarVisibility="Disabled" Margin="0,16,0,0" />
+
+        <Button Content="OK" IsDefault="True" IsCancel="True" MinWidth="80" Margin="0,20,0,0" HorizontalAlignment="Right" Click="OnOk" />
+    </StackPanel>
+</Window>

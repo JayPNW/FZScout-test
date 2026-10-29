@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="H.NotifyIcon.Wpf" />
+    <PackageReference Include="MdXaml" />
     <PackageReference Include="Velopack" />
   </ItemGroup>
 
@@ -33,6 +34,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\*.ico" />
+    <EmbeddedResource Include="..\CREDITS.md" LogicalName="CREDITS.md" />
   </ItemGroup>
 
 </Project>

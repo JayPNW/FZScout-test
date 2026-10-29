@@ -22,6 +22,7 @@ public partial class App : Application
     readonly Settings _settings;
     TrayIcon? _trayIcon;
     SettingsWindow? _settingsWindow;
+    AboutWindow? _aboutWindow;
     public App()
     {
         this._settings = new(this._apiKeyStore, new RegistryStartWithWindows(), this._settingsStore);
@@ -43,6 +44,7 @@ public partial class App : Application
         var trayViewModel = new TrayViewModel();
         trayViewModel.SettingsRequested += delegate { ShowSettings(); };
         trayViewModel.LogRequested += delegate { OpenTodaysLog(); };
+        trayViewModel.AboutRequested += delegate { ShowAbout(); };
         trayViewModel.ExitRequested += delegate { Quit(); };
         this._trayIcon = new TrayIcon { DataContext = trayViewModel };
         this._trayIcon.ForceCreate(enablesEfficiencyMode: false);
@@ -104,6 +106,17 @@ public partial class App : Application
             this._settingsWindow.Show();
         }
         this._settingsWindow.Activate();
+    }
+
+    void ShowAbout()
+    {
+        if (this._aboutWindow is null)
+        {
+            this._aboutWindow = new AboutWindow(Version);
+            this._aboutWindow.Closed += delegate { this._aboutWindow = null; };
+            this._aboutWindow.Show();
+        }
+        this._aboutWindow.Activate();
     }
 
     void OpenTodaysLog()

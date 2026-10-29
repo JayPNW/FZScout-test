@@ -9,6 +9,7 @@
         <ContextMenu>
             <MenuItem Header="Settings…" Command="{Binding ShowSettingsCommand}" />
             <MenuItem Header="Open log" Command="{Binding OpenLogCommand}" />
+            <MenuItem Header="About…" Command="{Binding ShowAboutCommand}" />
             <Separator />
             <MenuItem Header="Exit" Command="{Binding ExitCommand}" />
         </ContextMenu>

@@ -8,6 +8,7 @@ public partial class TrayViewModel : ObservableObject
     public event EventHandler SettingsRequested = delegate { };
 
     public event EventHandler LogRequested = delegate { };
+    public event EventHandler AboutRequested = delegate { };
     public event EventHandler ExitRequested = delegate { };
     [ObservableProperty]
     public partial AppStatus Status { get; set; } = new([], HasApiKey: false, LastOperationFailed: false, EqRunning: false);
@@ -17,6 +18,9 @@ public partial class TrayViewModel : ObservableObject
 
     [RelayCommand]
     void OpenLog() => LogRequested(this, EventArgs.Empty);
+
+    [RelayCommand]
+    void ShowAbout() => AboutRequested(this, EventArgs.Empty);
 
     [RelayCommand]
     void Exit() => ExitRequested(this, EventArgs.Empty);
