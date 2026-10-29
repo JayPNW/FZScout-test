@@ -159,7 +159,7 @@ public sealed class ScoutTests : IDisposable
         await Poll();
 
         Assert.Equal(1, changes);
-        Assert.Equal(TrayIconState.Active, this._scout.Status.IconState);
+        Assert.Equal(TrayIconState.Waiting, this._scout.Status.IconState);
         Assert.Equal(
             [new CharacterStatus("Bowslinger", "Fangbreaker", "Halls of Honor", entered + CharacterTracker.NoBonusDelay), new CharacterStatus("Kixu", "Frostreaver", null)],
             this._scout.Status.Characters.OrderBy(c => c.Name));

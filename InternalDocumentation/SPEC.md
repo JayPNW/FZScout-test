@@ -34,13 +34,15 @@ It opens on its own when no API key is stored, and from the tray menu after that
 
 ## Tray icon
 
-| State  | When                                                                  |
-| ------ | --------------------------------------------------------------------- |
-| Idle   | No Fangbreaker or Frostreaver log is being tailed.                    |
-| Active | At least one is being tailed.                                         |
-| Error  | The last report, data load, or zone lookup failed, or there's no key. |
+| State   | When                                                                  |
+| ------- | --------------------------------------------------------------------- |
+| Idle    | No Fangbreaker or Frostreaver log is being tailed.                    |
+| Active  | At least one is being tailed.                                         |
+| Waiting | A character is waiting to report `none` (an hourglass).               |
+| Error   | The last report, data load, or zone lookup failed, or there's no key. |
 
-- The icon goes back to Idle or Active after the next success.
+- Error wins over Waiting, which wins over Active.
+- The icon goes back to Idle, Active, or Waiting after the next success.
 - The tooltip starts with "Resource Hunter Bonus Scout", then lists the current zone of each character, like `The Halls of Honor`. If the zone isn't known, it says "unknown zone". While waiting to report `none`, after a zone entry or a kill, it adds when, like `Crushbone, waiting for bonus until 3:42:10 PM`. If EverQuest isn't running, it says "EverQuest is not running." Otherwise, with no characters, it says "No EverQuest log is being watched."
 - The menu has **Settings…**, **Open log** (today's log file), and **Exit**.
 

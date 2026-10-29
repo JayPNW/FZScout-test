@@ -5,6 +5,7 @@
 param(
     [string]$Glyph = (Join-Path $PSScriptRoot '../ResourceHunterBonusScout/Assets/Source/search.png'),
     [string]$ErrorGlyph = (Join-Path $PSScriptRoot '../ResourceHunterBonusScout/Assets/Source/error.png'),
+    [string]$WaitingGlyph = (Join-Path $PSScriptRoot '../ResourceHunterBonusScout/Assets/Source/hourglass.png'),
     [string]$OutDir = (Join-Path $PSScriptRoot '../ResourceHunterBonusScout/Assets')
 )
 $ErrorActionPreference = 'Stop'
@@ -76,3 +77,4 @@ New-Item -ItemType Directory -Force $OutDir | Out-Null
 Save-Icon (Join-Path $OutDir 'Idle.ico') ([System.Drawing.Color]::FromArgb(255, 110, 118, 129)) $Glyph
 Save-Icon (Join-Path $OutDir 'Active.ico') ([System.Drawing.Color]::FromArgb(255, 16, 140, 120)) $Glyph
 Save-Icon (Join-Path $OutDir 'Error.ico') ([System.Drawing.Color]::FromArgb(255, 200, 40, 40)) $ErrorGlyph $true
+Save-Icon (Join-Path $OutDir 'Waiting.ico') ([System.Drawing.Color]::FromArgb(255, 16, 140, 120)) $WaitingGlyph

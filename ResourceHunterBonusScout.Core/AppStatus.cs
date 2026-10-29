@@ -5,13 +5,31 @@
 /// <param name="EqRunning">Whether any EverQuest process is running.</param>
 public record AppStatus(IReadOnlyList<CharacterStatus> Characters, bool HasApiKey, bool LastOperationFailed, bool EqRunning)
 {
-    public TrayIconState IconState
-        => LastOperationFailed || !HasApiKey ? TrayIconState.Error
-        : Characters.Count > 0 ? TrayIconState.Active
-        : TrayIconState.Idle;
-
     // Windows cuts tray tooltips off at 127 characters.
     const int MaxToolTipLength = 127;
+
+    public TrayIconState IconState
+    {
+        get
+        {
+            if (LastOperationFailed || !HasApiKey)
+            {
+                return TrayIconState.Error;
+            }
+
+            if (Characters.Any(c => c.NoBonusAt is not null))
+            {
+                return TrayIconState.Waiting;
+            }
+
+            if (Characters.Count > 0)
+            {
+                return TrayIconState.Active;
+            }
+
+            return TrayIconState.Idle;
+        }
+    }
 
     public string ToolTip
     {

@@ -17,6 +17,22 @@ public class AppStatusTests
     }
 
     [Fact]
+    public void WaitingWhenACharacterIsWaitingForBonus()
+    {
+        var waiting = Bowslinger with { NoBonusAt = DateTimeOffset.UnixEpoch };
+
+        Assert.Equal(TrayIconState.Waiting, new AppStatus([Bowslinger, waiting], HasApiKey: true, LastOperationFailed: false, EqRunning: true).IconState);
+    }
+
+    [Fact]
+    public void ErrorWinsOverWaiting()
+    {
+        var waiting = Bowslinger with { NoBonusAt = DateTimeOffset.UnixEpoch };
+
+        Assert.Equal(TrayIconState.Error, new AppStatus([waiting], HasApiKey: true, LastOperationFailed: true, EqRunning: true).IconState);
+    }
+
+    [Fact]
     public void ErrorWhenNoKey()
     {
         Assert.Equal(TrayIconState.Error, new AppStatus([Bowslinger], HasApiKey: false, LastOperationFailed: false, EqRunning: true).IconState);
