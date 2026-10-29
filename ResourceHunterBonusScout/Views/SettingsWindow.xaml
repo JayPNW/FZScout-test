@@ -20,8 +20,13 @@
             <Button Content="Cancel" IsCancel="True" Command="{Binding CancelCommand}" MinWidth="80" />
         </StackPanel>
 
-        <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
-            <Label Content="_API key" Target="{Binding ElementName=ApiKeyPasswordBox}" Padding="0,0,0,4" FontWeight="SemiBold" />
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="_API key" Target="{Binding ElementName=ApiKeyPasswordBox}" Padding="0,0,0,4" FontWeight="SemiBold" />
+                <TextBlock Margin="4,0,0,0">
+                    (<Hyperlink NavigateUri="https://github.com/JayBazuzi/ResourceHunterBonusScout#readme" RequestNavigate="OnRequestNavigate">help</Hyperlink>)
+                </TextBlock>
+            </StackPanel>
             <DockPanel>
                 <CheckBox DockPanel.Dock="Right" Content="Show" IsChecked="{Binding IsApiKeyVisible}" VerticalAlignment="Center" Margin="8,0,0,0" />
                 <Grid>
@@ -35,9 +40,5 @@
                        Visibility="{Binding IsApiKeyRejected, Converter={StaticResource VisibleWhenTrue}}" />
             <CheckBox Content="Start with _Windows" IsChecked="{Binding StartWithWindows}" Margin="0,12,0,0" />
         </StackPanel>
-
-        <TextBlock>
-            <Hyperlink NavigateUri="https://github.com/JayBazuzi/ResourceHunterBonusScout#readme" RequestNavigate="OnRequestNavigate">help</Hyperlink>
-        </TextBlock>
     </DockPanel>
 </Window>
