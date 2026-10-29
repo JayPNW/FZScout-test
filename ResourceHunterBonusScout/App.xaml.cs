@@ -17,26 +17,26 @@ public partial class App : Application
 
     readonly CancellationTokenSource _stopping = new();
     readonly DailyFileLog _log = new(Path.Combine(DataFolder, "logs"), TimeProvider.System);
-    IAppLog Log => this._log;
     readonly CredentialApiKeyStore _apiKeyStore = new();
     readonly JsonSettingsStore _settingsStore = new(Path.Combine(DataFolder, "settings.json"));
     readonly Settings _settings;
     TrayIcon? _trayIcon;
     SettingsWindow? _settingsWindow;
-
     public App()
     {
         this._settings = new(this._apiKeyStore, new RegistryStartWithWindows(), this._settingsStore);
     }
 
+    IAppLog Log => this._log;
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        this.Log.LogInformation(new string('-', 80));
-        this.Log.LogInformation($"Started version {Version}");
+        Log.LogInformation(new string('-', 80));
+        Log.LogInformation($"Started version {Version}");
         DispatcherUnhandledException += (_, args) =>
         {
-            this.Log.LogError($"Unexpected error: {args.Exception}");
+            Log.LogError($"Unexpected error: {args.Exception}");
             args.Handled = true;
         };
 
@@ -86,7 +86,7 @@ public partial class App : Application
                 }
                 catch (Exception e)
                 {
-                    this.Log.LogError($"Unexpected error: {e}");
+                    Log.LogError($"Unexpected error: {e}");
                 }
             }
         }
@@ -114,7 +114,7 @@ public partial class App : Application
 
     void Quit()
     {
-        this.Log.LogInformation("Exiting");
+        Log.LogInformation("Exiting");
         this._stopping.Cancel();
         this._trayIcon?.Dispose();
         Shutdown();
