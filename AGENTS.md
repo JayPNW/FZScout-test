@@ -17,6 +17,8 @@ This formatting applies every time you present a decision, even a quick one — 
 
 A `switch` should only ever have a single statement in a case. If it's going to be more than that, extract.
 
+Avoid ternary (`?:`) except for very simple cases.
+
 ### MVVM
 
 WPF ViewModels should not contain logic and should not need to be tested.
