@@ -33,11 +33,11 @@ It opens on its own when no API key is stored, and from the tray menu after that
 
 ## Tray icon
 
-| State  | When                                                    |
-| ------ | ------------------------------------------------------- |
-| Idle   | No Fangbreaker or Frostreaver log is being tailed.      |
-| Active | At least one is being tailed.                           |
-| Error  | The last report or data load failed, or there's no key. |
+| State  | When                                                                  |
+| ------ | --------------------------------------------------------------------- |
+| Idle   | No Fangbreaker or Frostreaver log is being tailed.                    |
+| Active | At least one is being tailed.                                         |
+| Error  | The last report, data load, or zone lookup failed, or there's no key. |
 
 - The icon goes back to Idle or Active after the next success.
 - The tooltip starts with "Resource Hunter Bonus Scout", then lists each character with its server and current zone, like `Bowslinger (Fangbreaker): The Halls of Honor`. If the zone isn't known, it says "unknown zone". While waiting to report `none`, after a zone entry or a kill, it adds when, like `Bowslinger (Fangbreaker): Crushbone, waiting for bonus until 3:42:10 PM`. With no characters, it says "No EverQuest log is being watched."
@@ -83,7 +83,7 @@ Strip the timestamp (`[Mon Sep 14 16:10:29 2026] `) from each line.
 - `You have entered {zone}.` changes the current zone, except lines that start with `You have entered an area` (like `You have entered an area where levitation effects do not function.`).
 - Look `{zone}` up in the server's `zones` list, ignoring case. If there's no match, try again without a leading `The `, then try the alias table below. Report the site's spelling.
 - Instances follow their parent zone. If `{zone}` still doesn't match and contains `: `, look up the part before it the same way. For example, `Tirranun's Delve: Grounding the Drakes` reports as `Tirranun's Delve`. Instances that are on the list, like `Deepest Guk: The Rescue`, match exactly first.
-- If it's still not on the list, the current zone is unknown. Don't report anything until the next zone entry. Some zones that aren't on the list still show bonus messages (see [everquest log analysis.md](everquest%20log%20analysis.md)), so keeping the previous zone would report its bonus for the wrong zone.
+- If it's still not on the list, the current zone is unknown. Don't report anything until the next zone entry. Some zones that aren't on the list still show bonus messages (see [everquest log analysis.md](everquest%20log%20analysis.md)), so keeping the previous zone would report its bonus for the wrong zone. Log it as an error and show the Error icon.
 
 Aliases are built in. An alias is used only if its site name is on that server's list.
 

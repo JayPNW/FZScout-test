@@ -1,6 +1,6 @@
 ﻿namespace ResourceHunterBonusScout.Reporting;
 
-/// <summary>Whether the last report or data load failed. Shown as the Error icon.</summary>
+/// <summary>Whether the last report, data load, or zone lookup failed. Shown as the Error icon.</summary>
 public class ErrorState
 {
     public bool LastOperationFailed { get; private set; }

@@ -131,7 +131,12 @@ public class Scout
                 LogEvent.DailyReset => "saw the daily reset",
                 _ => logEvent.ToString(),
             };
-            this._log.Write($"{tracker.Character} ({tracker.Server}) {what}{timer}.");
+            var unknownZone = logEvent is LogEvent.ZoneEntered && tracker.Zone is null;
+            this._log.Write($"{(unknownZone ? "Error: " : "")}{tracker.Character} ({tracker.Server}) {what}{timer}.");
+            if (unknownZone)
+            {
+                this._errors.Failed();
+            }
         }
 
         if (report is not null)

@@ -124,7 +124,7 @@ public sealed class ScoutTests : IDisposable
 
         await Poll();
         this._eq.Append(this._bowslinger, "You have entered The Halls of Honor.");
-        this._eq.Append(this._eq.LogPath("Kixu", "frostreaver"), "You have entered The Bazaar.");
+        this._eq.Append(this._eq.LogPath("Kixu", "frostreaver"), "Welcome to EverQuest!");
         await Poll();
         var entered = this._time.GetUtcNow();
         await Poll();
@@ -156,6 +156,17 @@ public sealed class ScoutTests : IDisposable
         await Poll();
 
         Assert.Equal(TrayIconState.Error, this._scout.Status.IconState);
+    }
+
+    [Fact]
+    public async Task ZoneNotOnTheListIsAnError()
+    {
+        await Poll();
+        this._eq.Append(this._eq.LogPath("Kixu", "frostreaver"), "You have entered The Bazaar.");
+        await Poll();
+
+        Assert.Equal(TrayIconState.Error, this._scout.Status.IconState);
+        Assert.Contains("Error: Kixu (Frostreaver) entered The Bazaar, which isn't on the zones list.", this._log.Lines);
     }
 
     [Fact]
