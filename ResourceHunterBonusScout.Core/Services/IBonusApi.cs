@@ -14,6 +14,11 @@ public interface IBonusApi
     /// <exception cref="HttpRequestException">On a network error or an unsuccessful response.</exception>
     Task<IReadOnlyList<string>> GetZonesAsync(Server server);
 
+    /// <summary>The server's <c>today</c> list.</summary>
+    /// <returns>Each zone's bonus key, or <see cref="BonusReport.NoBonus"/> or <see cref="BonusReport.Unconfirmed"/>.</returns>
+    /// <exception cref="HttpRequestException">On a network error or an unsuccessful response.</exception>
+    Task<IReadOnlyDictionary<string, string>> GetTodaysBonusesAsync(Server server);
+
     /// <exception cref="HttpRequestException">On a network error.</exception>
     Task<HttpStatusCode> ReportAsync(BonusReport report, string apiKey);
 }

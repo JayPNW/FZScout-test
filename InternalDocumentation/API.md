@@ -28,6 +28,11 @@ GET https://frostreaver.zone/api/servers/frostreaver/bonuses/zones
 
 for fangbreaker and frostreaver respectively.
 
+Today's bonus for every zone (not in the original notes; found by trying it):
+GET https://fangbreaker.zone/api/servers/fangbreaker/bonuses/today
+
+Each entry has the zone's `name` and its `bonus`: a bonus key, `none`, or `unconfirmed` when nobody has reported it today.
+
 obviously load the types from the appropriate endpoint instead of hard-coding them.
 
 The 200 OK response should look like:

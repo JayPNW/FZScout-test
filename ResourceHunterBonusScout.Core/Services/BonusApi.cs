@@ -13,6 +13,9 @@ public class BonusApi(HttpClient http) : IBonusApi
     public async Task<IReadOnlyList<string>> GetZonesAsync(Server server)
         => [.. (await GetAsync<Zone>(server, "zones")).Select(z => z.Name)];
 
+    public async Task<IReadOnlyDictionary<string, string>> GetTodaysBonusesAsync(Server server)
+        => (await GetAsync<ZoneBonus>(server, "today")).ToDictionary(z => z.Name, z => z.Bonus);
+
     public async Task<HttpStatusCode> ReportAsync(BonusReport report, string apiKey)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(report.Server.Site, "api/client/bonuses"))
@@ -49,5 +52,6 @@ public class BonusApi(HttpClient http) : IBonusApi
     record Response<T>(bool Ok, T[]? Data);
     record BonusType(string Key);
     record Zone(string Name);
+    record ZoneBonus(string Name, string Bonus);
     record Bonus(string ServerName, string ZoneName, string BonusKey);
 }

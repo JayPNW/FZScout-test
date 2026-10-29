@@ -7,6 +7,7 @@ namespace ResourceHunterBonusScout.Tests;
 public class BonusReporterTests
 {
     static readonly BonusReport CrushboneLoot = new("Bowslinger", Server.Fangbreaker, "Crushbone", "loot");
+    static readonly BonusReport CrushboneNone = CrushboneLoot with { BonusKey = BonusReport.NoBonus };
 
     readonly FakeTimeProvider _time = new();
     readonly FakeBonusApi _api = new();
@@ -164,5 +165,52 @@ public class BonusReporterTests
         Assert.Single(this._api.Reports);
         Assert.Equal(1, this._api.ListLoads);
         Assert.True(this._errors.LastOperationFailed);
+    }
+
+    [Theory]
+    [InlineData(BonusReport.NoBonus)]
+    [InlineData(BonusReport.Unconfirmed)]
+    public async Task NoBonusIsSentWhenTheSiteHasNoBonus(string siteBonus)
+    {
+        this._api.TodaysBonuses["Crushbone"] = siteBonus;
+
+        await this._reporter.ReportAsync(CrushboneNone);
+
+        Assert.Equal([(CrushboneNone, "fz_live_abc")], this._api.Reports);
+    }
+
+    [Fact]
+    public async Task NoBonusIsNotSentWhenTheSiteShowsABonus()
+    {
+        this._api.TodaysBonuses["Crushbone"] = "loot";
+
+        await this._reporter.ReportAsync(CrushboneNone);
+
+        Assert.Empty(this._api.Reports);
+        Assert.Contains("Not reporting none in Crushbone for Bowslinger (Fangbreaker): the site shows loot", this._log.Lines);
+    }
+
+    [Fact]
+    public async Task ABonusIsSentEvenWhenTheSiteShowsAnother()
+    {
+        this._api.TodaysBonuses["Crushbone"] = "coin";
+
+        await this._reporter.ReportAsync(CrushboneLoot);
+
+        Assert.Single(this._api.Reports);
+    }
+
+    [Fact]
+    public async Task FailingToCheckTheSiteSkipsNoBonus()
+    {
+        this._api.TodaysBonusesFailure = new("network");
+
+        await this._reporter.ReportAsync(CrushboneNone);
+        this._api.TodaysBonusesFailure = null;
+        await WaitForRetry();
+
+        Assert.Empty(this._api.Reports);
+        Assert.False(this._errors.LastOperationFailed);
+        Assert.Contains("Not reporting none in Crushbone for Bowslinger (Fangbreaker): checking the site failed: network", this._log.Lines);
     }
 }

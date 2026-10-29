@@ -29,6 +29,17 @@ public class BonusApiTests
     }
 
     [Fact]
+    public async Task TodaysBonuses()
+    {
+        var handler = new Handler(HttpStatusCode.OK, """{"ok":true,"data":[{"id":null,"name":"Abysmal Sea","bonus":"unconfirmed","state":"UNCONFIRMED"},{"id":"1","name":"Bastion of Thunder","bonus":"experience","state":"ACTIVE"}]}""");
+
+        var bonuses = await new BonusApi(new(handler)).GetTodaysBonusesAsync(Server.Fangbreaker);
+
+        Assert.Equal(new Dictionary<string, string> { ["Abysmal Sea"] = "unconfirmed", ["Bastion of Thunder"] = "experience" }, bonuses);
+        Assert.Equal("https://fangbreaker.zone/api/servers/fangbreaker/bonuses/today", handler.Request!.RequestUri!.ToString());
+    }
+
+    [Fact]
     public async Task ListFailureHasTheStatus()
     {
         var api = new BonusApi(new(new Handler(HttpStatusCode.BadGateway, "")));

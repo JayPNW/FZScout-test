@@ -46,6 +46,28 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
             return;
         }
 
+        // The site may have a bonus from someone who saw the message. Trust it.
+        if (report.BonusKey == BonusReport.NoBonus)
+        {
+            string? siteBonus;
+            try
+            {
+                siteBonus = (await api.GetTodaysBonusesAsync(report.Server)).GetValueOrDefault(report.Zone);
+            }
+            catch (HttpRequestException e)
+            {
+                log.Write($"Not reporting {description}: checking the site failed: {e.Message}");
+                return;
+            }
+
+            if (siteBonus is not (null or BonusReport.NoBonus or BonusReport.Unconfirmed))
+            {
+                log.Write($"Not reporting {description}: the site shows {siteBonus}");
+                errors.Succeeded();
+                return;
+            }
+        }
+
         log.Write($"Reporting {description}{(isRetry ? " (retry)" : "")}");
         HttpStatusCode? status = null;
         try
@@ -80,14 +102,21 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
                 await lists.LoadAsync(report.Server);
                 break;
             default:
-                if (!isRetry)
-                {
-                    this._retries[RetryKey(report)] = (report, time.GetUtcNow() + RetryDelay);
-                }
-
-                break;
+                Failed(report, isRetry);
+                return;
         }
         // After the zones reload, so its success doesn't hide this failure.
+        errors.Failed();
+    }
+
+    /// <summary>A failure worth retrying.</summary>
+    void Failed(BonusReport report, bool isRetry)
+    {
+        if (!isRetry)
+        {
+            this._retries[RetryKey(report)] = (report, time.GetUtcNow() + RetryDelay);
+        }
+
         errors.Failed();
     }
 
