@@ -187,7 +187,7 @@ public class BonusReporterTests
         await this._reporter.ReportAsync(CrushboneNone);
 
         Assert.Empty(this._api.Reports);
-        Assert.Contains("Not reporting none in Crushbone for Bowslinger (Fangbreaker): the site shows loot", this._log.Lines);
+        Assert.Contains("Not reporting \"none\" in Crushbone for Bowslinger (Fangbreaker): the site shows \"loot\"", this._log.Lines);
     }
 
     [Fact]
@@ -211,6 +211,6 @@ public class BonusReporterTests
 
         Assert.Empty(this._api.Reports);
         Assert.False(this._errors.LastOperationFailed);
-        Assert.Contains("WARNING: Not reporting none in Crushbone for Bowslinger (Fangbreaker): checking the site failed: network", this._log.Lines);
+        Assert.Contains("WARNING: Not reporting \"none\" in Crushbone for Bowslinger (Fangbreaker): checking the site failed: network", this._log.Lines);
     }
 }

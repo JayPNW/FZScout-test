@@ -32,7 +32,7 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
 
     async Task SendAsync(BonusReport report, bool isRetry)
     {
-        var description = $"{report.BonusKey} in {report.Zone} for {report.Character} ({report.Server})";
+        var description = $"\"{report.BonusKey}\" in {report.Zone} for {report.Character} ({report.Server})";
 
         var apiKey = apiKeyStore.Read();
         var skipReason =
@@ -62,7 +62,7 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
 
             if (siteBonus is not (null or BonusReport.NoBonus or BonusReport.Unconfirmed))
             {
-                log.LogInformation($"Not reporting {description}: the site shows {siteBonus}");
+                log.LogInformation($"Not reporting {description}: the site shows \"{siteBonus}\"");
                 errors.Succeeded();
                 return;
             }
