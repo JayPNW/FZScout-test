@@ -33,9 +33,6 @@
 
   <ItemGroup>
     <Resource Include="Assets\*.ico" />
-    <Resource Include="..\docs\assets\account-menu.png" Link="Assets\account-menu.png" />
-    <Resource Include="..\docs\assets\api-key-generate.png" Link="Assets\api-key-generate.png" />
-    <Resource Include="..\docs\assets\api-key-copy.png" Link="Assets\api-key-copy.png" />
   </ItemGroup>
 
 </Project>
