@@ -1,4 +1,4 @@
-# Design
+# Spec
 
 A Windows tray app that watches EverQuest log files and reports each zone's Resource Hunter bonus to the community site. See [API.md](API.md) for the server API, [everquest log analysis.md](everquest%20log%20analysis.md) for log formats, and [QUESTIONS.md](QUESTIONS.md) for open questions.
 
