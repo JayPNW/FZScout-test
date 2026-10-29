@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>ResourceHunterBonusScout</RootNamespace>
+    <!-- Program.Main runs Velopack and the single-instance check before WPF starts. -->
+    <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+    <ApplicationIcon>Assets\Active.ico</ApplicationIcon>
+    <Product>Resource Hunter Bonus Scout</Product>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <!-- Published as a self-contained, single-file x64 exe. -->
+  <PropertyGroup>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="H.NotifyIcon.Wpf" />
+    <PackageReference Include="Velopack" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ResourceHunterBonusScout.Core\ResourceHunterBonusScout.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\*.ico" />
+    <Resource Include="..\docs\assets\account-menu.png" Link="Assets\account-menu.png" />
+    <Resource Include="..\docs\assets\api-key-generate.png" Link="Assets\api-key-generate.png" />
+    <Resource Include="..\docs\assets\api-key-copy.png" Link="Assets\api-key-copy.png" />
+  </ItemGroup>
+
+</Project>

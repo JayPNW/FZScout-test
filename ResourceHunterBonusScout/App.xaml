@@ -1,0 +1,12 @@
+<Application x:Class="ResourceHunterBonusScout.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:ResourceHunterBonusScout.Views"
+             ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <BooleanToVisibilityConverter x:Key="VisibleWhenTrue" />
+        <views:InverseBooleanToVisibilityConverter x:Key="VisibleWhenFalse" />
+        <views:IconStateToImageConverter x:Key="IconStateToImage" />
+        <views:StatusToToolTipConverter x:Key="StatusToToolTip" />
+    </Application.Resources>
+</Application>

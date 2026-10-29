@@ -6,6 +6,7 @@ A Windows tray app that watches EverQuest log files and reports each zone's Reso
 
 - C# and WPF on .NET 10.
 - [H.NotifyIcon.Wpf](https://github.com/HavenDV/H.NotifyIcon) for the tray icon.
+- **MVVM:** ViewModels hold only observable properties and commands, with no logic. Display (text, formatting, icons, show/hide toggles) belongs in the WPF views. Business rules (validation, defaults, app state) belong in Core, outside the ViewModels.
 - Published as a self-contained, single-file x64 exe.
 - [Velopack](https://velopack.io/) for the installer and auto-update, with releases hosted on GitHub Releases. It installs per user, with no admin prompt. The app checks for updates at startup and every few hours, and applies them on the next restart.
 - **Code signing:** none at first. SmartScreen warns on the first install only, because Velopack's own update downloads aren't marked as coming from the internet. The README explains how to get past the warning (**More info**, then **Run anyway**). If people outside the group start installing it, sign with [Azure Trusted Signing](https://learn.microsoft.com/azure/trusted-signing/) (about $10 a month) using `vpk pack --azureTrustedSignFile`. Signing builds SmartScreen trust across releases, instead of starting over with every new file.
@@ -26,7 +27,7 @@ It opens on its own when no API key is stored, and from the tray menu after that
 1. **Turn on logging:** type `/log on` in EverQuest.
 1. **Get an API key:** links to http://fangbreaker.zone and http://frostreaver.zone. Log in with Discord, open the menu under your name, and choose **Account** ([screenshot](../docs/assets/account-menu.png)). The page is titled **Client API Key**. Click **Generate API Key** ([screenshot](../docs/assets/api-key-generate.png)), then **Copy** ([screenshot](../docs/assets/api-key-copy.png)). Include these screenshots.
    - An account has only one key, shared with fzClient. Once a key exists, the page shows it masked and offers **Rotate API Key** and **Revoke API Key**. If the user already has a key in fzClient, they can paste that one. **Rotate** reveals a new key, but the old one stops working in fzClient.
-1. **API key:** a masked text box with a show/hide toggle. It must start with `fz_live_`, or the window shows an error and won't save.
+1. **API key:** a masked text box with a show/hide toggle. It must start with `fz_live_`, or the window shows "The API key must start with fz_live_" and won't save. Editing the key clears the error.
 1. **Start with Windows** checkbox, checked by default.
 1. **Save** and **Cancel**. Both hide the window. The app keeps running in the tray.
 
@@ -39,7 +40,7 @@ It opens on its own when no API key is stored, and from the tray menu after that
 | Error  | The last report or data load failed, or there's no key. |
 
 - The icon goes back to Idle or Active after the next success.
-- The tooltip lists each character with its server and current zone.
+- The tooltip starts with "Resource Hunter Bonus Scout", then lists each character with its server and current zone, like `Bowslinger (Fangbreaker): The Halls of Honor`. If the zone isn't known, it says "unknown zone". With no characters, it says "No EverQuest log is being watched."
 - The menu has **Settings…**, **Open log** (today's log file), and **Exit**.
 
 ## Startup windows

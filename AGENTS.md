@@ -11,3 +11,8 @@ When you need input on a decision:
 Then have a discussion.
 This formatting applies every time you present a decision, even a quick one — don't let a short or informal-feeling exchange skip it.
 
+## WPF and MVVM
+
+ViewModels should not contain logic and should not need to be tested.
+It contains only properties and commands that the view binds to.
+Everything should either be in the view or the application model it sits on.
