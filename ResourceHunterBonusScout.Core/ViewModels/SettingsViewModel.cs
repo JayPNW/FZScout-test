@@ -28,7 +28,7 @@ public partial class SettingsViewModel : ObservableObject
     public partial bool IsApiKeyRejected { get; set; }
 
     /// <summary>Save and Cancel both hide the window. The app keeps running in the tray.</summary>
-    public event EventHandler? CloseRequested;
+    public event EventHandler CloseRequested = delegate { };
 
     partial void OnApiKeyChanged(string value) => IsApiKeyRejected = false;
 
@@ -37,9 +37,9 @@ public partial class SettingsViewModel : ObservableObject
     {
         IsApiKeyRejected = !settings.TrySave(ApiKey, StartWithWindows);
         if (!IsApiKeyRejected)
-            CloseRequested?.Invoke(this, EventArgs.Empty);
+            CloseRequested(this, EventArgs.Empty);
     }
 
     [RelayCommand]
-    void Cancel() => CloseRequested?.Invoke(this, EventArgs.Empty);
+    void Cancel() => CloseRequested(this, EventArgs.Empty);
 }

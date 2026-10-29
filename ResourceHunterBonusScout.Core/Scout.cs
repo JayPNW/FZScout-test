@@ -33,7 +33,7 @@ public class Scout
 
     public AppStatus Status { get; private set; }
 
-    public event EventHandler? StatusChanged;
+    public event EventHandler StatusChanged = delegate { };
 
     /// <summary>Loads every server's lists. The lists are public, so this can't check the API key.</summary>
     /// <returns>The servers whose sites can't be reached.</returns>
@@ -104,7 +104,7 @@ public class Scout
             return;
 
         Status = status;
-        StatusChanged?.Invoke(this, EventArgs.Empty);
+        StatusChanged(this, EventArgs.Empty);
     }
 
     AppStatus CurrentStatus() => new(
