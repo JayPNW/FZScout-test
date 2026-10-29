@@ -211,6 +211,6 @@ public class BonusReporterTests
 
         Assert.Empty(this._api.Reports);
         Assert.False(this._errors.LastOperationFailed);
-        Assert.Contains("Not reporting none in Crushbone for Bowslinger (Fangbreaker): checking the site failed: network", this._log.Lines);
+        Assert.Contains("WARNING: Not reporting none in Crushbone for Bowslinger (Fangbreaker): checking the site failed: network", this._log.Lines);
     }
 }

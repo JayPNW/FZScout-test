@@ -47,13 +47,13 @@ public class ServerListCache(IBonusApi api, ErrorState errors, IAppLog log, Time
             var zones = await api.GetZonesAsync(server);
             entry.Lists = new(bonusKeys, zones);
             entry.LoadedAt = time.GetUtcNow();
-            log.Write($"Loaded {server} lists: {bonusKeys.Count} bonus types, {zones.Count} zones");
+            log.LogInformation($"Loaded {server} lists: {bonusKeys.Count} bonus types, {zones.Count} zones");
             errors.Succeeded();
             return LoadOutcome.Loaded;
         }
         catch (HttpRequestException e)
         {
-            log.Write($"Loading {server} lists failed{(isRetry ? " again" : "")}: {e.Message}");
+            log.LogError($"Loading {server} lists failed{(isRetry ? " again" : "")}: {e.Message}");
             errors.Failed();
             // After a failed retry, try again the next time the lists are needed.
             if (!isRetry)

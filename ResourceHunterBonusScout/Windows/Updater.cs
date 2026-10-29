@@ -26,14 +26,14 @@ static class Updater
                 var update = await manager.CheckForUpdatesAsync();
                 if (update is not null && manager.UpdatePendingRestart?.Version != update.TargetFullRelease.Version)
                 {
-                    log.Write($"Downloading update {update.TargetFullRelease.Version}");
+                    log.LogInformation($"Downloading update {update.TargetFullRelease.Version}");
                     await manager.DownloadUpdatesAsync(update, null, stopping);
-                    log.Write("Update downloaded. It applies the next time the app starts.");
+                    log.LogInformation("Update downloaded. It applies the next time the app starts.");
                 }
             }
             catch (Exception e) when (e is not OperationCanceledException)
             {
-                log.Write($"Update check failed: {e.Message}");
+                log.LogWarning($"Self-update check failed: {e.Message}");
             }
 
             try

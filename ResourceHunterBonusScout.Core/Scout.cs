@@ -93,7 +93,7 @@ public class Scout
         {
             if (this._trackers[path] is { NoBonusAt: not null } tracker)
             {
-                this._log.Write($"{tracker.Character} ({tracker.Server}) log is no longer watched; timeout cancelled.");
+                this._log.LogInformation($"{tracker.Character} ({tracker.Server}) log is no longer watched; timeout cancelled.");
             }
 
             this._trackers.Remove(path);
@@ -135,11 +135,15 @@ public class Scout
                 LogEvent.PersonaChanged => "changed persona",
                 _ => logEvent.ToString(),
             };
-            var unknownZone = logEvent is LogEvent.ZoneEntered && tracker.Zone is null;
-            this._log.Write($"{(unknownZone ? "Error: " : "")}{tracker.Character} ({tracker.Server}) {what}{timer}.");
-            if (unknownZone)
+            var message = $"{tracker.Character} ({tracker.Server}) {what}{timer}.";
+            if (logEvent is LogEvent.ZoneEntered && tracker.Zone is null)
             {
+                this._log.LogError(message);
                 this._errors.Failed();
+            }
+            else
+            {
+                this._log.LogInformation(message);
             }
         }
 

@@ -42,7 +42,7 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
             : null;
         if (skipReason is not null)
         {
-            log.Write($"Not reporting {description}: {skipReason}");
+            log.LogInformation($"Not reporting {description}: {skipReason}");
             return;
         }
 
@@ -56,28 +56,28 @@ public class BonusReporter(IBonusApi api, IApiKeyStore apiKeyStore, ServerListCa
             }
             catch (HttpRequestException e)
             {
-                log.Write($"Not reporting {description}: checking the site failed: {e.Message}");
+                log.LogWarning($"Not reporting {description}: checking the site failed: {e.Message}");
                 return;
             }
 
             if (siteBonus is not (null or BonusReport.NoBonus or BonusReport.Unconfirmed))
             {
-                log.Write($"Not reporting {description}: the site shows {siteBonus}");
+                log.LogInformation($"Not reporting {description}: the site shows {siteBonus}");
                 errors.Succeeded();
                 return;
             }
         }
 
-        log.Write($"Reporting {description}{(isRetry ? " (retry)" : "")}");
+        log.LogInformation($"Reporting {description}{(isRetry ? " (retry)" : "")}");
         HttpStatusCode? status = null;
         try
         {
             status = await api.ReportAsync(report, apiKey!);
-            log.Write($"Response: {(int)status} {status}");
+            log.LogInformation($"Response: {(int)status} {status}");
         }
         catch (HttpRequestException e)
         {
-            log.Write($"Report failed: {e.Message}");
+            log.LogError($"Report failed: {e.Message}");
         }
 
         if ((int?)status is >= 200 and < 300)

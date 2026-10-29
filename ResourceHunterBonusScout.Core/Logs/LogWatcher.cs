@@ -91,7 +91,7 @@ public class LogWatcher(IEqProcesses eqProcesses, IAppLog log, TimeProvider time
 
             process.Hinted = true;
             hintNeeded = true;
-            log.Write($"No log in {process.Folder} has grown since EverQuest process {process.Id} started");
+            log.LogWarning($"No log in {process.Folder} has grown since EverQuest process {process.Id} started");
         }
         return hintNeeded;
     }
@@ -102,7 +102,7 @@ public class LogWatcher(IEqProcesses eqProcesses, IAppLog log, TimeProvider time
         if (isNew)
         {
             this._folders[path] = folder = new();
-            log.Write($"Found EverQuest logs folder {path}");
+            log.LogInformation($"Found EverQuest logs folder {path}");
         }
 
         foreach (var (file, length) in ListLogs(path))
@@ -119,7 +119,7 @@ public class LogWatcher(IEqProcesses eqProcesses, IAppLog log, TimeProvider time
             if (!this._tails.ContainsKey(file) && LogFileName.Parse(file) is (var character, var server))
             {
                 this._tails[file] = (new(file, character, server), new(file, oldLength), path);
-                log.Write($"Watching {file}");
+                log.LogInformation($"Watching {file}");
             }
         }
     }
@@ -129,7 +129,7 @@ public class LogWatcher(IEqProcesses eqProcesses, IAppLog log, TimeProvider time
         foreach (var (file, _) in this._tails.Where(t => string.Equals(t.Value.Folder, folder, StringComparison.OrdinalIgnoreCase)).ToList())
         {
             this._tails.Remove(file);
-            log.Write($"Stopped watching {file}");
+            log.LogInformation($"Stopped watching {file}");
         }
         this._folders.Remove(folder);
     }

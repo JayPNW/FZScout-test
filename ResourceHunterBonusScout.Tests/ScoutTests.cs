@@ -208,7 +208,7 @@ public sealed class ScoutTests : IDisposable
         await Poll();
 
         Assert.Equal(TrayIconState.Error, this._scout.Status.IconState);
-        Assert.Contains("Error: Kixu (Frostreaver) entered The Bazaar, which isn't on the zones list.", this._log.Lines);
+        Assert.Contains("ERROR: Kixu (Frostreaver) entered The Bazaar, which isn't on the zones list.", this._log.Lines);
     }
 
     [Fact]

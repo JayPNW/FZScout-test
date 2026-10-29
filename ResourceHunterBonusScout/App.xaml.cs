@@ -17,6 +17,7 @@ public partial class App : Application
 
     readonly CancellationTokenSource _stopping = new();
     readonly DailyFileLog _log = new(Path.Combine(DataFolder, "logs"), TimeProvider.System);
+    IAppLog Log => this._log;
     readonly CredentialApiKeyStore _apiKeyStore = new();
     readonly JsonSettingsStore _settingsStore = new(Path.Combine(DataFolder, "settings.json"));
     readonly Settings _settings;
@@ -31,11 +32,11 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        this._log.Write(new string('-', 80));
-        this._log.Write($"Started version {Version}");
+        this.Log.LogInformation(new string('-', 80));
+        this.Log.LogInformation($"Started version {Version}");
         DispatcherUnhandledException += (_, args) =>
         {
-            this._log.Write($"Unexpected error: {args.Exception}");
+            this.Log.LogError($"Unexpected error: {args.Exception}");
             args.Handled = true;
         };
 
@@ -85,7 +86,7 @@ public partial class App : Application
                 }
                 catch (Exception e)
                 {
-                    this._log.Write($"Unexpected error: {e}");
+                    this.Log.LogError($"Unexpected error: {e}");
                 }
             }
         }
@@ -113,7 +114,7 @@ public partial class App : Application
 
     void Quit()
     {
-        this._log.Write("Exiting");
+        this.Log.LogInformation("Exiting");
         this._stopping.Cancel();
         this._trayIcon?.Dispose();
         Shutdown();

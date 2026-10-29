@@ -25,7 +25,7 @@ public class DailyFileLog : IAppLog
 
     string FileFor(DateOnly date) => Path.Combine(this._folder, $"{date.ToString(DateFormat, CultureInfo.InvariantCulture)}.log");
 
-    public void Write(string message)
+    public void LogInformation(string message)
     {
         var now = this._time.GetLocalNow();
         lock (this._writing)

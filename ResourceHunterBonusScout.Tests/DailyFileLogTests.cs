@@ -26,9 +26,9 @@ public sealed class DailyFileLogTests : IDisposable
     [Fact]
     public void OneFilePerDay()
     {
-        this._log.Write("first");
+        this._log.LogInformation("first");
         this._time.Advance(TimeSpan.FromDays(1));
-        this._log.Write("second");
+        this._log.LogInformation("second");
 
         Assert.Equal(["2026-10-28 19:20:01 first"], File.ReadAllLines(Path.Combine(this._folder, "2026-10-28.log")));
         Assert.Equal(["2026-10-29 19:20:01 second"], File.ReadAllLines(this._log.TodaysFile));
@@ -43,7 +43,7 @@ public sealed class DailyFileLogTests : IDisposable
             File.WriteAllText(Path.Combine(this._folder, name), "");
         }
 
-        this._log.Write("hello");
+        this._log.LogInformation("hello");
 
         Assert.Equal(["2026-10-15.log", "2026-10-28.log", "notes.log"], Directory.GetFiles(this._folder).Select(Path.GetFileName).Order());
     }
