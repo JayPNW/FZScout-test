@@ -10,7 +10,7 @@ using ResourceHunterBonusScout.Windows;
 
 namespace ResourceHunterBonusScout;
 
-public partial class App : Application, IAppActions
+public partial class App : Application
 {
     static readonly string DataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ResourceHunterBonusScout");
     static readonly string Version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0.0.0";
@@ -40,13 +40,16 @@ public partial class App : Application, IAppActions
             args.Handled = true;
         };
 
-        var trayViewModel = new TrayViewModel(this);
+        var trayViewModel = new TrayViewModel();
+        trayViewModel.SettingsRequested += delegate { ShowSettings(); };
+        trayViewModel.LogRequested += delegate { OpenTodaysLog(); };
+        trayViewModel.ExitRequested += delegate { Quit(); };
         trayIcon = new TrayIcon { DataContext = trayViewModel };
         trayIcon.ForceCreate(enablesEfficiencyMode: false);
 
-        var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-        http.DefaultRequestHeaders.UserAgent.Add(new("ResourceHunterBonusScout", Version));
-        var scout = new Scout(new EqProcesses(), new BonusApi(http), apiKeyStore, new TrayNotifier(trayIcon, ShowSettings), log, TimeProvider.System);
+        var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        httpClient.DefaultRequestHeaders.UserAgent.Add(new("ResourceHunterBonusScout", Version));
+        var scout = new Scout(new EqProcesses(), new BonusApi(httpClient), apiKeyStore, new TrayNotifier(trayIcon, ShowSettings), log, TimeProvider.System);
         trayViewModel.Status = scout.Status;
         scout.StatusChanged += (_, _) => trayViewModel.Status = scout.Status;
 
@@ -87,7 +90,7 @@ public partial class App : Application, IAppActions
         }
     }
 
-    public void ShowSettings()
+    void ShowSettings()
     {
         if (settingsWindow is null)
         {
@@ -98,13 +101,13 @@ public partial class App : Application, IAppActions
         settingsWindow.Activate();
     }
 
-    public void OpenTodaysLog()
+    void OpenTodaysLog()
     {
         var path = File.Exists(log.TodaysFile) ? log.TodaysFile : Path.GetDirectoryName(log.TodaysFile)!;
         Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
     }
 
-    void IAppActions.Exit()
+    void Quit()
     {
         log.Write("Exiting");
         stopping.Cancel();

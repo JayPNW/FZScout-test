@@ -1,28 +1,23 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ResourceHunterBonusScout.Services;
 
 namespace ResourceHunterBonusScout.ViewModels;
 
 public partial class TrayViewModel : ObservableObject
 {
-    readonly IAppActions app;
-
-    public TrayViewModel(IAppActions app)
-    {
-        this.app = app;
-        Status = new([], HasApiKey: false, LastOperationFailed: false);
-    }
-
     [ObservableProperty]
-    public partial AppStatus Status { get; set; }
+    public partial AppStatus Status { get; set; } = new([], HasApiKey: false, LastOperationFailed: false);
+
+    public event EventHandler SettingsRequested = delegate{};
+    public event EventHandler LogRequested = delegate{};
+    public event EventHandler ExitRequested = delegate{};
 
     [RelayCommand]
-    void ShowSettings() => app.ShowSettings();
+    void ShowSettings() => SettingsRequested(this, EventArgs.Empty);
 
     [RelayCommand]
-    void OpenLog() => app.OpenTodaysLog();
+    void OpenLog() => LogRequested(this, EventArgs.Empty);
 
     [RelayCommand]
-    void Exit() => app.Exit();
+    void Exit() => ExitRequested(this, EventArgs.Empty);
 }

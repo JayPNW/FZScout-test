@@ -4,13 +4,7 @@ namespace ResourceHunterBonusScout.Tests;
 
 public class TrayViewModelTests
 {
-    readonly FakeAppActions app = new();
-    readonly TrayViewModel viewModel;
-
-    public TrayViewModelTests()
-    {
-        viewModel = new TrayViewModel(app);
-    }
+    readonly TrayViewModel viewModel = new();
 
     [Fact]
     public void StatusChangeIsNotified()
@@ -24,12 +18,17 @@ public class TrayViewModelTests
     }
 
     [Fact]
-    public void MenuCommandsCallTheApp()
+    public void MenuCommandsRaiseEvents()
     {
+        var raised = new List<string>();
+        viewModel.SettingsRequested += delegate { raised.Add("SettingsRequested"); };
+        viewModel.LogRequested += delegate { raised.Add("LogRequested"); };
+        viewModel.ExitRequested += delegate { raised.Add("ExitRequested"); };
+
         viewModel.ShowSettingsCommand.Execute(null);
         viewModel.OpenLogCommand.Execute(null);
         viewModel.ExitCommand.Execute(null);
 
-        Assert.Equal(["ShowSettings", "OpenTodaysLog", "Exit"], app.Calls);
+        Assert.Equal(["SettingsRequested", "LogRequested", "ExitRequested"], raised);
     }
 }

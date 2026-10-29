@@ -16,14 +16,6 @@ class FakeStartWithWindows : IStartWithWindows
     public bool IsEnabled { get; set; }
 }
 
-class FakeAppActions : IAppActions
-{
-    public List<string> Calls { get; } = [];
-    public void ShowSettings() => Calls.Add(nameof(ShowSettings));
-    public void OpenTodaysLog() => Calls.Add(nameof(OpenTodaysLog));
-    public void Exit() => Calls.Add(nameof(Exit));
-}
-
 class FakeBonusApi : IBonusApi
 {
     public List<string> BonusKeys { get; set; } = ["experience", "aa", "loot", "coin", "rare", "faction", "tradeskill", "respawn", "tribute", "item-exp", "none"];
