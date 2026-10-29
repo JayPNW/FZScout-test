@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Services;
+﻿namespace ResourceHunterBonusScout.Services;
 
 /// <summary>What the tray menu can ask the app to do.</summary>
 public interface IAppActions

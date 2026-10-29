@@ -1,4 +1,4 @@
-using H.NotifyIcon;
+﻿using H.NotifyIcon;
 
 namespace ResourceHunterBonusScout.Views;
 

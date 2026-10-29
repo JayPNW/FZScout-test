@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
@@ -7,20 +7,20 @@ namespace ResourceHunterBonusScout.Views;
 
 public class InverseBooleanToVisibilityConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
-        value is true ? Visibility.Collapsed : Visibility.Visible;
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is true ? Visibility.Collapsed : Visibility.Visible;
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
-        throw new NotSupportedException();
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
 }
 
 public class IconStateToImageConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
-        BitmapFrame.Create(new Uri($"pack://application:,,,/Assets/{(TrayIconState)value}.ico"));
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => BitmapFrame.Create(new Uri($"pack://application:,,,/Assets/{(TrayIconState)value}.ico"));
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
-        throw new NotSupportedException();
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
 }
 
 public class StatusToToolTipConverter : IValueConverter
@@ -38,6 +38,6 @@ public class StatusToToolTipConverter : IValueConverter
         return text.Length <= MaxLength ? text : text[..(MaxLength - 1)] + "…";
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
-        throw new NotSupportedException();
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
 }

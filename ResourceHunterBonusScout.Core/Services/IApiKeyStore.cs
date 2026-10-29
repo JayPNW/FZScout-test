@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Services;
+﻿namespace ResourceHunterBonusScout.Services;
 
 /// <summary>Where the API key lives. The app stores it in Windows Credential Manager.</summary>
 public interface IApiKeyStore

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ResourceHunterBonusScout.Reporting;
@@ -12,11 +12,11 @@ public class BonusApi(HttpClient http) : IBonusApi
     record Zone(string Name);
     record Bonus(string ServerName, string ZoneName, string BonusKey);
 
-    public async Task<IReadOnlyList<string>> GetBonusKeysAsync(Server server) =>
-        (await GetAsync<BonusType>(server, "types")).Select(t => t.Key).ToList();
+    public async Task<IReadOnlyList<string>> GetBonusKeysAsync(Server server)
+        => (await GetAsync<BonusType>(server, "types")).Select(t => t.Key).ToList();
 
-    public async Task<IReadOnlyList<string>> GetZonesAsync(Server server) =>
-        (await GetAsync<Zone>(server, "zones")).Select(z => z.Name).ToList();
+    public async Task<IReadOnlyList<string>> GetZonesAsync(Server server)
+        => (await GetAsync<Zone>(server, "zones")).Select(z => z.Name).ToList();
 
     async Task<T[]> GetAsync<T>(Server server, string list)
     {

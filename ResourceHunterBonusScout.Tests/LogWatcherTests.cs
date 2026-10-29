@@ -1,6 +1,5 @@
-using Microsoft.Extensions.Time.Testing;
+﻿using Microsoft.Extensions.Time.Testing;
 using ResourceHunterBonusScout.Logs;
-using ResourceHunterBonusScout.Services;
 
 namespace ResourceHunterBonusScout.Tests;
 

@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Services;
+﻿namespace ResourceHunterBonusScout.Services;
 
 /// <summary>Tray notifications.</summary>
 public interface INotifier

@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout;
+﻿namespace ResourceHunterBonusScout;
 
 /// <summary>A server's <c>types</c> and <c>zones</c> lists from its site.</summary>
 public class ServerLists

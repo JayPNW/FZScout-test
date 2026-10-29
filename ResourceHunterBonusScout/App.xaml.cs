@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
@@ -32,7 +32,7 @@ public partial class App : Application, IAppActions
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        log.Write(new String('-', 80));
+        log.Write(new string('-', 80));
         log.Write($"Started version {Version}");
         DispatcherUnhandledException += (_, args) =>
         {

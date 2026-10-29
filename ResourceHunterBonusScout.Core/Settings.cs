@@ -1,4 +1,4 @@
-using ResourceHunterBonusScout.Services;
+﻿using ResourceHunterBonusScout.Services;
 
 namespace ResourceHunterBonusScout;
 

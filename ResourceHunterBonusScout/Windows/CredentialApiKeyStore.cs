@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.InteropServices;
 using ResourceHunterBonusScout.Services;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;

@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Tests;
+﻿namespace ResourceHunterBonusScout.Tests;
 
 public class SettingsTests
 {

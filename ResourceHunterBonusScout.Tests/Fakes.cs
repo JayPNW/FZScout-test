@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using ResourceHunterBonusScout.Reporting;
 using ResourceHunterBonusScout.Services;
 
@@ -43,8 +43,8 @@ class FakeBonusApi : IBonusApi
         return ListFailure is null ? Task.FromResult<IReadOnlyList<string>>(BonusKeys) : Task.FromException<IReadOnlyList<string>>(ListFailure);
     }
 
-    public Task<IReadOnlyList<string>> GetZonesAsync(Server server) =>
-        ListFailure is null ? Task.FromResult<IReadOnlyList<string>>(Zones) : Task.FromException<IReadOnlyList<string>>(ListFailure);
+    public Task<IReadOnlyList<string>> GetZonesAsync(Server server)
+        => ListFailure is null ? Task.FromResult<IReadOnlyList<string>>(Zones) : Task.FromException<IReadOnlyList<string>>(ListFailure);
 
     public Task<HttpStatusCode> ReportAsync(BonusReport report, string apiKey)
     {
@@ -88,8 +88,8 @@ sealed class EqFolder : IDisposable
 
     public string LogPath(string character, string server) => Path.Combine(Logs, $"eqlog_{character}_{server}.txt");
 
-    public void Append(string path, params string[] lines) =>
-        File.AppendAllLines(path, lines.Select(line => $"[Mon Sep 14 16:10:29 2026] {line}"));
+    public void Append(string path, params string[] lines)
+        => File.AppendAllLines(path, lines.Select(line => $"[Mon Sep 14 16:10:29 2026] {line}"));
 
     public void Dispose() => Directory.Delete(Root, recursive: true);
 }

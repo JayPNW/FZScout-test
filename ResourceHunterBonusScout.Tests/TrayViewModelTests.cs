@@ -1,4 +1,4 @@
-using ResourceHunterBonusScout.ViewModels;
+﻿using ResourceHunterBonusScout.ViewModels;
 
 namespace ResourceHunterBonusScout.Tests;
 

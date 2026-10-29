@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using Microsoft.Extensions.Time.Testing;
 using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Reporting;

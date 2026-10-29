@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Reporting;
+﻿namespace ResourceHunterBonusScout.Reporting;
 
 /// <summary>Whether the last report or data load failed. Shown as the Error icon.</summary>
 public class ErrorState

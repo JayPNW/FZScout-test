@@ -1,6 +1,5 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
-using ResourceHunterBonusScout.Reporting;
 using ResourceHunterBonusScout.Services;
 
 namespace ResourceHunterBonusScout.Tests;

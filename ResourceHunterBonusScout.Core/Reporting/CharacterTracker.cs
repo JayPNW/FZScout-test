@@ -1,4 +1,4 @@
-using ResourceHunterBonusScout.Logs;
+﻿using ResourceHunterBonusScout.Logs;
 
 namespace ResourceHunterBonusScout.Reporting;
 
