@@ -22,7 +22,7 @@ public record AppStatus(IReadOnlyList<CharacterStatus> Characters, bool HasApiKe
                 return TrayIconState.Waiting;
             }
 
-            if (Characters.Count > 0)
+            if (Characters.Any(c => !c.NeverHasBonus))
             {
                 return TrayIconState.Active;
             }

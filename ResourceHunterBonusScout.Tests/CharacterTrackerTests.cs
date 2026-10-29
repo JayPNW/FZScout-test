@@ -41,6 +41,18 @@ public class CharacterTrackerTests
     }
 
     [Fact]
+    public void ZoneThatNeverHasABonusStopsTheTimer()
+    {
+        Handle(new LogEvent.ZoneEntered("Crushbone"));
+        Handle(new LogEvent.ZoneEntered("The Guild Lobby"));
+
+        Assert.Null(this._tracker.Zone);
+        Assert.Equal("The Guild Lobby", this._tracker.NoBonusZone);
+        this._time.Advance(CharacterTracker.NoBonusDelay);
+        Assert.Null(this._tracker.Tick());
+    }
+
+    [Fact]
     public void BonusMessageCancelsTheTimer()
     {
         Handle(new LogEvent.ZoneEntered("Crushbone"));

@@ -22,6 +22,9 @@ public class CharacterTracker(string character, Server server, TimeProvider time
     /// <summary>The site's spelling, or null when the current zone is unknown.</summary>
     public string? Zone { get; private set; }
 
+    /// <summary>The log's spelling of the current zone when it's one of the <see cref="NoBonusZones"/>, otherwise null.</summary>
+    public string? NoBonusZone { get; private set; }
+
     /// <summary>When to report no bonus, after a zone entry or a kill. Null when nothing is waiting, or while paused.</summary>
     public DateTimeOffset? NoBonusAt { get; private set; }
 
@@ -38,6 +41,7 @@ public class CharacterTracker(string character, Server server, TimeProvider time
         {
             case LogEvent.ZoneEntered entered:
                 Zone = lists?.FindZone(entered.Zone);
+                NoBonusZone = NoBonusZones.Contains(entered.Zone) ? entered.Zone : null;
                 if (Zone is null)
                 {
                     StopTimer();

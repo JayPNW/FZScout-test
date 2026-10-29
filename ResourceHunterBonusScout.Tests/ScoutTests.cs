@@ -212,6 +212,17 @@ public sealed class ScoutTests : IDisposable
     }
 
     [Fact]
+    public async Task ZoneThatNeverHasABonusIsIdle()
+    {
+        await Poll();
+        this._eq.Append(this._eq.LogPath("Kixu", "frostreaver"), "You have entered The Plane of Tranquility.");
+        await Poll();
+
+        Assert.Equal(TrayIconState.Idle, this._scout.Status.IconState);
+        Assert.Contains("Kixu (Frostreaver) entered The Plane of Tranquility, which never has a bonus.", this._log.Lines);
+    }
+
+    [Fact]
     public async Task NoKeyShowsTheErrorIcon()
     {
         this._apiKeyStore.ApiKey = null;

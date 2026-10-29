@@ -33,6 +33,15 @@ public class AppStatusTests
     }
 
     [Fact]
+    public void IdleWhenEveryCharacterIsInAZoneThatNeverHasABonus()
+    {
+        var inPoK = Bowslinger with { Zone = "The Plane of Knowledge", NeverHasBonus = true };
+
+        Assert.Equal(TrayIconState.Idle, new AppStatus([inPoK], HasApiKey: true, LastOperationFailed: false, EqRunning: true).IconState);
+        Assert.Equal(TrayIconState.Active, new AppStatus([inPoK, Bowslinger], HasApiKey: true, LastOperationFailed: false, EqRunning: true).IconState);
+    }
+
+    [Fact]
     public void ErrorWhenNoKey()
     {
         Assert.Equal(TrayIconState.Error, new AppStatus([Bowslinger], HasApiKey: false, LastOperationFailed: false, EqRunning: true).IconState);

@@ -123,6 +123,7 @@ public class Scout
         {
             var what = logEvent switch
             {
+                LogEvent.ZoneEntered entered when tracker.NoBonusZone is not null => $"entered {entered.Zone}, which never has a bonus",
                 LogEvent.ZoneEntered entered when tracker.Zone is null => $"entered {entered.Zone}, which isn't on the zones list",
                 LogEvent.ZoneEntered entered => $"entered {entered.Zone}",
                 LogEvent.BonusMessage bonus => $"got the {bonus.BonusKey} bonus message",
@@ -134,7 +135,7 @@ public class Scout
                 _ => logEvent.ToString(),
             };
             var message = $"{tracker.Character} ({tracker.Server}) {what}{timer}.";
-            if (logEvent is LogEvent.ZoneEntered && tracker.Zone is null)
+            if (logEvent is LogEvent.ZoneEntered && tracker is { Zone: null, NoBonusZone: null })
             {
                 this._log.LogError(message);
                 this._errors.Failed();
@@ -177,7 +178,7 @@ public class Scout
     }
 
     AppStatus CurrentStatus() => new(
-        [.. this._trackers.Values.Select(t => new CharacterStatus(t.Character, t.Server.Name, t.Zone, t.NoBonusAt))],
+        [.. this._trackers.Values.Select(t => new CharacterStatus(t.Character, t.Server.Name, t.Zone ?? t.NoBonusZone, t.NoBonusAt, NeverHasBonus: t.NoBonusZone is not null))],
         HasApiKey: this._apiKeyStore.Read() is not null,
         this._errors.LastOperationFailed,
         this._watcher.EqRunning);
