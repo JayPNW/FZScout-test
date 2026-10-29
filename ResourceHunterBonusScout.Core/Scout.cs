@@ -119,13 +119,15 @@ public class Scout
         var report = tracker.Handle(logEvent, serverLists);
 
         var timer = TimerChange(logEvent, noBonusAtBefore, tracker.NoBonusAt);
-        if (logEvent is LogEvent.ZoneEntered || timer.Length > 0)
+        var isError = IsError(logEvent, tracker);
+        if (logEvent is LogEvent.ZoneEntered || timer.Length > 0 || isError)
         {
             var what = logEvent switch
             {
                 LogEvent.ZoneEntered entered when tracker.NoBonusZone is not null => $"entered {entered.Zone}, which never has a bonus",
                 LogEvent.ZoneEntered entered when tracker.Zone is null => $"entered {entered.Zone}, which isn't on the zones list",
                 LogEvent.ZoneEntered entered => $"entered {entered.Zone}",
+                LogEvent.BonusMessage bonus when tracker.NoBonusZone is not null => $"got the {bonus.BonusKey} bonus message in {tracker.NoBonusZone}, which should never have a bonus",
                 LogEvent.BonusMessage bonus => $"got the {bonus.BonusKey} bonus message",
                 LogEvent.Kill => "got a kill",
                 LogEvent.CampStarted => "started to camp",
@@ -135,7 +137,7 @@ public class Scout
                 _ => logEvent.ToString(),
             };
             var message = $"{tracker.Character} ({tracker.Server}) {what}{timer}.";
-            if (logEvent is LogEvent.ZoneEntered && tracker is { Zone: null, NoBonusZone: null })
+            if (isError)
             {
                 this._log.LogError(message);
                 this._errors.Failed();
@@ -151,6 +153,13 @@ public class Scout
             await this._reporter.ReportAsync(report);
         }
     }
+
+    static bool IsError(LogEvent logEvent, CharacterTracker tracker) => logEvent switch
+    {
+        LogEvent.ZoneEntered => tracker is { Zone: null, NoBonusZone: null },
+        LogEvent.BonusMessage => tracker.NoBonusZone is not null,
+        _ => false,
+    };
 
     string TimerChange(LogEvent logEvent, DateTimeOffset? before, DateTimeOffset? after) => (before, after) switch
     {

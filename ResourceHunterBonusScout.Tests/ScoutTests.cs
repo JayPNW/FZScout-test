@@ -223,6 +223,20 @@ public sealed class ScoutTests : IDisposable
     }
 
     [Fact]
+    public async Task BonusInAZoneThatNeverHasABonusIsAnError()
+    {
+        await Poll();
+        this._eq.Append(this._bowslinger,
+            "You have entered The Plane of Knowledge.",
+            "This land is saturated with unstable magic, multiplying the loot that may be found here.");
+        await Poll();
+
+        Assert.Equal(TrayIconState.Error, this._scout.Status.IconState);
+        Assert.Contains("ERROR: Bowslinger (Fangbreaker) got the loot bonus message in The Plane of Knowledge, which should never have a bonus.", this._log.Lines);
+        Assert.Empty(this._api.Reports);
+    }
+
+    [Fact]
     public async Task NoKeyShowsTheErrorIcon()
     {
         this._apiKeyStore.ApiKey = null;
