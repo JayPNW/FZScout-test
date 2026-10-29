@@ -110,7 +110,14 @@ public class Scout
 
         if (logEvent is LogEvent.ZoneEntered entered)
         {
-            this._log.Write($"{tracker.Character} ({tracker.Server}) entered {entered.Zone}{(tracker.Zone is null ? ", which isn't on the zones list" : "")}");
+            if (tracker.Zone is null)
+            {
+                this._log.Write($"{tracker.Character} ({tracker.Server}) entered {entered.Zone}, which isn't on the zones list");
+            }
+            else
+            {
+                this._log.Write($"{tracker.Character} ({tracker.Server}) entered {entered.Zone}");
+            }
         }
 
         if (report is not null)
