@@ -5,7 +5,7 @@ A log parser for EverQuest's Resource Hunter feature. It automatically reports e
 ## Getting Started
 
 1. In EverQuest enable logging by typing `/log on`.
-1. Download and run Resource Hunter Bonus Scout. If Windows says it protected your PC, click **More info**, then **Run anyway**. This only happens on the first install.
+1. [Download](https://github.com/JayBazuzi/ResourceHunterBonusScout/releases/latest) and run Resource Hunter Bonus Scout. If Windows says it protected your PC, click **More info**, then **Run anyway**. This only happens on the first install.
 1. [Create an API key](docs/create-api-key.md).
 1. Paste the key into the window that opens and click **Save**.
 
