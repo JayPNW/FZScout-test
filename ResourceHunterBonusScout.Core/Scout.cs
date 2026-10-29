@@ -152,6 +152,7 @@ public class Scout
         var status = CurrentStatus();
         if (status.HasApiKey == Status.HasApiKey
             && status.LastOperationFailed == Status.LastOperationFailed
+            && status.EqRunning == Status.EqRunning
             && status.Characters.SequenceEqual(Status.Characters))
         {
             return;
@@ -164,5 +165,6 @@ public class Scout
     AppStatus CurrentStatus() => new(
         [.. this._trackers.Values.Select(t => new CharacterStatus(t.Character, t.Server.Name, t.Zone, t.NoBonusAt))],
         HasApiKey: this._apiKeyStore.Read() is not null,
-        this._errors.LastOperationFailed);
+        this._errors.LastOperationFailed,
+        this._watcher.EqRunning);
 }

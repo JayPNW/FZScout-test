@@ -119,10 +119,10 @@ public sealed class ScoutTests : IDisposable
     [Fact]
     public async Task StatusListsCharactersAndZones()
     {
+        await Poll();
         var changes = 0;
         this._scout.StatusChanged += (_, _) => changes++;
 
-        await Poll();
         this._eq.Append(this._bowslinger, "You have entered The Halls of Honor.");
         this._eq.Append(this._eq.LogPath("Kixu", "frostreaver"), "Welcome to EverQuest!");
         await Poll();
@@ -134,6 +134,19 @@ public sealed class ScoutTests : IDisposable
         Assert.Equal(
             [new CharacterStatus("Bowslinger", "Fangbreaker", "Halls of Honor", entered + CharacterTracker.NoBonusDelay), new CharacterStatus("Kixu", "Frostreaver", null)],
             this._scout.Status.Characters.OrderBy(c => c.Name));
+    }
+
+    [Fact]
+    public async Task StatusTracksWhetherEqIsRunning()
+    {
+        Assert.False(this._scout.Status.EqRunning);
+
+        await Poll();
+        Assert.True(this._scout.Status.EqRunning);
+
+        this._processes.Running.Clear();
+        await Poll();
+        Assert.False(this._scout.Status.EqRunning);
     }
 
     [Fact]

@@ -11,8 +11,8 @@ public class StatusToToolTipConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         var status = (AppStatus)value;
-        IEnumerable<string> lines = status.Characters.Count == 0
-            ? ["No EverQuest log is being watched."]
+        IEnumerable<string> lines = !status.EqRunning ? ["EverQuest is not running."]
+            : status.Characters.Count == 0 ? ["No EverQuest log is being watched."]
             : status.Characters.Select(Line);
         var text = string.Join("\n", ["Resource Hunter Bonus Scout", .. lines]);
         return text.Length <= MaxLength ? text : text[..(MaxLength - 1)] + "…";

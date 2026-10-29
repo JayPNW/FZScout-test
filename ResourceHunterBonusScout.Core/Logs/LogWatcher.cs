@@ -15,6 +15,8 @@ public class LogWatcher(IEqProcesses eqProcesses, IAppLog log, TimeProvider time
 
     public IReadOnlyList<ActiveLog> ActiveLogs => [.. this._tails.Values.Select(t => t.Log)];
 
+    public bool EqRunning => this._processes.Count > 0;
+
     public LogWatcherPoll Poll()
     {
         var now = time.GetUtcNow();

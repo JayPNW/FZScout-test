@@ -7,24 +7,24 @@ public class AppStatusTests
     [Fact]
     public void IdleWhenNoLogIsTailed()
     {
-        Assert.Equal(TrayIconState.Idle, new AppStatus([], HasApiKey: true, LastOperationFailed: false).IconState);
+        Assert.Equal(TrayIconState.Idle, new AppStatus([], HasApiKey: true, LastOperationFailed: false, EqRunning: true).IconState);
     }
 
     [Fact]
     public void ActiveWhenALogIsTailed()
     {
-        Assert.Equal(TrayIconState.Active, new AppStatus([Bowslinger], HasApiKey: true, LastOperationFailed: false).IconState);
+        Assert.Equal(TrayIconState.Active, new AppStatus([Bowslinger], HasApiKey: true, LastOperationFailed: false, EqRunning: true).IconState);
     }
 
     [Fact]
     public void ErrorWhenNoKey()
     {
-        Assert.Equal(TrayIconState.Error, new AppStatus([Bowslinger], HasApiKey: false, LastOperationFailed: false).IconState);
+        Assert.Equal(TrayIconState.Error, new AppStatus([Bowslinger], HasApiKey: false, LastOperationFailed: false, EqRunning: true).IconState);
     }
 
     [Fact]
     public void ErrorWhenLastOperationFailed()
     {
-        Assert.Equal(TrayIconState.Error, new AppStatus([Bowslinger], HasApiKey: true, LastOperationFailed: true).IconState);
+        Assert.Equal(TrayIconState.Error, new AppStatus([Bowslinger], HasApiKey: true, LastOperationFailed: true, EqRunning: true).IconState);
     }
 }
