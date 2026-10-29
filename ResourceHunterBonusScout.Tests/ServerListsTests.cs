@@ -9,5 +9,4 @@ public class ServerListsTests
         var result = subject.FindZone("Deepest Guk: The Rescue");
         Assert.Equal("Deepest Guk", result);
     }
-
 }
