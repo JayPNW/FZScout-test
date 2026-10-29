@@ -1,1 +1,1 @@
-@dotnet test
+@call dotnet test
