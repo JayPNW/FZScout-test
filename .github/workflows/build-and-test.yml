@@ -9,9 +9,14 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - run: ./build-and-test.cmd
+      - name: Publish prerelease
+        if: github.event_name == 'push'
+        run: ./scripts/release.ps1 -Prerelease ci.${{ github.run_number }} -GitHubToken ${{ secrets.GITHUB_TOKEN }}
