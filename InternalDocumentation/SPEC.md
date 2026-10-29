@@ -40,7 +40,7 @@ It opens on its own when no API key is stored, and from the tray menu after that
 | Error  | The last report or data load failed, or there's no key. |
 
 - The icon goes back to Idle or Active after the next success.
-- The tooltip starts with "Resource Hunter Bonus Scout", then lists each character with its server and current zone, like `Bowslinger (Fangbreaker): The Halls of Honor`. If the zone isn't known, it says "unknown zone". With no characters, it says "No EverQuest log is being watched."
+- The tooltip starts with "Resource Hunter Bonus Scout", then lists each character with its server and current zone, like `Bowslinger (Fangbreaker): The Halls of Honor`. If the zone isn't known, it says "unknown zone". While waiting to report `none`, after a zone entry or a kill, it adds when, like `Bowslinger (Fangbreaker): Crushbone, waiting for bonus until 3:42:10 PM`. With no characters, it says "No EverQuest log is being watched."
 - The menu has **Settings…**, **Open log** (today's log file), and **Exit**.
 
 ## Startup windows

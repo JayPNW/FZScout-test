@@ -13,9 +13,15 @@ public class StatusToToolTipConverter : IValueConverter
         var status = (AppStatus)value;
         IEnumerable<string> lines = status.Characters.Count == 0
             ? ["No EverQuest log is being watched."]
-            : status.Characters.Select(c => $"{c.Name} ({c.ServerName}): {c.Zone ?? "unknown zone"}");
+            : status.Characters.Select(Line);
         var text = string.Join("\n", ["Resource Hunter Bonus Scout", .. lines]);
         return text.Length <= MaxLength ? text : text[..(MaxLength - 1)] + "…";
+    }
+
+    static string Line(CharacterStatus c)
+    {
+        var line = $"{c.Name} ({c.ServerName}): {c.Zone ?? "unknown zone"}";
+        return c.NoBonusAt is { } at ? $"{line}, waiting for bonus until {at.ToLocalTime():T}" : line;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

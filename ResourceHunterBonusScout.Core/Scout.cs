@@ -1,4 +1,5 @@
-﻿using ResourceHunterBonusScout.Logs;
+﻿using System.Globalization;
+using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Reporting;
 using ResourceHunterBonusScout.Services;
 
@@ -88,6 +89,11 @@ public class Scout
         var active = this._watcher.ActiveLogs;
         foreach (var path in this._trackers.Keys.Except(active.Select(l => l.Path), StringComparer.OrdinalIgnoreCase).ToList())
         {
+            if (this._trackers[path] is { NoBonusAt: not null } tracker)
+            {
+                this._log.Write($"{tracker.Character} ({tracker.Server}) log is no longer watched; timeout cancelled.");
+            }
+
             this._trackers.Remove(path);
         }
 
@@ -106,18 +112,26 @@ public class Scout
         }
 
         var serverLists = logEvent is LogEvent.ZoneEntered or LogEvent.BonusMessage ? await this._lists.GetAsync(tracker.Server) : null;
+        var noBonusAtBefore = tracker.NoBonusAt;
         var report = tracker.Handle(logEvent, serverLists);
 
-        if (logEvent is LogEvent.ZoneEntered entered)
+        var timer = tracker.NoBonusAt is { } at && at != noBonusAtBefore ? $"; waiting for timeout at {ClockTime(at)}"
+            : tracker.NoBonusAt is null && noBonusAtBefore is not null ? logEvent is LogEvent.CampStarted ? "; timeout paused" : "; timeout cancelled"
+            : "";
+        if (logEvent is LogEvent.ZoneEntered || timer.Length > 0)
         {
-            if (tracker.Zone is null)
+            var what = logEvent switch
             {
-                this._log.Write($"{tracker.Character} ({tracker.Server}) entered {entered.Zone}, which isn't on the zones list");
-            }
-            else
-            {
-                this._log.Write($"{tracker.Character} ({tracker.Server}) entered {entered.Zone}");
-            }
+                LogEvent.ZoneEntered entered when tracker.Zone is null => $"entered {entered.Zone}, which isn't on the zones list",
+                LogEvent.ZoneEntered entered => $"entered {entered.Zone}",
+                LogEvent.BonusMessage bonus => $"got the {bonus.BonusKey} bonus message",
+                LogEvent.Kill => "got a kill",
+                LogEvent.CampStarted => "started to camp",
+                LogEvent.CampAbandoned => "stopped camping",
+                LogEvent.DailyReset => "saw the daily reset",
+                _ => logEvent.ToString(),
+            };
+            this._log.Write($"{tracker.Character} ({tracker.Server}) {what}{timer}.");
         }
 
         if (report is not null)
@@ -125,6 +139,8 @@ public class Scout
             await this._reporter.ReportAsync(report);
         }
     }
+
+    string ClockTime(DateTimeOffset at) => TimeZoneInfo.ConvertTime(at, this._time.LocalTimeZone).ToString("HH:mm:ss", CultureInfo.InvariantCulture);
 
     void UpdateStatus()
     {
@@ -141,7 +157,7 @@ public class Scout
     }
 
     AppStatus CurrentStatus() => new(
-        [.. this._trackers.Values.Select(t => new CharacterStatus(t.Character, t.Server.Name, t.Zone))],
+        [.. this._trackers.Values.Select(t => new CharacterStatus(t.Character, t.Server.Name, t.Zone, t.NoBonusAt))],
         HasApiKey: this._apiKeyStore.Read() is not null,
         this._errors.LastOperationFailed);
 }
