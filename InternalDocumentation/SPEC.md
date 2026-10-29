@@ -124,6 +124,7 @@ Fangbreaker's `types` list includes `item-exp`, but the game has no message for 
 - Report `none` sooner if `You have slain {mob}!` isn't followed by a bonus message within 10 seconds. Ignore `{mob} was slain by {name}!`: it includes kills by NPCs and other players, which often don't trigger the bonus. `{name} has been slain by {mob}!` is a player or pet dying, not a kill.
 - Pause the timer on `It will take you about 30 seconds to prepare your camp.` and resume it on `You abandon your preparations to camp.`
 - On the daily reset message (`Fonts of unstable magic are erupting…`), restart the 5-minute timer for the current zone. A new day's bonus may follow.
+- On a persona change, restart the 5-minute timer if it's still waiting. The game doesn't announce the change, so treat either `Autojoining channels...` or `You successfully loaded your {class} equipment set.` as one. Once the zone's bonus has been seen, a persona change doesn't affect it.
 - If a bonus appears after `none` was reported, report the bonus too.
 - Before reporting `none`, GET `/api/servers/{server}/bonuses/today`. If the site already shows a bonus for the zone (anything but `none` or `unconfirmed`), don't report: assume the site is right. If that check fails, log it and skip the report.
 - POST `{serverName, zoneName, bonusKey}` to `/api/client/bonuses` with the `X-API-Key` header. Duplicates are fine.

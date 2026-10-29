@@ -65,6 +65,11 @@ public class CharacterTracker(string character, Server server, TimeProvider time
                 StartTimer(NoBonusDelay);
                 return null;
 
+            // Restart only a timer that's still waiting. If the zone's bonus was already seen, it hasn't changed.
+            case LogEvent.PersonaChanged when NoBonusAt is not null || this._pausedRemaining is not null:
+                StartTimer(NoBonusDelay);
+                return null;
+
             default:
                 return null;
         }

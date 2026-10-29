@@ -102,6 +102,20 @@ public sealed class ScoutTests : IDisposable
     }
 
     [Fact]
+    public async Task LogsAPersonaChange()
+    {
+        await Poll();
+        this._eq.Append(this._bowslinger, "You have entered Crushbone.");
+        await Poll();
+        this._eq.Append(this._bowslinger, "You successfully loaded your Druid equipment set.");
+        await Poll();
+
+        Assert.Equal(
+            "Bowslinger (Fangbreaker) changed persona; waiting for timeout at 00:05:09.",
+            this._log.Lines.Last(line => line.StartsWith("Bowslinger (Fangbreaker) ", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public async Task TimerIsCancelledWhenEqExits()
     {
         await Poll();

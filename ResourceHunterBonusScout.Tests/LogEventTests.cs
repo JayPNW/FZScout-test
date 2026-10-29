@@ -66,7 +66,16 @@ public class LogEventTests
     }
 
     [Theory]
+    [InlineData("[Thu Oct 29 10:50:31 2026] Autojoining channels...")]
+    [InlineData("[Thu Oct 29 10:50:32 2026] You successfully loaded your Druid equipment set.")]
+    public void PersonaChange(string line)
+    {
+        Assert.IsType<LogEvent.PersonaChanged>(LogEvent.Parse(line));
+    }
+
+    [Theory]
     [InlineData("[Mon Sep 14 16:10:29 2026] Welcome to EverQuest!")]
+    [InlineData("[Thu Oct 29 10:50:22 2026] Your Monk equipment set has been saved.")]
     [InlineData("Bowslinger tells the guild, 'You have entered The Halls of Honor'")]
     [InlineData("")]
     public void OtherLinesDontMatter(string line)

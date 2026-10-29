@@ -129,6 +129,7 @@ public class Scout
                 LogEvent.CampStarted => "started to camp",
                 LogEvent.CampAbandoned => "stopped camping",
                 LogEvent.DailyReset => "saw the daily reset",
+                LogEvent.PersonaChanged => "changed persona",
                 _ => logEvent.ToString(),
             };
             var unknownZone = logEvent is LogEvent.ZoneEntered && tracker.Zone is null;

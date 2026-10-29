@@ -57,11 +57,20 @@ public abstract partial record LogEvent
             return new DailyReset();
         }
 
+        // The game doesn't announce a persona change, but these lines come with one.
+        if (text == "Autojoining channels..." || EquipmentSetLoadedRegex().IsMatch(text))
+        {
+            return new PersonaChanged();
+        }
+
         return null;
     }
 
     [GeneratedRegex(@"^You have entered (?!an area)(?<zone>.+)\.$")]
     private static partial Regex ZoneEnteredRegex();
+
+    [GeneratedRegex(@"^You successfully loaded your .+ equipment set\.$")]
+    private static partial Regex EquipmentSetLoadedRegex();
 
     /// <summary>Removes a leading <c>[Mon Sep 14 16:10:29 2026] </c>.</summary>
     static string StripTimestamp(string line)
@@ -88,4 +97,7 @@ public abstract partial record LogEvent
     public record CampAbandoned : LogEvent;
 
     public record DailyReset : LogEvent;
+
+    /// <summary>The character switched to another class's persona, without zoning.</summary>
+    public record PersonaChanged : LogEvent;
 }

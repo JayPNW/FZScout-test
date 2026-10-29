@@ -182,6 +182,31 @@ public class CharacterTrackerTests
     }
 
     [Fact]
+    public void PersonaChangeRestartsTheTimer()
+    {
+        Handle(new LogEvent.ZoneEntered("Crushbone"));
+        this._time.Advance(TimeSpan.FromMinutes(4));
+        Handle(new LogEvent.PersonaChanged());
+
+        this._time.Advance(TimeSpan.FromMinutes(4));
+        Assert.Null(this._tracker.Tick());
+        this._time.Advance(TimeSpan.FromMinutes(1));
+        Assert.Equal(Report("Crushbone", "none"), this._tracker.Tick());
+    }
+
+    [Fact]
+    public void PersonaChangeAfterABonusDoesNothing()
+    {
+        Handle(new LogEvent.ZoneEntered("Crushbone"));
+        Handle(new LogEvent.BonusMessage("loot"));
+
+        Handle(new LogEvent.PersonaChanged());
+
+        this._time.Advance(CharacterTracker.NoBonusDelay);
+        Assert.Null(this._tracker.Tick());
+    }
+
+    [Fact]
     public void BonusAfterDailyReset()
     {
         Handle(new LogEvent.ZoneEntered("Crushbone"));
