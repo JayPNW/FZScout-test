@@ -11,8 +11,14 @@ When you need input on a decision:
 Then have a discussion.
 This formatting applies every time you present a decision, even a quick one — don't let a short or informal-feeling exchange skip it.
 
-## WPF and MVVM
+## C#
 
-ViewModels should not contain logic and should not need to be tested.
+### MVVM
+
+WPF ViewModels should not contain logic and should not need to be tested.
 It contains only properties and commands that the view binds to.
 Everything should either be in the view or the application model it sits on.
+
+### Testing
+
+Most UI tests should be of this form: populate w ViewModel with test data, bind it to a View, render the View, and verify the rendered view.
