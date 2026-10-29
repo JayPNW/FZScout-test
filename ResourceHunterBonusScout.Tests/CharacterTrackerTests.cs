@@ -207,6 +207,37 @@ public class CharacterTrackerTests
     }
 
     [Fact]
+    public void WithTheIdleTimerOffOnlyAKillReportsNoBonus()
+    {
+        this._tracker.IsIdleTimerOn = false;
+        Handle(new LogEvent.ZoneEntered("Crushbone"));
+
+        this._time.Advance(TimeSpan.FromHours(1));
+        Assert.Null(this._tracker.Tick());
+
+        Handle(new LogEvent.Kill());
+        this._time.Advance(CharacterTracker.AfterKillDelay);
+        Assert.Equal(Report("Crushbone", "none"), this._tracker.Tick());
+    }
+
+    [Fact]
+    public void WithTheIdleTimerOffCampingWaitsForAKill()
+    {
+        this._tracker.IsIdleTimerOn = false;
+        Handle(new LogEvent.ZoneEntered("Crushbone"));
+        Handle(new LogEvent.CampStarted());
+        this._time.Advance(TimeSpan.FromMinutes(1));
+        Handle(new LogEvent.CampAbandoned());
+
+        this._time.Advance(TimeSpan.FromHours(1));
+        Assert.Null(this._tracker.Tick());
+
+        Handle(new LogEvent.Kill());
+        this._time.Advance(CharacterTracker.AfterKillDelay);
+        Assert.Equal(Report("Crushbone", "none"), this._tracker.Tick());
+    }
+
+    [Fact]
     public void BonusAfterDailyReset()
     {
         Handle(new LogEvent.ZoneEntered("Crushbone"));

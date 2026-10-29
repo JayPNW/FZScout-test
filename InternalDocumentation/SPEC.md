@@ -29,6 +29,7 @@ It opens on its own when no API key is stored, and from the tray menu after that
    - An account has only one key, shared with fzClient. Once a key exists, the page shows it masked and offers **Rotate API Key** and **Revoke API Key**. If the user already has a key in fzClient, they can paste that one. **Rotate** reveals a new key, but the old one stops working in fzClient.
 1. **API key:** a masked text box with a show/hide toggle. It must start with `fz_live_`, or the window shows "The API key must start with fz_live_" and won't save. Editing the key clears the error.
 1. **Start with Windows** checkbox, checked by default.
+1. **Report "none" after 5 minutes in a zone without a bonus message** checkbox (the idle timer), checked by default. When it's off, `none` is reported only after a kill (see [Reporting](#reporting)).
 1. **Save** and **Cancel**. Both hide the window. The app keeps running in the tray.
 
 ## Tray icon
@@ -120,7 +121,7 @@ Fangbreaker's `types` list includes `item-exp`, but the game has no message for 
 ## Reporting
 
 - Report when a bonus message appears.
-- Report `none` 5 minutes after a zone entry with no bonus message. Cancel the timer on any new zone entry, including one to an unknown zone, or when EQ exits.
+- Report `none` 5 minutes after a zone entry with no bonus message, if the idle timer setting is on. Cancel the timer on any new zone entry, including one to an unknown zone, or when EQ exits.
 - Report `none` sooner if `You have slain {mob}!` isn't followed by a bonus message within 10 seconds. Ignore `{mob} was slain by {name}!`: it includes kills by NPCs and other players, which often don't trigger the bonus. `{name} has been slain by {mob}!` is a player or pet dying, not a kill.
 - Pause the timer on `It will take you about 30 seconds to prepare your camp.` and resume it on `You abandon your preparations to camp.`
 - On the daily reset message (`Fonts of unstable magic are erupting…`), restart the 5-minute timer for the current zone. A new day's bonus may follow.

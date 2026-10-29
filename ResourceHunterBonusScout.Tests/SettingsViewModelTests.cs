@@ -6,11 +6,12 @@ public class SettingsViewModelTests
 {
     readonly InMemoryApiKeyStore _apiKeyStore = new();
     readonly FakeStartWithWindows _startWithWindows = new();
+    readonly InMemorySettingsStore _settingsStore = new();
     int _closeRequests;
 
     SettingsViewModel Open()
     {
-        var viewModel = new SettingsViewModel(new Settings(this._apiKeyStore, this._startWithWindows));
+        var viewModel = new SettingsViewModel(new Settings(this._apiKeyStore, this._startWithWindows, this._settingsStore));
         viewModel.CloseRequested += (_, _) => this._closeRequests++;
         return viewModel;
     }
@@ -20,11 +21,13 @@ public class SettingsViewModelTests
     {
         this._apiKeyStore.ApiKey = "fz_live_abc";
         this._startWithWindows.IsEnabled = false;
+        this._settingsStore.Settings = new(IdleTimer: false);
 
         var viewModel = Open();
 
         Assert.Equal("fz_live_abc", viewModel.ApiKey);
         Assert.False(viewModel.StartWithWindows);
+        Assert.False(viewModel.IdleTimer);
         Assert.False(viewModel.IsApiKeyVisible);
         Assert.False(viewModel.IsApiKeyRejected);
     }
@@ -35,11 +38,13 @@ public class SettingsViewModelTests
         var viewModel = Open();
         viewModel.ApiKey = "fz_live_abc";
         viewModel.StartWithWindows = true;
+        viewModel.IdleTimer = false;
 
         viewModel.SaveCommand.Execute(null);
 
         Assert.Equal("fz_live_abc", this._apiKeyStore.ApiKey);
         Assert.True(this._startWithWindows.IsEnabled);
+        Assert.False(this._settingsStore.Settings.IdleTimer);
         Assert.False(viewModel.IsApiKeyRejected);
         Assert.Equal(1, this._closeRequests);
     }

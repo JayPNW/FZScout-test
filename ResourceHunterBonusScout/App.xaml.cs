@@ -18,13 +18,14 @@ public partial class App : Application
     readonly CancellationTokenSource _stopping = new();
     readonly DailyFileLog _log = new(Path.Combine(DataFolder, "logs"), TimeProvider.System);
     readonly CredentialApiKeyStore _apiKeyStore = new();
+    readonly JsonSettingsStore _settingsStore = new(Path.Combine(DataFolder, "settings.json"));
     readonly Settings _settings;
     TrayIcon? _trayIcon;
     SettingsWindow? _settingsWindow;
 
     public App()
     {
-        this._settings = new(this._apiKeyStore, new RegistryStartWithWindows());
+        this._settings = new(this._apiKeyStore, new RegistryStartWithWindows(), this._settingsStore);
     }
 
     protected override async void OnStartup(StartupEventArgs e)
@@ -47,7 +48,7 @@ public partial class App : Application
 
         var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         httpClient.DefaultRequestHeaders.UserAgent.Add(new("ResourceHunterBonusScout", Version));
-        var scout = new Scout(new EqProcesses(), new BonusApi(httpClient), this._apiKeyStore, new TrayNotifier(this._trayIcon, ShowSettings), this._log, TimeProvider.System);
+        var scout = new Scout(new EqProcesses(), new BonusApi(httpClient), this._apiKeyStore, this._settingsStore, new TrayNotifier(this._trayIcon, ShowSettings), this._log, TimeProvider.System);
         trayViewModel.Status = scout.Status;
         scout.StatusChanged += (_, _) => trayViewModel.Status = scout.Status;
 

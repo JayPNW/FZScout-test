@@ -15,14 +15,16 @@ public class Scout
     readonly BonusReporter _reporter;
     readonly ErrorState _errors = new();
     readonly IApiKeyStore _apiKeyStore;
+    readonly ISettingsStore _settings;
     readonly INotifier _notifier;
     readonly IAppLog _log;
     readonly TimeProvider _time;
     readonly Dictionary<string, CharacterTracker> _trackers = new(StringComparer.OrdinalIgnoreCase);
 
-    public Scout(IEqProcesses eqProcesses, IBonusApi api, IApiKeyStore apiKeyStore, INotifier notifier, IAppLog log, TimeProvider time)
+    public Scout(IEqProcesses eqProcesses, IBonusApi api, IApiKeyStore apiKeyStore, ISettingsStore settings, INotifier notifier, IAppLog log, TimeProvider time)
     {
         this._apiKeyStore = apiKeyStore;
+        this._settings = settings;
         this._notifier = notifier;
         this._log = log;
         this._time = time;
@@ -113,6 +115,7 @@ public class Scout
 
         var serverLists = logEvent is LogEvent.ZoneEntered or LogEvent.BonusMessage ? await this._lists.GetAsync(tracker.Server) : null;
         var noBonusAtBefore = tracker.NoBonusAt;
+        tracker.IsIdleTimerOn = this._settings.Read().IdleTimer;
         var report = tracker.Handle(logEvent, serverLists);
 
         var timer = tracker.NoBonusAt is { } at && at != noBonusAtBefore ? $"; waiting for timeout at {ClockTime(at)}"

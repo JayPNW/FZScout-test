@@ -13,6 +13,7 @@ public partial class SettingsViewModel : ObservableObject
         this._settings = settings;
         ApiKey = settings.ApiKey;
         StartWithWindows = settings.StartWithWindows;
+        IdleTimer = settings.IdleTimer;
     }
 
     /// <summary>Save and Cancel both hide the window. The app keeps running in the tray.</summary>
@@ -28,6 +29,9 @@ public partial class SettingsViewModel : ObservableObject
     public partial bool StartWithWindows { get; set; }
 
     [ObservableProperty]
+    public partial bool IdleTimer { get; set; }
+
+    [ObservableProperty]
     public partial bool IsApiKeyRejected { get; set; }
 
     partial void OnApiKeyChanged(string value) => IsApiKeyRejected = false;
@@ -35,7 +39,7 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     void Save()
     {
-        IsApiKeyRejected = !this._settings.TrySave(ApiKey, StartWithWindows);
+        IsApiKeyRejected = !this._settings.TrySave(ApiKey, StartWithWindows, IdleTimer);
         if (!IsApiKeyRejected)
         {
             CloseRequested(this, EventArgs.Empty);

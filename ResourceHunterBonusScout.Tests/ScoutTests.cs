@@ -11,6 +11,7 @@ public sealed class ScoutTests : IDisposable
     readonly FakeEqProcesses _processes = new();
     readonly FakeBonusApi _api = new();
     readonly InMemoryApiKeyStore _apiKeyStore = new() { ApiKey = "fz_live_abc" };
+    readonly InMemorySettingsStore _settingsStore = new();
     readonly FakeNotifier _notifier = new();
     readonly EqFolder _eq = new();
     readonly ListLog _log = new();
@@ -19,7 +20,7 @@ public sealed class ScoutTests : IDisposable
 
     public ScoutTests()
     {
-        this._scout = new(this._processes, this._api, this._apiKeyStore, this._notifier, this._log, this._time);
+        this._scout = new(this._processes, this._api, this._apiKeyStore, this._settingsStore, this._notifier, this._log, this._time);
         this._bowslinger = this._eq.LogPath("Bowslinger", "fangbreaker");
         this._processes.Running.Add(new(1, this._eq.ExePath));
     }
@@ -30,6 +31,20 @@ public sealed class ScoutTests : IDisposable
     {
         this._time.Advance(LogWatcher.ScanInterval);
         await this._scout.PollAsync();
+    }
+
+    [Fact]
+    public async Task IdleTimerSettingTurnsOffTheFiveMinuteNoBonusReport()
+    {
+        this._settingsStore.Settings = new(IdleTimer: false);
+        await Poll();
+        this._eq.Append(this._bowslinger, "You have entered Crushbone.");
+        await Poll();
+
+        this._time.Advance(CharacterTracker.NoBonusDelay);
+        await this._scout.PollAsync();
+
+        Assert.Empty(this._api.Reports);
     }
 
     [Fact]

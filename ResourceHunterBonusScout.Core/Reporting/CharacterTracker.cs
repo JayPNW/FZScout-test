@@ -13,6 +13,8 @@ public class CharacterTracker(string character, Server server, TimeProvider time
 
     // How much was left on the timer when camping paused it.
     TimeSpan? _pausedRemaining;
+    // With the idle timer off, nothing is timed until a kill.
+    bool _waitingForKill;
 
     public string Character => character;
     public Server Server => server;
@@ -23,6 +25,11 @@ public class CharacterTracker(string character, Server server, TimeProvider time
     /// <summary>When to report no bonus, after a zone entry or a kill. Null when nothing is waiting, or while paused.</summary>
     public DateTimeOffset? NoBonusAt { get; private set; }
 
+    /// <summary>When off, only a kill leads to reporting <see cref="BonusReport.NoBonus"/>. Takes effect when the timer next starts.</summary>
+    public bool IsIdleTimerOn { get; set; } = true;
+
+    bool IsWaiting => NoBonusAt is not null || this._pausedRemaining is not null || this._waitingForKill;
+
     /// <param name="lists">The server's lists. Needed for zone entries and bonus messages; null if they couldn't be loaded.</param>
     public BonusReport? Handle(LogEvent logEvent, ServerLists? lists)
     {
@@ -31,12 +38,20 @@ public class CharacterTracker(string character, Server server, TimeProvider time
         {
             case LogEvent.ZoneEntered entered:
                 Zone = lists?.FindZone(entered.Zone);
-                StartTimer(Zone is null ? null : NoBonusDelay);
+                if (Zone is null)
+                {
+                    StopTimer();
+                }
+                else
+                {
+                    StartIdleTimer();
+                }
+
                 return null;
 
             case LogEvent.BonusMessage bonus when Zone is not null:
                 // Even a bonus the site doesn't track means the zone has one, so don't report none.
-                StartTimer(null);
+                StopTimer();
                 return lists is not null && lists.BonusKeys.Contains(bonus.BonusKey) ? Report(bonus.BonusKey) : null;
 
             case LogEvent.Kill:
@@ -47,6 +62,11 @@ public class CharacterTracker(string character, Server server, TimeProvider time
                 else if (this._pausedRemaining is { } remaining)
                 {
                     this._pausedRemaining = Min(remaining, AfterKillDelay);
+                }
+                else if (this._waitingForKill)
+                {
+                    NoBonusAt = now + AfterKillDelay;
+                    this._waitingForKill = false;
                 }
 
                 return null;
@@ -62,12 +82,12 @@ public class CharacterTracker(string character, Server server, TimeProvider time
                 return null;
 
             case LogEvent.DailyReset when Zone is not null:
-                StartTimer(NoBonusDelay);
+                StartIdleTimer();
                 return null;
 
             // Restart only a timer that's still waiting. If the zone's bonus was already seen, it hasn't changed.
-            case LogEvent.PersonaChanged when NoBonusAt is not null || this._pausedRemaining is not null:
-                StartTimer(NoBonusDelay);
+            case LogEvent.PersonaChanged when IsWaiting:
+                StartIdleTimer();
                 return null;
 
             default:
@@ -87,10 +107,24 @@ public class CharacterTracker(string character, Server server, TimeProvider time
         return Report(BonusReport.NoBonus);
     }
 
-    void StartTimer(TimeSpan? delay)
+    void StartIdleTimer()
     {
-        NoBonusAt = time.GetUtcNow() + delay;
+        StopTimer();
+        if (IsIdleTimerOn)
+        {
+            NoBonusAt = time.GetUtcNow() + NoBonusDelay;
+        }
+        else
+        {
+            this._waitingForKill = true;
+        }
+    }
+
+    void StopTimer()
+    {
+        NoBonusAt = null;
         this._pausedRemaining = null;
+        this._waitingForKill = false;
     }
 
     BonusReport Report(string bonusKey) => new(character, server, Zone!, bonusKey);

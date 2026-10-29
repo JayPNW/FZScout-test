@@ -49,6 +49,7 @@
                 </TextBlock.Style>
             </TextBlock>
             <CheckBox Content="Start with _Windows" IsChecked="{Binding StartWithWindows}" Margin="0,12,0,0" />
+            <CheckBox Content="Report &quot;_none&quot; after 5 minutes in a zone without a bonus message" IsChecked="{Binding IdleTimer}" Margin="0,8,0,0" />
         </StackPanel>
     </DockPanel>
 </Window>

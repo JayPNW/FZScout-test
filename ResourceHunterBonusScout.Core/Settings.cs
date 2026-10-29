@@ -9,11 +9,13 @@ public class Settings
 
     readonly IApiKeyStore _apiKeyStore;
     readonly IStartWithWindows _startWithWindows;
+    readonly ISettingsStore _store;
 
-    public Settings(IApiKeyStore apiKeyStore, IStartWithWindows startWithWindows)
+    public Settings(IApiKeyStore apiKeyStore, IStartWithWindows startWithWindows, ISettingsStore store)
     {
         this._apiKeyStore = apiKeyStore;
         this._startWithWindows = startWithWindows;
+        this._store = store;
     }
 
     public string ApiKey => this._apiKeyStore.Read() ?? "";
@@ -21,8 +23,10 @@ public class Settings
     // With no key, nothing has been saved yet, so use the default.
     public bool StartWithWindows => this._apiKeyStore.Read() is null || this._startWithWindows.IsEnabled;
 
+    public bool IdleTimer => this._store.Read().IdleTimer;
+
     /// <returns>False, saving nothing, when the key doesn't start with <see cref="ApiKeyPrefix"/>.</returns>
-    public bool TrySave(string apiKey, bool startWithWindows)
+    public bool TrySave(string apiKey, bool startWithWindows, bool idleTimer)
     {
         apiKey = apiKey.Trim();
         if (!apiKey.StartsWith(ApiKeyPrefix, StringComparison.Ordinal))
@@ -32,6 +36,7 @@ public class Settings
 
         this._apiKeyStore.Write(apiKey);
         this._startWithWindows.IsEnabled = startWithWindows;
+        this._store.Write(this._store.Read() with { IdleTimer = idleTimer });
         return true;
     }
 }
