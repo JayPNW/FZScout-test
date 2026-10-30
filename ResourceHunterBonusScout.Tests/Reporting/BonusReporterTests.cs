@@ -35,7 +35,7 @@ public class BonusReporterTests
         await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
 
         Assert.Equal([PostBody("Fangbreaker", "Befallen", "loot")], this._site.Requests);
-        Assert.Equal("12:00:00 Reported Fangbreaker 'Befallen' is 'loot' for Bob.", this.Output());
+        Assert.Equal("12:00:00 Reported Fangbreaker 'Befallen' is 'loot'.", this.Output());
     }
 
     [Theory]
@@ -246,7 +246,7 @@ public class BonusReporterTests
         this._site.Succeed(Post);
         await this.Tick(60);
 
-        Assert.EndsWith("Reported Fangbreaker 'Befallen' is 'loot' for Bob.", this.Output());
+        Assert.EndsWith("Reported Fangbreaker 'Befallen' is 'loot'.", this.Output());
     }
 
     [Fact]

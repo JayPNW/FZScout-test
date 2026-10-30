@@ -192,7 +192,7 @@ public class CharacterScoutTests
     [Fact]
     public void EnteringAZoneIsLogged()
     {
-        Assert.Equal([new LogInfoAction("Bob (Frostreaver) entered The Greater Faydark.")], this.Log(0, "You have entered The Greater Faydark."));
+        Assert.Equal([new LogInfoAction("Bob (Frostreaver) entered The Greater Faydark."), new LogInfoAction($"Bob (Frostreaver) waiting until {Start.AddMinutes(5).ToLocalTime():HH:mm:ss} for a bonus message.")], this.Log(0, "You have entered The Greater Faydark."));
     }
 
     [Fact]
@@ -233,7 +233,7 @@ public class CharacterScoutTests
     [Fact]
     public void ZoneEnteredWithoutListsIsResolvedWhenTheyLoad()
     {
-        Assert.Equal([new LogInfoAction("Bob (Frostreaver) entered Befallen.")], this.LogWithoutLists(0, Befallen));
+        Assert.Equal([new LogInfoAction("Bob (Frostreaver) entered Befallen."), new LogInfoAction($"Bob (Frostreaver) waiting until {Start.AddMinutes(5).ToLocalTime():HH:mm:ss} for a bonus message.")], this.LogWithoutLists(0, Befallen));
         Assert.Empty(this._scout.Tick(Start.AddSeconds(60), null));
 
         Assert.Empty(this.Tick(61));

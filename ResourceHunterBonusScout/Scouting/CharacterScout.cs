@@ -121,7 +121,7 @@ sealed class CharacterScout(Character character)
             this.StartIdleTimer(now);
         }
 
-        return [new LogInfoAction($"{character} entered {logZone}.")];
+        return [new LogInfoAction($"{character} entered {logZone}."), .. this.IdleTimerStarted()];
     }
 
     IReadOnlyList<ScoutAction> OnKill(DateTimeOffset now)
@@ -129,6 +129,7 @@ sealed class CharacterScout(Character character)
         if (IsReportable(this.Zone) && !this._reported && this._killDeadline is null)
         {
             this._killDeadline = now + KillTimeout;
+            return [WaitingUntil(character, this._killDeadline.Value)];
         }
 
         return [];
@@ -173,7 +174,7 @@ sealed class CharacterScout(Character character)
         this._reported = false;
         this._killDeadline = null;
         this.StartIdleTimer(now);
-        return [drop];
+        return [drop, .. this.IdleTimerStarted()];
     }
 
     IReadOnlyList<ScoutAction> OnCamping(DateTimeOffset now)
@@ -195,9 +196,20 @@ sealed class CharacterScout(Character character)
         {
             this._idleDeadline = now + remaining;
             this._idleRemaining = null;
+            return this.IdleTimerStarted();
         }
 
         return [];
+    }
+
+    static LogInfoAction WaitingUntil(Character character, DateTimeOffset deadline)
+    {
+        return new($"{character} waiting until {deadline.ToLocalTime():HH:mm:ss} for a bonus message.");
+    }
+
+    IReadOnlyList<ScoutAction> IdleTimerStarted()
+    {
+        return this._idleDeadline is { } deadline ? [WaitingUntil(character, deadline)] : [];
     }
 
     void StartIdleTimer(DateTimeOffset now)

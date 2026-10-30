@@ -122,7 +122,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
         var result = await client.ReportBonusAsync(report, this._apiKey!.Value, cancellationToken);
         if (result.IsSuccess)
         {
-            log.Success($"Reported {report} for {character.Name}.");
+            log.Success($"Reported {report}.");
             return;
         }
 
