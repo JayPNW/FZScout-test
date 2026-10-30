@@ -23,6 +23,12 @@ public class ZoneNamesTests
                     (0, logName, Describe(ZoneNames.Resolve(logName, siteZones))));
             }
 
+            if (ZoneNames.LogToSite.ContainsKey(zone))
+            {
+                // Listed above under its log name, which maps it to another site zone.
+                return [];
+            }
+
             return [(1, "<same>", Describe(ZoneNames.Resolve(zone, siteZones)))];
         } 
 
