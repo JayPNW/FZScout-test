@@ -1,4 +1,4 @@
-﻿namespace ResourceHunterBonusScout.Scouting;
+namespace ResourceHunterBonusScout.Scouting;
 
 /// <summary>Turns the zone name in the log into the site's zone name. See InternalDocumentation/Zones.md.</summary>
 static class ZoneNames
@@ -13,7 +13,7 @@ static class ZoneNames
         "Guild Hall",
     ];
 
-    static readonly Dictionary<string, string> LogToSite = new()
+    public static readonly Dictionary<string, string> LogToSite = new()
     {
         ["Cabilis East"] = "Cabilis",
         ["Chardok: The Halls of Betrayal"] = "Halls of Betrayal",

@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <None Update="Logs\SampleLog.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Site\SiteZonesIntegrationTests.KnownZones.verified.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

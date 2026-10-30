@@ -23,110 +23,270 @@ A leading `The ` is optional when matching names: `The Burning Woods` in the log
 
 Some zone names are unknown at this time. We'll fill them in later.
 
-| EQ log message name               | Site zone name         |
-|-----------------------------------|------------------------|
-| <unknown>                         | Felwithe               |
-| <unknown>                         | Kaladim                |
-| <unknown>                         | Neriak                 |
-| <unknown>                         | Plane of Mischief      |
-| <unknown>                         | Qeynos Catacombs       |
-| <unknown>                         | Sleeper's Tomb         |
-| <unknown>                         | The Hole               |
-| <unknown>                         | Veeshan's Peak         |
-| <same>                            | Acrylia Caverns        |
-| <same>                            | Ak'Anon                |
-| <same>                            | Befallen               |
-| <same>                            | Blackburrow            |
-| <same>                            | Butcherblock Mountains |
-| <same>                            | Chardok                |
-| <same>                            | Cobalt Scar            |
-| <same>                            | Crystal Caverns        |
-| <same>                            | Dagnor's Cauldron      |
-| <same>                            | Dawnshroud Peaks       |
-| <same>                            | Dragon Necropolis      |
-| <same>                            | East Freeport          |
-| <same>                            | Eastern Wastes         |
-| <same>                            | Echo Caverns           |
-| <same>                            | Erud's Crossing        |
-| <same>                            | Erudin                 |
-| <same>                            | Erudin Palace          |
-| <same>                            | Everfrost Peaks        |
-| <same>                            | Firiona Vie            |
-| <same>                            | Freeport Sewers        |
-| <same>                            | Frontier Mountains     |
-| <same>                            | Grieg's End            |
-| <same>                            | Grimling Forest        |
-| <same>                            | Grobb                  |
-| <same>                            | Halas                  |
-| <same>                            | High Keep              |
-| <same>                            | Highpass Hold          |
-| <same>                            | Hollowshade Moor       |
-| <same>                            | Howling Stones         |
-| <same>                            | Icewell Keep           |
-| <same>                            | Innothule Swamp        |
-| <same>                            | Jaggedpine Forest      |
-| <same>                            | Kaesora                |
-| <same>                            | Karnor's Castle        |
-| <same>                            | Katta Castellum        |
-| <same>                            | Kedge Keep             |
-| <same>                            | Kithicor Forest        |
-| <same>                            | Kurn's Tower           |
-| <same>                            | Lake of Ill Omen       |
-| <same>                            | Lake Rathetear         |
-| <same>                            | Marus Seru             |
-| <same>                            | Misty Thicket          |
-| <same>                            | Mons Letalis           |
-| <same>                            | Najena                 |
-| <same>                            | Nektulos Forest        |
-| <same>                            | Netherbian Lair        |
-| <same>                            | North Qeynos           |
-| <same>                            | Oggok                  |
-| <same>                            | Paineel                |
-| <same>                            | Paludal Caverns        |
-| <same>                            | Permafrost Keep        |
-| <same>                            | Qeynos Hills           |
-| <same>                            | Rivervale              |
-| <same>                            | Sanctus Seru           |
-| <same>                            | Shadeweaver's Thicket  |
-| <same>                            | Shadow Haven           |
-| <same>                            | Shar Vahl              |
-| <same>                            | Siren's Grotto         |
-| <same>                            | Skyshrine              |
-| <same>                            | Solusek's Eye          |
-| <same>                            | South Qeynos           |
-| <same>                            | Ssraeshza Temple       |
-| <same>                            | Surefall Glade         |
-| <same>                            | The Bazaar             |
-| <same>                            | The Deep               |
-| <same>                            | The Feerrott           |
-| <same>                            | The Grey               |
-| <same>                            | The Nexus              |
-| <same>                            | The Overthere          |
-| <same>                            | The Warrens            |
-| <same>                            | Timorous Deep          |
-| <same>                            | Toxxulia Forest        |
-| <same>                            | Trakanon's Teeth       |
-| <same>                            | Velketor's Labyrinth   |
-| <same>                            | Vex Thal               |
-| <same>                            | West Freeport          |
-| <same>                            | Western Wastes         |
-| Cabilis East                      | Cabilis                |
-| Chardok: The Halls of Betrayal    | Halls of Betrayal      |
-| Clan Crushbone                    | Crushbone              |
-| Kael Drakkel                      | Kael Drakkal           |
-| Nagafen's Lair                    | Nagafen's Lair (SolB)  |
-| North Desert of Ro                | North Ro               |
-| South Desert of Ro                | South Ro               |
-| The Castle of Mistmoore           | Castle Mistmoore       |
-| The City of Guk                   | Upper Guk              |
-| The City of Thurgadin             | Thurgadin              |
-| The Crypt of Dalnir               | Dalnir                 |
-| The Eastern Plains of Karana      | East Karana            |
-| The Liberated Citadel of Runnyeye | Clan Runnyeye          |
-| The Northern Plains of Karana     | North Karana           |
-| The Ruins of Old Guk              | Lower Guk              |
-| The Ruins of Sebilis              | Old Sebilis            |
-| The Southern Plains of Karana     | South Karana           |
-| The Warsliks Woods                | Warsliks Wood          |
-| The Western Plains of Karana      | West Karana            |
+<!-- Generated by ZoneNamesTests.ResolveTable from the sites' zone lists. Do not edit by hand. -->
+
+| EQ log message name               | Site zone name                                   |
+|-----------------------------------|--------------------------------------------------|
+| <unknown>                         | Felwithe                                         |
+| <unknown>                         | Kaladim                                          |
+| <unknown>                         | Neriak                                           |
+| <unknown>                         | Plane of Mischief                                |
+| <unknown>                         | Qeynos Catacombs                                 |
+| <unknown>                         | Sleeper's Tomb                                   |
+| <unknown>                         | The Hole                                         |
+| <unknown>                         | Veeshan's Peak                                   |
+| Cabilis East                      | Cabilis                                          |
+| Chardok: The Halls of Betrayal    | Halls of Betrayal                                |
+| Clan Crushbone                    | Crushbone                                        |
+| Kael Drakkel                      | Kael Drakkal                                     |
+| Nagafen's Lair                    | Nagafen's Lair (SolB)                            |
+| North Desert of Ro                | North Ro                                         |
+| South Desert of Ro                | South Ro                                         |
+| The Castle of Mistmoore           | Castle Mistmoore                                 |
+| The City of Guk                   | Upper Guk                                        |
+| The City of Thurgadin             | Thurgadin                                        |
+| The Crypt of Dalnir               | Dalnir                                           |
+| The Eastern Plains of Karana      | East Karana                                      |
+| The Liberated Citadel of Runnyeye | Clan Runnyeye                                    |
+| The Northern Plains of Karana     | North Karana                                     |
+| The Ruins of Old Guk              | Lower Guk                                        |
+| The Ruins of Sebilis              | Old Sebilis                                      |
+| The Southern Plains of Karana     | South Karana                                     |
+| The Warsliks Woods                | Warsliks Wood                                    |
+| The Western Plains of Karana      | West Karana                                      |
+| <same>                            | Abysmal Sea                                      |
+| <same>                            | Acrylia Caverns                                  |
+| <same>                            | Ak'Anon                                          |
+| <same>                            | Akheva Ruins                                     |
+| <same>                            | Asylum of Anguish                                |
+| <same>                            | Barindu, Hanging Gardens                         |
+| <same>                            | Bastion of Thunder                               |
+| <same>                            | Befallen                                         |
+| <same>                            | Blackburrow                                      |
+| <same>                            | Burning Woods                                    |
+| <same>                            | Butcherblock Mountains                           |
+| <same>                            | Catacombs of Dranik A                            |
+| <same>                            | Catacombs of Dranik B                            |
+| <same>                            | Catacombs of Dranik C                            |
+| <same>                            | Catacombs of Dranik: Redemption                  |
+| <same>                            | Caverns of Exile                                 |
+| <same>                            | Chardok                                          |
+| <same>                            | City of Mist                                     |
+| <same>                            | Cobalt Scar                                      |
+| <same>                            | Commonlands                                      |
+| <same>                            | Corathus Creep                                   |
+| <same>                            | Crypt of Decay                                   |
+| <same>                            | Crypt of Nadox                                   |
+| <same>                            | Crystal Caverns                                  |
+| <same>                            | Dagnor's Cauldron                                |
+| <same>                            | Dawnshroud Peaks                                 |
+| <same>                            | Deepest Guk                                      |
+| <same>                            | Deepest Guk: Ritualist of Hate                   |
+| <same>                            | Deepest Guk: The Curse Reborn                    |
+| <same>                            | Deepest Guk: The Rescue                          |
+| <same>                            | Dragon Necropolis                                |
+| <same>                            | Dranik's Hollows A                               |
+| <same>                            | Dranik's Hollows B                               |
+| <same>                            | Dranik's Hollows C                               |
+| <same>                            | Dranik's Scar                                    |
+| <same>                            | Dreadlands                                       |
+| <same>                            | Dreadspire Keep                                  |
+| <same>                            | Dulak's Harbor                                   |
+| <same>                            | East Freeport                                    |
+| <same>                            | Eastern Wastes                                   |
+| <same>                            | Echo Caverns                                     |
+| <same>                            | Emerald Jungle                                   |
+| <same>                            | Erud's Crossing                                  |
+| <same>                            | Erudin                                           |
+| <same>                            | Erudin Palace                                    |
+| <same>                            | Estate of Unrest                                 |
+| <same>                            | Everfrost Peaks                                  |
+| <same>                            | Ferubi, Forgotten Temple of Taelosia             |
+| <same>                            | Field of Bone                                    |
+| <same>                            | Firiona Vie                                      |
+| <same>                            | Freeport Sewers                                  |
+| <same>                            | Frontier Mountains                               |
+| <same>                            | Fungus Grove                                     |
+| <same>                            | Gorge of King Xorbb                              |
+| <same>                            | Great Divide                                     |
+| <same>                            | Greater Faydark                                  |
+| <same>                            | Grieg's End                                      |
+| <same>                            | Grimling Forest                                  |
+| <same>                            | Grobb                                            |
+| <same>                            | Gulf of Gunthak                                  |
+| <same>                            | Halas                                            |
+| <same>                            | Halls of Honor                                   |
+| <same>                            | Harbinger's Spire                                |
+| <same>                            | Hate's Fury, Setting Sail                        |
+| <same>                            | Hate's Fury, The Scorned Maiden                  |
+| <same>                            | High Keep                                        |
+| <same>                            | Highpass Hold                                    |
+| <same>                            | Hollowshade Moor                                 |
+| <same>                            | Howling Stones                                   |
+| <same>                            | Iceclad Ocean                                    |
+| <same>                            | Icewell Keep                                     |
+| <same>                            | Ikkinz: Chambers of Destruction                  |
+| <same>                            | Ikkinz: Trial of Glorification                   |
+| <same>                            | Ikkinz: Trial of Righteousness                   |
+| <same>                            | Ikkinz: Trial of Singular Might                  |
+| <same>                            | Ikkinz: Trial of Transcendence                   |
+| <same>                            | Ikkinz: Trial of Tri-Fates                       |
+| <same>                            | Ikkinz: Trial of Twin Struggles                  |
+| <same>                            | Inku'Ta, The Unmasked Chapel                     |
+| <same>                            | Innothule Swamp                                  |
+| <same>                            | Jaggedpine Forest                                |
+| <same>                            | Kaesora                                          |
+| <same>                            | Karnor's Castle                                  |
+| <same>                            | Katta Castellum                                  |
+| <same>                            | Kedge Keep                                       |
+| <same>                            | Kithicor Forest                                  |
+| <same>                            | Kod'Taz, Broken Trial Grounds                    |
+| <same>                            | Kurn's Tower                                     |
+| <same>                            | Lair of Terris Thule                             |
+| <same>                            | Lair of the Splitpaw                             |
+| <same>                            | Lake Rathetear                                   |
+| <same>                            | Lake of Ill Omen                                 |
+| <same>                            | Lavaspinner's Lair                               |
+| <same>                            | Lavastorm Mountains                              |
+| <same>                            | Lesser Faydark                                   |
+| <same>                            | Maiden's Eye                                     |
+| <same>                            | Marus Seru                                       |
+| <same>                            | Mines of Nurga                                   |
+| <same>                            | Miragul's Menagerie                              |
+| <same>                            | Miragul's Menagerie: Frozen Nightmare            |
+| <same>                            | Miragul's Menagerie: Synarcana                   |
+| <same>                            | Mistmoore Catacombs                              |
+| <same>                            | Mistmoore Catacombs: Scion Lair of Fury          |
+| <same>                            | Mistmoore Catacombs: The Asylum of Invoked Stone |
+| <same>                            | Misty Thicket                                    |
+| <same>                            | Mons Letalis                                     |
+| <same>                            | Muramite Proving Grounds                         |
+| <same>                            | Najena                                           |
+| <same>                            | Natimbi, The Broken Shores                       |
+| <same>                            | Nektulos Forest                                  |
+| <same>                            | Netherbian Lair                                  |
+| <same>                            | Nobles' Causeway                                 |
+| <same>                            | North Qeynos                                     |
+| <same>                            | Ocean of Tears                                   |
+| <same>                            | Oggok                                            |
+| <same>                            | Paineel                                          |
+| <same>                            | Paludal Caverns                                  |
+| <same>                            | Permafrost Keep                                  |
+| <same>                            | Plane of Air                                     |
+| <same>                            | Plane of Disease                                 |
+| <same>                            | Plane of Earth                                   |
+| <same>                            | Plane of Fear                                    |
+| <same>                            | Plane of Fire                                    |
+| <same>                            | Plane of Growth                                  |
+| <same>                            | Plane of Hate                                    |
+| <same>                            | Plane of Hate: Innoruuk's Realm                  |
+| <same>                            | Plane of Innovation                              |
+| <same>                            | Plane of Justice                                 |
+| <same>                            | Plane of Nightmare                               |
+| <same>                            | Plane of Sky                                     |
+| <same>                            | Plane of Storm                                   |
+| <same>                            | Plane of Tactics                                 |
+| <same>                            | Plane of Time A                                  |
+| <same>                            | Plane of Time B                                  |
+| <same>                            | Plane of Torment                                 |
+| <same>                            | Plane of Valor                                   |
+| <same>                            | Plane of War                                     |
+| <same>                            | Plane of Water                                   |
+| <same>                            | Proving Grounds: The Mastery of Adaptation       |
+| <same>                            | Proving Grounds: The Mastery of Corruption       |
+| <same>                            | Proving Grounds: The Mastery of Destruction      |
+| <same>                            | Proving Grounds: The Mastery of Efficiency       |
+| <same>                            | Proving Grounds: The Mastery of Endurance        |
+| <same>                            | Proving Grounds: The Mastery of Fear             |
+| <same>                            | Proving Grounds: The Mastery of Foresight        |
+| <same>                            | Proving Grounds: The Mastery of Hate             |
+| <same>                            | Proving Grounds: The Mastery of Ingenuity        |
+| <same>                            | Proving Grounds: The Mastery of Specialization   |
+| <same>                            | Proving Grounds: The Mastery of Subversion       |
+| <same>                            | Proving Grounds: The Mastery of Weaponry         |
+| <same>                            | Qeynos Hills                                     |
+| <same>                            | Qinimi, Court of Nihilia                         |
+| <same>                            | Qvic, Prayer Grounds of Calling                  |
+| <same>                            | Ragrax, Stronghold of the Twelve                 |
+| <same>                            | Rathe Mountains                                  |
+| <same>                            | Riftseeker's Sanctum                             |
+| <same>                            | Rivervale                                        |
+| <same>                            | Riwwi, Coliseum of Games                         |
+| <same>                            | Ruined City of Dranik                            |
+| <same>                            | Rujarkin Hills                                   |
+| <same>                            | Rujarkin Hills: Prison Break                     |
+| <same>                            | Rujarkin Hills: The Hidden Vale                  |
+| <same>                            | Sanctus Seru                                     |
+| <same>                            | Scarlet Desert                                   |
+| <same>                            | Sewars of Dranik A                               |
+| <same>                            | Sewars of Dranik B                               |
+| <same>                            | Sewars of Dranik C                               |
+| <same>                            | Sewers of Nihilia, Lair of Trapped Ones          |
+| <same>                            | Sewers of Nihilia, Pool of Sludge                |
+| <same>                            | Sewers of Nihilia, Purifying Plant               |
+| <same>                            | Sewers of Nihilia, the Crematory                 |
+| <same>                            | Shadeweaver's Thicket                            |
+| <same>                            | Shadow Haven                                     |
+| <same>                            | Shar Vahl                                        |
+| <same>                            | Siren's Grotto                                   |
+| <same>                            | Skyfire Mountains                                |
+| <same>                            | Skyshrine                                        |
+| <same>                            | Solusek Ro's Tower                               |
+| <same>                            | Solusek's Eye                                    |
+| <same>                            | South Qeynos                                     |
+| <same>                            | Splitpaw                                         |
+| <same>                            | Ssraeshza Temple                                 |
+| <same>                            | Steamfont Mountains                              |
+| <same>                            | Stillmoon Temple                                 |
+| <same>                            | Stonebrunt Mountains                             |
+| <same>                            | Stoneroot Falls                                  |
+| <same>                            | Surefall Glade                                   |
+| <same>                            | Swamp of No Hope                                 |
+| <same>                            | Tacvi, Seat of the Slaver                        |
+| <same>                            | Takish-Hiz                                       |
+| <same>                            | Takish-Hiz: Sunken Library                       |
+| <same>                            | Takish-Hiz: The Palace Grounds                   |
+| <same>                            | Takish-Hiz: Within the Compact                   |
+| <same>                            | Temple of Cazic-Thule                            |
+| <same>                            | Temple of Cazic-Thule (2.0)                      |
+| <same>                            | Temple of Droga                                  |
+| <same>                            | Temple of Marr                                   |
+| <same>                            | Temple of Solusek Ro                             |
+| <same>                            | Temple of Veeshan                                |
+| <same>                            | Tenebrous Mountains                              |
+| <same>                            | The Accursed Nest                                |
+| <same>                            | The Ascent                                       |
+| <same>                            | The Bazaar                                       |
+| <same>                            | The Bloodfields                                  |
+| <same>                            | The Broodlands                                   |
+| <same>                            | The Deep                                         |
+| <same>                            | The Feerrott                                     |
+| <same>                            | The Grey                                         |
+| <same>                            | The Hive                                         |
+| <same>                            | The Nexus                                        |
+| <same>                            | The Overthere                                    |
+| <same>                            | The Ruins of Illsalin                            |
+| <same>                            | The Undershore                                   |
+| <same>                            | The Warrens                                      |
+| <same>                            | Thundercrest Isles                               |
+| <same>                            | Timorous Deep                                    |
+| <same>                            | Tipt, Treacherous Crags                          |
+| <same>                            | Tirranun's Delve                                 |
+| <same>                            | Torgiran Mines                                   |
+| <same>                            | Tower of Frozen Shadow                           |
+| <same>                            | Toxxulia Forest                                  |
+| <same>                            | Trakanon's Teeth                                 |
+| <same>                            | Twilight Sea                                     |
+| <same>                            | Txevu, Lair of the Elite                         |
+| <same>                            | Umbral Plains                                    |
+| <same>                            | Uqua, The Ocean God Chantry                      |
+| <same>                            | Veksar                                           |
+| <same>                            | Velketor's Labyrinth                             |
+| <same>                            | Vex Thal                                         |
+| <same>                            | Vixed, The Crumbling Caverns                     |
+| <same>                            | Wakening Land                                    |
+| <same>                            | Wall of Slaughter                                |
+| <same>                            | West Freeport                                    |
+| <same>                            | Western Wastes                                   |
+| <same>                            | Yxtta, Pulpit of Exiles                          |
 

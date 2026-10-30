@@ -1,109 +1,90 @@
-﻿using ResourceHunterBonusScout.Scouting;
+using System.Runtime.CompilerServices;
+using ResourceHunterBonusScout.Scouting;
 
 namespace ResourceHunterBonusScout.Tests.Scouting;
 
 public class ZoneNamesTests
 {
-    static readonly HashSet<string> SiteZones =
+    /// <summary>Zones on the sites whose name in the EverQuest log isn't known yet.</summary>
+    static readonly HashSet<string> UnknownLogNames =
     [
-        "Befallen",
-        "Chardok",
-        "Halls of Betrayal",
-        "Lavaspinner's Lair",
-        "Crushbone",
-        "Nagafen's Lair (SolB)",
+        "Felwithe",
+        "Kaladim",
+        "Neriak",
+        "Plane of Mischief",
+        "Qeynos Catacombs",
+        "Sleeper's Tomb",
+        "The Hole",
+        "Veeshan's Peak",
     ];
 
+    /// <summary>Generates the table in InternalDocumentation/Zones.md from the sites' zone lists.</summary>
     [Fact]
-    public void SameName()
+    public Task ZoneNamesMapping()
     {
-        Assert.Equal(new KnownZone("Befallen"), ZoneNames.Resolve("Befallen", SiteZones));
+        var path = Path.Combine(AppContext.BaseDirectory, "Site", "SiteZonesIntegrationTests.KnownZones.verified.txt");
+        var siteZones = File.ReadAllLines(path).Where(line => line.Length > 0).ToHashSet();
+        var logNames = ZoneNames.LogToSite.ToDictionary(pair => pair.Value, pair => pair.Key);
+
+        // Unknown log names first, then zones with a different log name, then zones whose names match.
+        static (int Group, string LogName, string Site) ToRow(
+            string zone, Dictionary<string, string> logNames, HashSet<string> siteZones)
+        {
+            if (UnknownLogNames.Contains(zone))
+            {
+                return (0, "<unknown>", zone);
+            }
+
+            if (logNames.TryGetValue(zone, out var logName))
+            {
+                return (1, logName, Describe(ZoneNames.Resolve(logName, siteZones)));
+            }
+
+            return (2, "<same>", Describe(ZoneNames.Resolve(zone, siteZones)));
+        }
+
+        var rows = from zone in siteZones
+                   let r = ToRow(zone, logNames, siteZones)
+                   orderby r.Group, r.Group == 1 ? r.LogName : r.Site
+                   select (r.LogName, r.Site);
+
+        return Verify(FormatAsMarkdownTable(("EQ log message name", "Site zone name"), rows));
     }
 
-    [Fact]
-    public void DifferentName()
+    static string FormatAsMarkdownTable<TTuple>(TTuple header, IEnumerable<TTuple> rows)
+        where TTuple : ITuple
     {
-        Assert.Equal(new KnownZone("Crushbone"), ZoneNames.Resolve("Clan Crushbone", SiteZones));
-        Assert.Equal(new KnownZone("Nagafen's Lair (SolB)"), ZoneNames.Resolve("Nagafen's Lair", SiteZones));
+        var all = rows.Prepend(header).Select(row => ToCells(row)).ToList();
+        var widths = Enumerable.Range(0, header.Length)
+            .Select(column => all.Max(cells => cells[column].Length))
+            .ToList();
+        var lines = all
+            .Select(cells => ToLine(cells.Select((cell, column) => cell.PadRight(widths[column])), " "))
+            .ToList();
+        lines.Insert(1, ToLine(widths.Select(width => new string('-', width)), "-"));
+
+        return string.Join(Environment.NewLine, lines);
     }
 
-    [Fact]
-    public void LeadingTheInTheLogIsOptional()
+    static string[] ToCells(ITuple row)
     {
-        Assert.Equal(new KnownZone("Halls of Honor"), ZoneNames.Resolve("The Halls of Honor", new HashSet<string> { "Halls of Honor" }));
+        return Enumerable.Range(0, row.Length).Select(i => row[i]?.ToString() ?? "").ToArray();
     }
 
-    [Fact]
-    public void LeadingTheOnTheSiteIsOptional()
+    static string ToLine(IEnumerable<string> cells, string padding)
     {
-        Assert.Equal(new KnownZone("The Nexus"), ZoneNames.Resolve("Nexus", new HashSet<string> { "The Nexus" }));
+        return $"|{padding}{string.Join($"{padding}|{padding}", cells)}{padding}|";
     }
 
-    [Fact]
-    public void ExactNameWinsOverTheOptionalThe()
+    static string Describe(Zone zone)
     {
-        Assert.Equal(new KnownZone("The Deep"), ZoneNames.Resolve("The Deep", new HashSet<string> { "Deep", "The Deep" }));
-    }
-
-    [Fact]
-    public void MappedNameCanAlsoDropThe()
-    {
-        Assert.Equal(new KnownZone("Upper Guk"), ZoneNames.Resolve("The City of Guk", new HashSet<string> { "Upper Guk" }));
-    }
-
-    [Fact]
-    public void ZoneWithAColonThatIsNotAnInstance()
-    {
-        Assert.Equal(new KnownZone("Halls of Betrayal"), ZoneNames.Resolve("Chardok: The Halls of Betrayal", SiteZones));
-    }
-
-    [Theory]
-    [InlineData("Lavaspinner's Lair: Lavaspinner's Locals")]
-    [InlineData("Lavaspinner's Lair: The Drake Menace")]
-    public void InstanceReportsAsItsParent(string instance)
-    {
-        Assert.Equal(new KnownZone("Lavaspinner's Lair"), ZoneNames.Resolve(instance, SiteZones));
-    }
-
-    [Theory]
-    [InlineData("The Plane of Tranquility")]
-    [InlineData("The Plane of Knowledge")]
-    [InlineData("The Guild Lobby")]
-    [InlineData("Guild Hall")]
-    public void ZonesThatNeverHaveABonus(string zone)
-    {
-        Assert.Equal(new NoBonusZone(zone), ZoneNames.Resolve(zone, SiteZones));
-    }
-
-    [Fact]
-    public void NotOnTheSiteList()
-    {
-        Assert.Equal(new UnknownZone("The Halls of Honor"), ZoneNames.Resolve("The Halls of Honor", SiteZones));
-    }
-
-    [Fact]
-    public void MappedButNotOnThisServersList()
-    {
-        Assert.Equal(new UnknownZone("The Burning Woods"), ZoneNames.Resolve("The Burning Woods", SiteZones));
-    }
-
-    [Fact]
-    public void MappedZoneWithAColonIsNotTreatedAsAnInstance()
-    {
-        Assert.Equal(
-            new UnknownZone("Chardok: The Halls of Betrayal"),
-            ZoneNames.Resolve("Chardok: The Halls of Betrayal", new HashSet<string> { "Chardok" }));
-    }
-
-    [Fact]
-    public void WithoutASiteListEveryZoneIsUnresolved()
-    {
-        Assert.Equal(new UnresolvedZone("Befallen"), ZoneNames.Resolve("Befallen", null));
-    }
-
-    [Fact]
-    public void WithoutASiteListNoBonusZonesAreStillKnown()
-    {
-        Assert.Equal(new NoBonusZone("The Guild Lobby"), ZoneNames.Resolve("The Guild Lobby", null));
+        return zone switch
+        {
+            KnownZone known => known.SiteName,
+            NoBonusZone => "<no bonus>",
+            UnknownZone => "<unknown>",
+            UnresolvedZone => "<unresolved>",
+            _ => throw new ArgumentOutOfRangeException(nameof(zone)),
+        };
     }
 }
