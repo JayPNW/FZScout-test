@@ -121,7 +121,12 @@ sealed class CharacterScout(Character character)
             StartIdleTimer(now);
         }
 
-        return [new LogInfoAction($"{character} entered {logZone}."), .. IdleTimerStarted()];
+        if (this._idleDeadline is { } deadline)
+        {
+            return [new LogInfoAction($"{character} entered {logZone}, waiting until {deadline.ToLocalTime():HH:mm:ss} for a bonus message.")];
+        }
+
+        return [new LogInfoAction($"{character} entered {logZone}.")];
     }
 
     IReadOnlyList<ScoutAction> OnKill(DateTimeOffset now)
