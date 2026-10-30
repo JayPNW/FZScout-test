@@ -50,7 +50,7 @@ sealed class ApiKeyPrompt
         await this._reporter.ChangeApiKeyAsync(apiKey, cancellationToken);
     }
 
-    /// <summary>Reads a line without echoing it, so the key doesn't end up on screen.</summary>
+    /// <summary>Reads a line, echoing * for each character so the key doesn't end up on screen.</summary>
     static string ReadHidden()
     {
         if (Console.IsInputRedirected)
@@ -64,16 +64,19 @@ sealed class ApiKeyPrompt
             var key = Console.ReadKey(intercept: true);
             if (key.Key == ConsoleKey.Enter)
             {
+                Console.WriteLine();
                 return text.ToString();
             }
 
             if (key.Key == ConsoleKey.Backspace && text.Length > 0)
             {
                 text.Length--;
+                Console.Write("\b \b");
             }
             else if (!char.IsControl(key.KeyChar))
             {
                 text.Append(key.KeyChar);
+                Console.Write('*');
             }
         }
     }
