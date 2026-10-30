@@ -1,0 +1,180 @@
+﻿namespace ResourceHunterBonusScout.Logs;
+
+/// <summary>
+/// Watches the logs of running EverQuest processes and turns new lines into events.
+/// See "Finding logs" and "Logging hint" in InternalDocumentation/SPEC.md.
+/// </summary>
+sealed class LogWatcher(Log log)
+{
+    /// <summary>How often to look for EverQuest processes.</summary>
+    public static readonly TimeSpan ScanInterval = TimeSpan.FromSeconds(30);
+
+    /// <summary>How long an EverQuest process may run with no log growing before we suggest <c>/log on</c>.</summary>
+    public static readonly TimeSpan LoggingHintDelay = TimeSpan.FromMinutes(5);
+
+    public const string LoggingHint = "No EverQuest log is growing. Type `/log on` in EverQuest.";
+
+    /// <summary>Every log for a server we report, in a folder EverQuest is running from, keyed by path.</summary>
+    readonly Dictionary<string, WatchedLog> _logs = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>The folders EverQuest was running from at the last scan.</summary>
+    readonly HashSet<string> _folders = new(StringComparer.OrdinalIgnoreCase);
+
+    readonly Dictionary<int, ProcessWatch> _processes = [];
+
+    /// <summary>The logs that have grown, which is how we know a character is playing.</summary>
+    public IReadOnlyList<string> ActiveLogs => [.. this._logs.Values.Where(l => l.IsActive).Select(l => l.Tail.Path).Order()];
+
+    /// <summary>Call every <see cref="ScanInterval"/> with the running EverQuest processes.</summary>
+    public void Scan(IReadOnlyCollection<EqProcess> processes, DateTimeOffset now)
+    {
+        var folders = processes.Select(p => p.LogsFolder).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        this.StopWatchingLogsOutside(folders);
+        foreach (var folder in folders)
+        {
+            this.StartWatchingLogsIn(folder);
+        }
+
+        this._folders.Clear();
+        this._folders.UnionWith(folders);
+
+        this.CheckLoggingIsOn(processes, now);
+    }
+
+    /// <summary>Call often. Reads what's been added to each log since the last poll.</summary>
+    public IReadOnlyList<CharacterLogEvent> Poll()
+    {
+        var events = new List<CharacterLogEvent>();
+        foreach (var watched in this._logs.Values)
+        {
+            var lines = ReadNewLines(watched.Tail);
+            if (lines.Count == 0)
+            {
+                continue;
+            }
+
+            if (!watched.IsActive)
+            {
+                watched.IsActive = true;
+                log.Info($"Watching {watched.Tail.Path}");
+            }
+
+            events.AddRange(lines.Select(LogEvent.Parse).OfType<LogEvent>().Select(e => new CharacterLogEvent(watched.Character, e)));
+        }
+
+        return events;
+    }
+
+    static IReadOnlyList<string> ReadNewLines(LogTail tail)
+    {
+        try
+        {
+            return tail.ReadNewLines();
+        }
+        catch (IOException)
+        {
+            // Busy or gone for the moment; try again next poll.
+            return [];
+        }
+    }
+
+    static Dictionary<string, long> LogSizes(string folder)
+    {
+        if (!Directory.Exists(folder))
+        {
+            return [];
+        }
+
+        return new DirectoryInfo(folder).EnumerateFiles(LogFileName.Pattern).ToDictionary(f => f.FullName, f => f.Length, StringComparer.OrdinalIgnoreCase);
+    }
+
+    void StopWatchingLogsOutside(HashSet<string> folders)
+    {
+        var stopped = this._logs.Where(l => !folders.Contains(Path.GetDirectoryName(l.Key)!)).ToList();
+        foreach (var (path, watched) in stopped)
+        {
+            this._logs.Remove(path);
+            if (watched.IsActive)
+            {
+                log.Info($"Stopped watching {path}");
+            }
+        }
+    }
+
+    void StartWatchingLogsIn(string folder)
+    {
+        // A log created while we were already watching the folder is read from its start, so its first lines aren't lost.
+        var alreadyWatching = this._folders.Contains(folder);
+        foreach (var path in LogSizes(folder).Keys)
+        {
+            if (this._logs.ContainsKey(path))
+            {
+                continue;
+            }
+
+            var character = LogFileName.TryParse(path);
+            if (character is not null)
+            {
+                this._logs[path] = new WatchedLog(character, new LogTail(path, fromStart: alreadyWatching));
+            }
+        }
+    }
+
+    /// <summary>Any growing log means logging is on, even a log for a server we don't report.</summary>
+    void CheckLoggingIsOn(IReadOnlyCollection<EqProcess> processes, DateTimeOffset now)
+    {
+        var running = processes.Select(p => p.Id).ToHashSet();
+        foreach (var gone in this._processes.Keys.Where(id => !running.Contains(id)).ToList())
+        {
+            this._processes.Remove(gone);
+        }
+
+        foreach (var process in processes)
+        {
+            if (!this._processes.TryGetValue(process.Id, out var watch))
+            {
+                this._processes[process.Id] = new ProcessWatch(now, LogSizes(process.LogsFolder));
+                continue;
+            }
+
+            if (watch.Settled)
+            {
+                continue;
+            }
+
+            if (HasGrown(watch.SizesWhenFirstSeen, LogSizes(process.LogsFolder)))
+            {
+                watch.Settled = true;
+            }
+            else if (now - watch.FirstSeen >= LoggingHintDelay)
+            {
+                watch.Settled = true;
+                log.Warning(LoggingHint);
+            }
+        }
+    }
+
+    static bool HasGrown(Dictionary<string, long> before, Dictionary<string, long> after)
+    {
+        return after.Any(file => file.Value > before.GetValueOrDefault(file.Key));
+    }
+
+    sealed class WatchedLog(Character character, LogTail tail)
+    {
+        public Character Character => character;
+
+        public LogTail Tail => tail;
+
+        public bool IsActive { get; set; }
+    }
+
+    sealed class ProcessWatch(DateTimeOffset firstSeen, Dictionary<string, long> sizesWhenFirstSeen)
+    {
+        public DateTimeOffset FirstSeen => firstSeen;
+
+        public Dictionary<string, long> SizesWhenFirstSeen => sizesWhenFirstSeen;
+
+        /// <summary>We've either seen a log grow or shown the hint, so there's nothing more to check.</summary>
+        public bool Settled { get; set; }
+    }
+}
