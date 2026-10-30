@@ -15,7 +15,7 @@ sealed class CharacterScout(Character character)
     /// <summary>A kill that triggers the bonus message gets it in the same second.</summary>
     public static readonly TimeSpan KillTimeout = TimeSpan.FromSeconds(5);
 
-    public const string ReportIssuesUrl = "https://github.com/JayBazuzi/ResourceHunterBonusScout/issues";
+    public const string ReportIssuesUrl = "https://github.com/JayBazuzi/ResourceHunterBonusScout/issues/new";
 
     /// <summary>Already reported this zone visit (or since the daily reset), so stop waiting.</summary>
     bool _reported;
