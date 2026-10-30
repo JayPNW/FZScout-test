@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using Microsoft.Extensions.Time.Testing;
 using ResourceHunterBonusScout.Reporting;
 using ResourceHunterBonusScout.Scouting;
@@ -32,10 +32,10 @@ public class BonusReporterTests
     [Fact]
     public async Task ReportsABonus()
     {
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
 
         Assert.Equal([PostBody("Fangbreaker", "Befallen", "loot")], this._site.Requests);
-        Assert.Equal("12:00:00 Reported Fangbreaker 'Befallen' is 'loot'.", this.Output());
+        Assert.Equal("12:00:00 Reported Fangbreaker 'Befallen' is 'loot'.", Output());
     }
 
     [Theory]
@@ -45,7 +45,7 @@ public class BonusReporterTests
     {
         this._site.SetToday("Befallen", shown);
 
-        await this.Execute(0, new ReportNoBonusAction(Bob, "Befallen"));
+        await Execute(0, new ReportNoBonusAction(Bob, "Befallen"));
 
         Assert.Equal([Today, PostBody("Fangbreaker", "Befallen", "none")], this._site.Requests);
     }
@@ -53,7 +53,7 @@ public class BonusReporterTests
     [Fact]
     public async Task ReportsNoneForAZoneMissingFromToday()
     {
-        await this.Execute(0, new ReportNoBonusAction(Bob, "Befallen"));
+        await Execute(0, new ReportNoBonusAction(Bob, "Befallen"));
 
         Assert.Equal([Today, PostBody("Fangbreaker", "Befallen", "none")], this._site.Requests);
     }
@@ -63,10 +63,10 @@ public class BonusReporterTests
     {
         this._site.SetToday("Befallen", "experience");
 
-        await this.Execute(0, new ReportNoBonusAction(Bob, "Befallen"));
+        await Execute(0, new ReportNoBonusAction(Bob, "Befallen"));
 
         Assert.Equal([Today], this._site.Requests);
-        Assert.Equal("12:00:00 https://fangbreaker.zone/ already shows 'experience' for 'Befallen', so 'none' wasn't reported.", this.Output());
+        Assert.Equal("12:00:00 https://fangbreaker.zone/ already shows 'experience' for 'Befallen', so 'none' wasn't reported.", Output());
     }
 
     [Fact]
@@ -74,27 +74,27 @@ public class BonusReporterTests
     {
         this._site.Fail(Today, HttpStatusCode.InternalServerError);
 
-        await this.Execute(0, new ReportNoBonusAction(Bob, "Befallen"));
-        await this.Tick(120);
+        await Execute(0, new ReportNoBonusAction(Bob, "Befallen"));
+        await Tick(120);
 
         Assert.Equal([Today], this._site.Requests);
-        Assert.StartsWith("12:00:00 ERROR: Couldn't check today's bonuses, so Fangbreaker 'Befallen' is 'none' wasn't reported.", this.Output());
+        Assert.StartsWith("12:00:00 ERROR: Couldn't check today's bonuses, so Fangbreaker 'Befallen' is 'none' wasn't reported.", Output());
     }
 
     [Fact]
     public async Task LogsErrors()
     {
-        await this.Execute(0, new LogErrorAction("Something broke."));
+        await Execute(0, new LogErrorAction("Something broke."));
 
-        Assert.Equal("12:00:00 ERROR: Something broke.", this.Output());
+        Assert.Equal("12:00:00 ERROR: Something broke.", Output());
     }
 
     [Fact]
     public async Task LogsInfo()
     {
-        await this.Execute(0, new LogInfoAction("Hello."));
+        await Execute(0, new LogInfoAction("Hello."));
 
-        Assert.Equal("12:00:00 Hello.", this.Output());
+        Assert.Equal("12:00:00 Hello.", Output());
     }
 
     [Fact]
@@ -102,10 +102,10 @@ public class BonusReporterTests
     {
         this._reporter.SetApiKey(null);
 
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
 
         Assert.Empty(this._site.Requests);
-        Assert.Equal("12:00:00 WARNING: No API key, so Fangbreaker 'Befallen' is 'loot' wasn't reported.", this.Output());
+        Assert.Equal("12:00:00 WARNING: No API key, so Fangbreaker 'Befallen' is 'loot' wasn't reported.", Output());
     }
 
     [Fact]
@@ -113,28 +113,28 @@ public class BonusReporterTests
     {
         this._site.Fail(Post, HttpStatusCode.BadRequest);
 
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
-        await this.Tick(120);
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Tick(120);
 
         Assert.Single(this._site.Requests);
         Assert.Equal(
             """12:00:00 ERROR: Couldn't report Fangbreaker 'Befallen' is 'loot'. POST https://fangbreaker.zone/api/client/bonuses returned 400: {"ok":false,"error":"Nope"}""",
-            this.Output());
+            Output());
     }
 
     [Fact]
     public async Task RejectedKeyStopsReportingUntilTheKeyChanges()
     {
         this._site.Fail(Post, HttpStatusCode.Unauthorized);
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
-        Assert.Contains("ERROR: API key: rejected. Reporting is stopped until the key changes.", this.Output());
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
+        Assert.Contains("ERROR: API key: rejected. Reporting is stopped until the key changes.", Output());
 
         this._site.Succeed(Post);
-        await this.Execute(10, Bonus(Ann, "Befallen", "loot"));
+        await Execute(10, Bonus(Ann, "Befallen", "loot"));
         Assert.Single(this._site.Requests);
 
         this._reporter.SetApiKey(new ApiKey("fz_live_new"));
-        await this.Execute(20, Bonus(Ann, "Befallen", "loot"));
+        await Execute(20, Bonus(Ann, "Befallen", "loot"));
         Assert.Equal(2, this._site.Requests.Count);
     }
 
@@ -145,7 +145,7 @@ public class BonusReporterTests
         this._reporter.ApiKeyNeeded += () => asked++;
         this._site.Fail(Post, HttpStatusCode.Unauthorized);
 
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
 
         Assert.Equal(1, asked);
     }
@@ -159,11 +159,11 @@ public class BonusReporterTests
 
         await this._reporter.ChangeApiKeyAsync(new ApiKey("fz_live_bad"), Cancel);
         this._site.Succeed(Post);
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
 
         Assert.Equal(1, asked);
         Assert.Single(this._site.Requests);
-        Assert.StartsWith("12:00:00 ERROR: API key: rejected. Reporting is stopped until the key changes.", this.Output());
+        Assert.StartsWith("12:00:00 ERROR: API key: rejected. Reporting is stopped until the key changes.", Output());
     }
 
     [Fact]
@@ -176,7 +176,7 @@ public class BonusReporterTests
 
         Assert.Equal(1, asked);
         Assert.Empty(this._site.Requests);
-        Assert.Equal("12:00:00 API key missing. Nothing will be reported.", this.Output());
+        Assert.Equal("12:00:00 API key missing. Nothing will be reported.", Output());
     }
 
     [Fact]
@@ -184,10 +184,10 @@ public class BonusReporterTests
     {
         this._site.Fail(Post, HttpStatusCode.InternalServerError);
         await this._reporter.ChangeApiKeyAsync(new ApiKey("fz_live_new"), Cancel);
-        Assert.StartsWith("12:00:00 WARNING: API key: couldn't check it, so it will be used as is.", this.Output());
+        Assert.StartsWith("12:00:00 WARNING: API key: couldn't check it, so it will be used as is.", Output());
 
         this._site.Succeed(Post);
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
         Assert.Equal(2, this._site.Requests.Count);
     }
 
@@ -195,12 +195,12 @@ public class BonusReporterTests
     public async Task BannedStopsReportingToThatSiteOnly()
     {
         this._site.Fail(Post, HttpStatusCode.Forbidden);
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
-        Assert.Contains("ERROR: https://fangbreaker.zone/ has banned or timed out this account. Reporting to it is stopped until restart.", this.Output());
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
+        Assert.Contains("ERROR: https://fangbreaker.zone/ has banned or timed out this account. Reporting to it is stopped until restart.", Output());
 
         this._site.Succeed(Post);
-        await this.Execute(10, Bonus(Bob, "Crushbone", "loot"));
-        await this.Execute(20, Bonus(Ann, "Befallen", "loot"));
+        await Execute(10, Bonus(Bob, "Crushbone", "loot"));
+        await Execute(20, Bonus(Ann, "Befallen", "loot"));
 
         Assert.Equal(
             [PostBody("Fangbreaker", "Befallen", "loot"), PostBody("Frostreaver", "Befallen", "loot")],
@@ -212,8 +212,8 @@ public class BonusReporterTests
     {
         this._site.Fail(Post, HttpStatusCode.NotFound);
 
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
-        await this.Tick(120);
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Tick(120);
 
         Assert.Equal(
             [PostBody("Fangbreaker", "Befallen", "loot"), "GET /api/servers/fangbreaker/bonuses/types", "GET /api/servers/fangbreaker/bonuses/zones"],
@@ -225,38 +225,38 @@ public class BonusReporterTests
     {
         this._site.Fail(Post, HttpStatusCode.InternalServerError);
 
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
-        await this.Tick(59);
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Tick(59);
         Assert.Single(this._site.Requests);
 
-        await this.Tick(60);
+        await Tick(60);
         Assert.Equal(2, this._site.Requests.Count);
 
-        await this.Tick(600);
+        await Tick(600);
         Assert.Equal(2, this._site.Requests.Count);
-        Assert.EndsWith("ERROR: Gave up reporting Fangbreaker 'Befallen' is 'loot'.", this.Output());
+        Assert.EndsWith("ERROR: Gave up reporting Fangbreaker 'Befallen' is 'loot'.", Output());
     }
 
     [Fact]
     public async Task RetrySucceeds()
     {
         this._site.Fail(Post, HttpStatusCode.InternalServerError);
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
 
         this._site.Succeed(Post);
-        await this.Tick(60);
+        await Tick(60);
 
-        Assert.EndsWith("Reported Fangbreaker 'Befallen' is 'loot'.", this.Output());
+        Assert.EndsWith("Reported Fangbreaker 'Befallen' is 'loot'.", Output());
     }
 
     [Fact]
     public async Task RetryOfNoneChecksTodayAgain()
     {
         this._site.Fail(Post, HttpStatusCode.InternalServerError);
-        await this.Execute(0, new ReportNoBonusAction(Bob, "Befallen"));
+        await Execute(0, new ReportNoBonusAction(Bob, "Befallen"));
 
         this._site.SetToday("Befallen", "experience");
-        await this.Tick(60);
+        await Tick(60);
 
         Assert.Equal([Today, PostBody("Fangbreaker", "Befallen", "none"), Today], this._site.Requests);
     }
@@ -265,11 +265,11 @@ public class BonusReporterTests
     public async Task NewerReportReplacesAWaitingRetry()
     {
         this._site.Fail(Post, HttpStatusCode.InternalServerError);
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
 
         this._site.Succeed(Post);
-        await this.Execute(30, Bonus(Bob, "Befallen", "experience"));
-        await this.Tick(600);
+        await Execute(30, Bonus(Bob, "Befallen", "experience"));
+        await Tick(600);
 
         Assert.Equal(
             [PostBody("Fangbreaker", "Befallen", "loot"), PostBody("Fangbreaker", "Befallen", "experience")],
@@ -280,11 +280,11 @@ public class BonusReporterTests
     public async Task DailyResetDropsThatCharactersRetries()
     {
         this._site.Fail(Post, HttpStatusCode.InternalServerError);
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
-        await this.Execute(0, Bonus(Ann, "Befallen", "loot"));
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Execute(0, Bonus(Ann, "Befallen", "loot"));
 
-        await this.Execute(30, new DropPendingReportsAction(Bob));
-        await this.Tick(60);
+        await Execute(30, new DropPendingReportsAction(Bob));
+        await Tick(60);
 
         Assert.Equal(
             [
@@ -299,11 +299,11 @@ public class BonusReporterTests
     public async Task RetriesForOtherZonesAreKept()
     {
         this._site.Fail(Post, HttpStatusCode.InternalServerError);
-        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await Execute(0, Bonus(Bob, "Befallen", "loot"));
 
         this._site.Succeed(Post);
-        await this.Execute(30, Bonus(Bob, "Crushbone", "experience"));
-        await this.Tick(60);
+        await Execute(30, Bonus(Bob, "Crushbone", "experience"));
+        await Tick(60);
 
         Assert.Equal(3, this._site.Requests.Count);
     }

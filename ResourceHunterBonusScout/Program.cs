@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Reporting;
 using ResourceHunterBonusScout.Site;

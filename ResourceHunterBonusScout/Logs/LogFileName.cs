@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Logs;
+﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>Log files are named <c>eqlog_{CharacterName}_{server}.txt</c>.</summary>
 static class LogFileName

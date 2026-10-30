@@ -1,4 +1,4 @@
-using ResourceHunterBonusScout.Logs;
+﻿using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Scouting;
 using ResourceHunterBonusScout.Site;
 
@@ -28,192 +28,192 @@ public class CharacterScoutTests
     [Fact]
     public void BonusMessageIsReported()
     {
-        this.Log(0, Befallen);
+        Log(0, Befallen);
 
-        Assert.Equal([Report("Befallen", "experience")], this.Log(10, Experience));
+        Assert.Equal([Report("Befallen", "experience")], Log(10, Experience));
     }
 
     [Fact]
     public void ZoneIsReportedByItsSiteName()
     {
-        this.Log(0, Crushbone);
+        Log(0, Crushbone);
 
-        Assert.Equal([Report("Crushbone", "experience")], this.Log(10, Experience));
+        Assert.Equal([Report("Crushbone", "experience")], Log(10, Experience));
     }
 
     [Fact]
     public void NoBonusFiveMinutesAfterEnteringIsReportedAsNone()
     {
-        this.Log(0, Befallen);
+        Log(0, Befallen);
 
-        Assert.Empty(this.Tick(299));
-        Assert.Equal([ReportNone("Befallen")], this.Tick(300));
+        Assert.Empty(Tick(299));
+        Assert.Equal([ReportNone("Befallen")], Tick(300));
     }
 
     [Fact]
     public void NoneIsReportedOnlyOnce()
     {
-        this.Log(0, Befallen);
-        this.Tick(300);
+        Log(0, Befallen);
+        Tick(300);
 
-        Assert.Empty(this.Tick(600));
+        Assert.Empty(Tick(600));
     }
 
     [Fact]
     public void NoBonusFiveSecondsAfterAKillIsReportedAsNone()
     {
-        this.Log(0, Befallen);
-        this.Log(20, Kill);
+        Log(0, Befallen);
+        Log(20, Kill);
 
-        Assert.Empty(this.Tick(24));
-        Assert.Equal([ReportNone("Befallen")], this.Tick(25));
-        Assert.Empty(this.Tick(300));
+        Assert.Empty(Tick(24));
+        Assert.Equal([ReportNone("Befallen")], Tick(25));
+        Assert.Empty(Tick(300));
     }
 
     [Fact]
     public void LaterKillsDoNotPushTheKillTimerBack()
     {
-        this.Log(0, Befallen);
-        this.Log(20, Kill);
-        this.Log(23, Kill);
+        Log(0, Befallen);
+        Log(20, Kill);
+        Log(23, Kill);
 
-        Assert.Equal([ReportNone("Befallen")], this.Tick(25));
+        Assert.Equal([ReportNone("Befallen")], Tick(25));
     }
 
     [Fact]
     public void KillsAfterABonusDoNothing()
     {
-        this.Log(0, Befallen);
-        this.Log(20, Kill);
-        this.Log(20, Experience);
-        this.Log(40, Kill);
+        Log(0, Befallen);
+        Log(20, Kill);
+        Log(20, Experience);
+        Log(40, Kill);
 
-        Assert.Empty(this.Tick(300));
+        Assert.Empty(Tick(300));
     }
 
     [Fact]
     public void BonusAfterReportingNoneIsStillReported()
     {
         // A kill doesn't always trigger the message; sometimes it comes minutes later.
-        this.Log(0, Befallen);
-        this.Log(20, Kill);
-        this.Tick(25);
+        Log(0, Befallen);
+        Log(20, Kill);
+        Tick(25);
 
-        Assert.Equal([Report("Befallen", "experience")], this.Log(200, Experience));
+        Assert.Equal([Report("Befallen", "experience")], Log(200, Experience));
     }
 
     [Fact]
     public void EnteringAnotherZoneRestartsTheIdleTimer()
     {
-        this.Log(0, Befallen);
-        this.Log(100, Crushbone);
+        Log(0, Befallen);
+        Log(100, Crushbone);
 
-        Assert.Empty(this.Tick(300));
-        Assert.Equal([ReportNone("Crushbone")], this.Tick(400));
+        Assert.Empty(Tick(300));
+        Assert.Equal([ReportNone("Crushbone")], Tick(400));
     }
 
     [Fact]
     public void EnteringAnotherZoneCancelsTheKillTimer()
     {
-        this.Log(0, Befallen);
-        this.Log(20, Kill);
-        this.Log(22, Crushbone);
+        Log(0, Befallen);
+        Log(20, Kill);
+        Log(22, Crushbone);
 
-        Assert.Empty(this.Tick(30));
+        Assert.Empty(Tick(30));
     }
 
     [Fact]
     public void ReEnteringTheSameZoneStartsANewVisit()
     {
-        this.Log(0, Befallen);
-        this.Log(10, Experience);
-        this.Log(100, Befallen);
+        Log(0, Befallen);
+        Log(10, Experience);
+        Log(100, Befallen);
 
-        Assert.Equal([ReportNone("Befallen")], this.Tick(400));
+        Assert.Equal([ReportNone("Befallen")], Tick(400));
     }
 
     [Fact]
     public void DailyResetRestartsTheIdleTimer()
     {
-        this.Log(0, Befallen);
-        this.Log(10, Experience);
-        this.Log(1000, DailyReset);
+        Log(0, Befallen);
+        Log(10, Experience);
+        Log(1000, DailyReset);
 
-        Assert.Empty(this.Tick(1299));
-        Assert.Equal([ReportNone("Befallen")], this.Tick(1300));
+        Assert.Empty(Tick(1299));
+        Assert.Equal([ReportNone("Befallen")], Tick(1300));
     }
 
     [Fact]
     public void DailyResetRearmsKills()
     {
-        this.Log(0, Befallen);
-        this.Log(10, Experience);
-        this.Log(1000, DailyReset);
-        this.Log(1010, Kill);
+        Log(0, Befallen);
+        Log(10, Experience);
+        Log(1000, DailyReset);
+        Log(1010, Kill);
 
-        Assert.Equal([ReportNone("Befallen")], this.Tick(1015));
+        Assert.Equal([ReportNone("Befallen")], Tick(1015));
     }
 
     [Fact]
     public void CampingPausesTheIdleTimer()
     {
-        this.Log(0, Befallen);
-        this.Log(200, Camping);
-        this.Log(205, "It will take about 25 more seconds to prepare your camp.");
+        Log(0, Befallen);
+        Log(200, Camping);
+        Log(205, "It will take about 25 more seconds to prepare your camp.");
 
-        Assert.Empty(this.Tick(10_000));
+        Assert.Empty(Tick(10_000));
     }
 
     [Fact]
     public void AbandoningCampResumesTheIdleTimerWhereItLeftOff()
     {
-        this.Log(0, Befallen);
-        this.Log(200, Camping);
-        this.Log(205, Camping);
-        this.Log(210, CampAbandoned);
+        Log(0, Befallen);
+        Log(200, Camping);
+        Log(205, Camping);
+        Log(210, CampAbandoned);
 
-        Assert.Empty(this.Tick(309));
-        Assert.Equal([ReportNone("Befallen")], this.Tick(310));
+        Assert.Empty(Tick(309));
+        Assert.Equal([ReportNone("Befallen")], Tick(310));
     }
 
     [Fact]
     public void DailyResetWhileCampingWaitsForTheCampToBeAbandoned()
     {
-        this.Log(0, Befallen);
-        this.Log(10, Experience);
-        this.Log(100, Camping);
-        this.Log(101, DailyReset);
+        Log(0, Befallen);
+        Log(10, Experience);
+        Log(100, Camping);
+        Log(101, DailyReset);
 
-        Assert.Empty(this.Tick(1000));
-        this.Log(1000, CampAbandoned);
-        Assert.Equal([ReportNone("Befallen")], this.Tick(1300));
+        Assert.Empty(Tick(1000));
+        Log(1000, CampAbandoned);
+        Assert.Equal([ReportNone("Befallen")], Tick(1300));
     }
 
     [Fact]
     public void EnteringAZoneIsLogged()
     {
-        Assert.Equal([new LogInfoAction("Bob (Frostreaver) entered The Greater Faydark."), new LogInfoAction($"Bob (Frostreaver) waiting until {Start.AddMinutes(5).ToLocalTime():HH:mm:ss} for a bonus message.")], this.Log(0, "You have entered The Greater Faydark."));
+        Assert.Equal([new LogInfoAction("Bob (Frostreaver) entered The Greater Faydark."), new LogInfoAction($"Bob (Frostreaver) waiting until {Start.AddMinutes(5).ToLocalTime():HH:mm:ss} for a bonus message.")], Log(0, "You have entered The Greater Faydark."));
     }
 
     [Fact]
     public void BonusBeforeAnyZoneIsIgnored()
     {
-        Assert.Empty(this.Log(0, Experience));
-        Assert.Empty(this.Tick(1000));
+        Assert.Empty(Log(0, Experience));
+        Assert.Empty(Tick(1000));
     }
 
     [Fact]
     public void BonusTypeNotOnTheServersListIsIgnored()
     {
-        this.Log(0, Befallen);
+        Log(0, Befallen);
 
-        Assert.Empty(this.Log(10, Tribute));
+        Assert.Empty(Log(10, Tribute));
     }
 
     [Fact]
     public void UnknownZoneIsAnError()
     {
-        var actions = this.Log(0, "You have entered The Halls of Honor.");
+        var actions = Log(0, "You have entered The Halls of Honor.");
 
         Assert.Equal(
             [new LogErrorAction($"Bob (Frostreaver) entered 'The Halls of Honor', which isn't on the Frostreaver zones list. Please report it at {CharacterScout.ReportIssuesUrl}")],
@@ -223,47 +223,47 @@ public class CharacterScoutTests
     [Fact]
     public void UnknownZoneIsNeverReported()
     {
-        this.Log(0, "You have entered The Halls of Honor.");
+        Log(0, "You have entered The Halls of Honor.");
 
-        Assert.Empty(this.Log(10, Experience));
-        Assert.Empty(this.Log(20, Kill));
-        Assert.Empty(this.Tick(1000));
+        Assert.Empty(Log(10, Experience));
+        Assert.Empty(Log(20, Kill));
+        Assert.Empty(Tick(1000));
     }
 
     [Fact]
     public void ZoneEnteredWithoutListsIsResolvedWhenTheyLoad()
     {
-        Assert.Equal([new LogInfoAction("Bob (Frostreaver) entered Befallen."), new LogInfoAction($"Bob (Frostreaver) waiting until {Start.AddMinutes(5).ToLocalTime():HH:mm:ss} for a bonus message.")], this.LogWithoutLists(0, Befallen));
+        Assert.Equal([new LogInfoAction("Bob (Frostreaver) entered Befallen."), new LogInfoAction($"Bob (Frostreaver) waiting until {Start.AddMinutes(5).ToLocalTime():HH:mm:ss} for a bonus message.")], LogWithoutLists(0, Befallen));
         Assert.Empty(this._scout.Tick(Start.AddSeconds(60), null));
 
-        Assert.Empty(this.Tick(61));
+        Assert.Empty(Tick(61));
         Assert.Equal(new KnownZone("Befallen"), this._scout.Zone);
-        Assert.Equal([ReportNone("Befallen")], this.Tick(300));
+        Assert.Equal([ReportNone("Befallen")], Tick(300));
     }
 
     [Fact]
     public void BonusAfterTheListsLoadIsReported()
     {
-        this.LogWithoutLists(0, Befallen);
+        LogWithoutLists(0, Befallen);
 
-        Assert.Equal([Report("Befallen", "experience")], this.Log(10, Experience));
+        Assert.Equal([Report("Befallen", "experience")], Log(10, Experience));
     }
 
     [Fact]
     public void ZoneEnteredWithoutListsThatTurnsOutUnknownIsAnError()
     {
-        this.LogWithoutLists(0, "You have entered The Halls of Honor.");
+        LogWithoutLists(0, "You have entered The Halls of Honor.");
 
         Assert.Equal(
             [new LogErrorAction($"Bob (Frostreaver) entered 'The Halls of Honor', which isn't on the Frostreaver zones list. Please report it at {CharacterScout.ReportIssuesUrl}")],
-            this.Tick(60));
-        Assert.Empty(this.Tick(1000));
+            Tick(60));
+        Assert.Empty(Tick(1000));
     }
 
     [Fact]
     public void ListsThatNeverLoadMeanNoneIsntReported()
     {
-        this.LogWithoutLists(0, Befallen);
+        LogWithoutLists(0, Befallen);
 
         Assert.Equal(
             [new LogErrorAction("Bob (Frostreaver) was in 'Befallen', but the Frostreaver zones list still isn't loaded, so 'none' wasn't reported.")],
@@ -274,44 +274,44 @@ public class CharacterScoutTests
     [Fact]
     public void BonusWhileListsAreMissingIsAnError()
     {
-        this.LogWithoutLists(0, Befallen);
+        LogWithoutLists(0, Befallen);
 
         Assert.Equal(
             [new LogErrorAction("Bob (Frostreaver) saw a 'experience' bonus in 'Befallen', but the Frostreaver zones list isn't loaded, so it wasn't reported.")],
-            this.LogWithoutLists(10, Experience));
+            LogWithoutLists(10, Experience));
     }
 
     [Fact]
     public void DailyResetDropsPendingReports()
     {
-        Assert.Equal([new DropPendingReportsAction(Bob)], this.Log(0, DailyReset));
+        Assert.Equal([new DropPendingReportsAction(Bob)], Log(0, DailyReset));
     }
 
     [Fact]
     public void ZoneThatNeverHasABonusWaitsForNothing()
     {
-        this.Log(0, "You have entered The Plane of Knowledge.");
-        Assert.Empty(this.Log(10, Kill));
-        Assert.Empty(this.Tick(1000));
+        Log(0, "You have entered The Plane of Knowledge.");
+        Assert.Empty(Log(10, Kill));
+        Assert.Empty(Tick(1000));
     }
 
     [Fact]
     public void BonusInAZoneThatNeverHasOneIsAnError()
     {
-        this.Log(0, "You have entered The Plane of Knowledge.");
+        Log(0, "You have entered The Plane of Knowledge.");
 
         Assert.Equal(
             [new LogErrorAction($"Bob (Frostreaver) saw a 'experience' bonus in 'The Plane of Knowledge', which never has a bonus. Please report it at {CharacterScout.ReportIssuesUrl}")],
-            this.Log(10, Experience));
+            Log(10, Experience));
     }
 
     [Fact]
     public void AreasInsideAZoneDontChangeIt()
     {
-        this.Log(0, Befallen);
-        this.Log(100, "You have entered an area where levitation effects do not function.");
+        Log(0, Befallen);
+        Log(100, "You have entered an area where levitation effects do not function.");
 
-        Assert.Equal([ReportNone("Befallen")], this.Tick(300));
+        Assert.Equal([ReportNone("Befallen")], Tick(300));
     }
 
     static ReportBonusAction Report(string zone, string bonus) => new(Bob, new BonusReport(Server.Frostreaver, zone, new BonusKey(bonus)));

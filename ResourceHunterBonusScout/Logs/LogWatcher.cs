@@ -32,16 +32,16 @@ sealed class LogWatcher(Log log)
     public IReadOnlyList<Character> Scan(IReadOnlyCollection<EqProcess> processes, DateTimeOffset now)
     {
         var folders = processes.Select(p => p.LogsFolder).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var stopped = this.StopWatchingLogsOutside(folders);
+        var stopped = StopWatchingLogsOutside(folders);
         foreach (var folder in folders)
         {
-            this.StartWatchingLogsIn(folder);
+            StartWatchingLogsIn(folder);
         }
 
         this._folders.Clear();
         this._folders.UnionWith(folders);
 
-        this.CheckLoggingIsOn(processes, now);
+        CheckLoggingIsOn(processes, now);
         return stopped;
     }
 

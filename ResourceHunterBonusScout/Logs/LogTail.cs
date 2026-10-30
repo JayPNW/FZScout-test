@@ -10,7 +10,7 @@ sealed class LogTail
     /// <param name="fromStart">Read the whole file, instead of starting where it ends now.</param>
     public LogTail(string path, bool fromStart = false)
     {
-        this.Path = path;
+        Path = path;
         if (!fromStart)
         {
             this._position = Length(path);
@@ -22,7 +22,7 @@ sealed class LogTail
     /// <summary>The complete lines added since the last read. A line still being written waits for the next read.</summary>
     public IReadOnlyList<string> ReadNewLines()
     {
-        var length = Length(this.Path);
+        var length = Length(Path);
         if (length < this._position)
         {
             // The file was replaced or truncated; what's there now is new.
@@ -36,7 +36,7 @@ sealed class LogTail
         }
 
         string text;
-        using (var stream = new FileStream(this.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+        using (var stream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
         {
             stream.Position = this._position;
             using var reader = new StreamReader(stream, Encoding.Latin1);

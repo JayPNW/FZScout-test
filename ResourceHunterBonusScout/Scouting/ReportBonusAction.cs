@@ -1,4 +1,4 @@
-using ResourceHunterBonusScout.Site;
+﻿using ResourceHunterBonusScout.Site;
 
 namespace ResourceHunterBonusScout.Scouting;
 

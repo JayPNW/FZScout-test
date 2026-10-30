@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout;
+﻿namespace ResourceHunterBonusScout;
 
 /// <summary>The app's log: timestamped lines, colored on the console. Never pass it the API key.</summary>
 /// <param name="write">Writes one line, in a color if one is given.</param>
@@ -16,14 +16,14 @@ sealed class Log(Action<string, ConsoleColor?> write, TimeProvider time)
 
     public static Log ForConsole(TimeProvider time) => new(WriteToConsole, time);
 
-    public void Info(string message) => this.Write(message, null);
+    public void Info(string message) => Write(message, null);
 
     /// <summary>Something worked that the user cares about, like a bonus uploaded to the site.</summary>
-    public void Success(string message) => this.Write(message, HilightColor);
+    public void Success(string message) => Write(message, HilightColor);
 
-    public void Warning(string message) => this.Write($"WARNING: {message}", null);
+    public void Warning(string message) => Write($"WARNING: {message}", null);
 
-    public void Error(string message) => this.Write($"ERROR: {message}", ErrorColor);
+    public void Error(string message) => Write($"ERROR: {message}", ErrorColor);
 
     static void WriteToConsole(string line, ConsoleColor? color)
     {

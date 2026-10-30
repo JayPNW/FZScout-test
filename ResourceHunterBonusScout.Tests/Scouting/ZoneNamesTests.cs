@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using ResourceHunterBonusScout.Scouting;
 
 namespace ResourceHunterBonusScout.Tests.Scouting;
@@ -60,7 +60,6 @@ public class ZoneNamesTests
 
         return string.Join(Environment.NewLine, lines);
     }
-
 
     static string Describe(Zone zone)
     {

@@ -42,13 +42,13 @@ public sealed class ScoutTests : IDisposable
     [Fact]
     public async Task ReportsABonusFromTheLog()
     {
-        await this.Tick(0);
+        await Tick(0);
 
-        this.Write("You have entered Clan Crushbone.");
-        await this.Tick(1);
-        this.Write("You have slain an orc pawn!");
-        this.Write("This land is saturated with unstable magic, multiplying the loot that may be found here.");
-        await this.Tick(2);
+        Write("You have entered Clan Crushbone.");
+        await Tick(1);
+        Write("You have slain an orc pawn!");
+        Write("This land is saturated with unstable magic, multiplying the loot that may be found here.");
+        await Tick(2);
 
         Assert.Equal(
             [
@@ -62,15 +62,15 @@ public sealed class ScoutTests : IDisposable
     [Fact]
     public async Task ReportsNoneWhenAKillBringsNoBonus()
     {
-        await this.Tick(0);
+        await Tick(0);
 
-        this.Write("You have entered Befallen.");
-        this.Write("You have slain a skeleton!");
-        await this.Tick(1);
-        await this.Tick(5);
+        Write("You have entered Befallen.");
+        Write("You have slain a skeleton!");
+        await Tick(1);
+        await Tick(5);
         Assert.DoesNotContain(this._site.Requests, r => r.StartsWith("POST", StringComparison.Ordinal));
 
-        await this.Tick(6);
+        await Tick(6);
         Assert.Equal(
             """POST /api/client/bonuses {"serverName":"Fangbreaker","zoneName":"Befallen","bonusKey":"none"}""",
             this._site.Requests[^1]);
@@ -79,13 +79,13 @@ public sealed class ScoutTests : IDisposable
     [Fact]
     public async Task NoNoneAfterEverQuestExits()
     {
-        await this.Tick(0);
-        this.Write("You have entered Befallen.");
-        await this.Tick(1);
+        await Tick(0);
+        Write("You have entered Befallen.");
+        await Tick(1);
 
         this._processes = [];
-        await this.Tick(30);
-        await this.Tick(1000);
+        await Tick(30);
+        await Tick(1000);
 
         Assert.DoesNotContain(this._site.Requests, r => r.StartsWith("POST", StringComparison.Ordinal));
     }
@@ -94,17 +94,17 @@ public sealed class ScoutTests : IDisposable
     public async Task ScansForEverQuestEveryThirtySeconds()
     {
         this._processes = [];
-        await this.Tick(0);
+        await Tick(0);
 
         this._processes = [new EqProcess(100, this._everQuest.File("eqgame.exe"))];
-        await this.Tick(29);
-        this.Write("You have entered Befallen.");
-        await this.Tick(29);
+        await Tick(29);
+        Write("You have entered Befallen.");
+        await Tick(29);
         Assert.Empty(this._scout.Watcher.ActiveLogs);
 
-        await this.Tick(30);
-        this.Write("You have entered Befallen.");
-        await this.Tick(31);
+        await Tick(30);
+        Write("You have entered Befallen.");
+        await Tick(31);
         Assert.Equal([this._log], this._scout.Watcher.ActiveLogs);
     }
 

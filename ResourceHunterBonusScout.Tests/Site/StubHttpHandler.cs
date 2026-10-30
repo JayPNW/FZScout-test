@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 namespace ResourceHunterBonusScout.Tests.Site;
 
@@ -32,7 +32,7 @@ sealed class StubHttpHandler : HttpMessageHandler
         }
 
         var headers = request.Headers.ToDictionary(h => h.Key, h => string.Join(",", h.Value));
-        this.Sent.Add(new SentRequest(request.Method, request.RequestUri!, headers, content));
+        Sent.Add(new SentRequest(request.Method, request.RequestUri!, headers, content));
 
         if (this._exception is not null)
         {

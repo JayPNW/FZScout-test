@@ -29,13 +29,13 @@ sealed class Scout(LogWatcher watcher, ServerListCache lists, BonusReporter repo
         foreach (var logEvent in watcher.Poll())
         {
             var serverLists = await lists.GetAsync(logEvent.Character.Server, now, cancellationToken);
-            var actions = this.ScoutFor(logEvent.Character).Handle(logEvent.Event, now, serverLists);
-            await this.ExecuteAsync(actions, now, cancellationToken);
+            var actions = ScoutFor(logEvent.Character).Handle(logEvent.Event, now, serverLists);
+            await ExecuteAsync(actions, now, cancellationToken);
         }
 
         foreach (var scout in this._characters.Values)
         {
-            await this.ExecuteAsync(scout.Tick(now, lists.Peek(scout.Character.Server)), now, cancellationToken);
+            await ExecuteAsync(scout.Tick(now, lists.Peek(scout.Character.Server)), now, cancellationToken);
         }
 
         await lists.TickAsync(now, cancellationToken);

@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Logs;
+﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>The player killed something. Kills by anyone else don't trigger a bonus message.</summary>
 sealed record KillLogEvent : LogEvent

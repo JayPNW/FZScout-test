@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Logs;
+﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>The player is camping out. Repeats every 5 seconds during the countdown.</summary>
 sealed record CampingLogEvent : LogEvent

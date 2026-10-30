@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Logs;
+﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>The server reset every zone's bonus for the new day.</summary>
 sealed record DailyResetLogEvent : LogEvent

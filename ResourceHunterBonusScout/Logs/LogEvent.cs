@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Logs;
+﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>A log line that matters to scouting. Each kind knows how to recognize its own message.</summary>
 abstract record LogEvent

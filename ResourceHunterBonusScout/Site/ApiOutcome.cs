@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Site;
+﻿namespace ResourceHunterBonusScout.Site;
 
 public enum ApiOutcome
 {

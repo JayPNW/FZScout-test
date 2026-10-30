@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Scouting;
+﻿namespace ResourceHunterBonusScout.Scouting;
 
 /// <summary>Report <c>none</c> for a zone, unless the site already shows a bonus for it.</summary>
 sealed record ReportNoBonusAction(Character Character, string Zone) : ScoutAction;

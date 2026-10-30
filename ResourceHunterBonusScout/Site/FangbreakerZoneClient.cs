@@ -11,20 +11,20 @@ sealed class FangbreakerZoneClient(HttpClient http)
 
     public async Task<ApiResult<IReadOnlySet<BonusKey>>> GetTypesAsync(Server server, CancellationToken cancellationToken = default)
     {
-        var result = await this.GetAsync<TypeDto[]>(server, "types", cancellationToken);
+        var result = await GetAsync<TypeDto[]>(server, "types", cancellationToken);
         return Map(result, types => (IReadOnlySet<BonusKey>)types.Select(t => new BonusKey(t.Key)).ToHashSet());
     }
 
     public async Task<ApiResult<IReadOnlySet<string>>> GetZonesAsync(Server server, CancellationToken cancellationToken = default)
     {
-        var result = await this.GetAsync<ZoneDto[]>(server, "zones", cancellationToken);
+        var result = await GetAsync<ZoneDto[]>(server, "zones", cancellationToken);
         return Map(result, zones => (IReadOnlySet<string>)zones.Select(z => z.Name).ToHashSet());
     }
 
     /// <summary>Today's bonus for each zone, keyed by the site's zone name. Zones nobody has reported are <see cref="BonusKey.Unconfirmed"/>.</summary>
     public async Task<ApiResult<IReadOnlyDictionary<string, BonusKey>>> GetTodayAsync(Server server, CancellationToken cancellationToken = default)
     {
-        var result = await this.GetAsync<TodayDto[]>(server, "today", cancellationToken);
+        var result = await GetAsync<TodayDto[]>(server, "today", cancellationToken);
         return Map(result, zones => (IReadOnlyDictionary<string, BonusKey>)zones.DistinctBy(z => z.Name).ToDictionary(z => z.Name, z => new BonusKey(z.Bonus)));
     }
 
@@ -33,14 +33,14 @@ sealed class FangbreakerZoneClient(HttpClient http)
         using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(report.Server.Site, "/api/client/bonuses"));
         request.Headers.Add("X-API-Key", apiKey.Value);
         request.Content = JsonContent.Create(new ReportDto(report.Server.Name, report.Zone, report.Bonus.Value), options: Json);
-        var result = await this.SendAsync<ReportResponseDto>(request, cancellationToken);
+        var result = await SendAsync<ReportResponseDto>(request, cancellationToken);
         return Map(result, r => r.Updated);
     }
 
     async Task<ApiResult<T>> GetAsync<T>(Server server, string list, CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(server.Site, $"/api/servers/{server.Slug}/bonuses/{list}"));
-        return await this.SendAsync<T>(request, cancellationToken);
+        return await SendAsync<T>(request, cancellationToken);
     }
 
     async Task<ApiResult<T>> SendAsync<T>(HttpRequestMessage request, CancellationToken cancellationToken)

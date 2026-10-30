@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout;
+﻿namespace ResourceHunterBonusScout;
 
 /// <param name="Slug">The name in log files and in <c>/api/servers/{slug}</c> URLs.</param>
 /// <param name="Name">The <c>serverName</c> the POST API expects.</param>
@@ -16,5 +16,5 @@ sealed record Server(string Slug, string Name, Uri Site)
         return All.FirstOrDefault(s => string.Equals(s.Slug, slug, StringComparison.OrdinalIgnoreCase));
     }
 
-    public override string ToString() => this.Name;
+    public override string ToString() => Name;
 }

@@ -27,7 +27,7 @@ sealed class ServerListCache(FangbreakerZoneClient client, Log log)
             return null;
         }
 
-        if (!await this.LoadAsync(server, cancellationToken))
+        if (!await LoadAsync(server, cancellationToken))
         {
             this._retryAt[server] = now + RetryDelay;
         }
@@ -43,7 +43,7 @@ sealed class ServerListCache(FangbreakerZoneClient client, Log log)
     {
         this._lists.Remove(server);
         this._retryAt.Remove(server);
-        await this.GetAsync(server, now, cancellationToken);
+        await GetAsync(server, now, cancellationToken);
     }
 
     public async Task TickAsync(DateTimeOffset now, CancellationToken cancellationToken = default)
@@ -52,7 +52,7 @@ sealed class ServerListCache(FangbreakerZoneClient client, Log log)
         foreach (var server in due)
         {
             this._retryAt.Remove(server);
-            await this.LoadAsync(server, cancellationToken);
+            await LoadAsync(server, cancellationToken);
         }
     }
 

@@ -1,10 +1,10 @@
-namespace ResourceHunterBonusScout.Site;
+﻿namespace ResourceHunterBonusScout.Site;
 
 /// <param name="Value">Set only on <see cref="ApiOutcome.Success"/>.</param>
 /// <param name="Error">What went wrong, for the log. Set on every failure.</param>
 sealed record ApiResult<T>(ApiOutcome Outcome, T? Value, string? Error)
 {
-    public bool IsSuccess => this.Outcome == ApiOutcome.Success;
+    public bool IsSuccess => Outcome == ApiOutcome.Success;
 
     public static ApiResult<T> Success(T value) => new(ApiOutcome.Success, value, null);
 

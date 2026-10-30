@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using ResourceHunterBonusScout.Tests.Site;
 
 namespace ResourceHunterBonusScout.Tests;

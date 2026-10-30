@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using ResourceHunterBonusScout.Site;
 
 namespace ResourceHunterBonusScout.Tests.Reporting;
@@ -33,14 +33,14 @@ sealed class FakeSite : HttpMessageHandler
             body = $" {await request.Content.ReadAsStringAsync(cancellationToken)}";
         }
 
-        this.Requests.Add($"{route}{body}");
+        Requests.Add($"{route}{body}");
 
         if (this._failures.TryGetValue(route, out var status))
         {
             return new HttpResponseMessage(status) { Content = new StringContent("""{"ok":false,"error":"Nope"}""") };
         }
 
-        return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(this.BodyFor(route)) };
+        return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(BodyFor(route)) };
     }
 
     string BodyFor(string route)

@@ -1,7 +1,7 @@
-namespace ResourceHunterBonusScout;
+﻿namespace ResourceHunterBonusScout;
 
 /// <summary>One character on one server: one <c>eqlog_{Name}_{server}.txt</c>.</summary>
 sealed record Character(string Name, Server Server)
 {
-    public override string ToString() => $"{this.Name} ({this.Server})";
+    public override string ToString() => $"{Name} ({Server})";
 }

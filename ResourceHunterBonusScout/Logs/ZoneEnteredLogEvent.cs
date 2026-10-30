@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Logs;
+﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <param name="Zone">The zone name as EverQuest writes it, which may differ from the site's name.</param>
 sealed record ZoneEnteredLogEvent(string Zone) : LogEvent

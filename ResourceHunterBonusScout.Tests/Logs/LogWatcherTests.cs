@@ -17,7 +17,7 @@ public sealed class LogWatcherTests : IDisposable
     public LogWatcherTests()
     {
         this._watcher = new LogWatcher(new Log(this._output, new FakeTimeProvider(Start)));
-        Directory.CreateDirectory(this.LogsFolder);
+        Directory.CreateDirectory(LogsFolder);
         this._eq = new EqProcess(100, this._everQuest.File("eqgame.exe"));
     }
 
@@ -28,10 +28,10 @@ public sealed class LogWatcherTests : IDisposable
     [Fact]
     public void ReportsEventsFromNewLines()
     {
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", "[Thu Oct 29 11:00:00 2026] You have entered Crushbone.\r\n");
+        WriteLog("eqlog_Bob_fangbreaker.txt", "[Thu Oct 29 11:00:00 2026] You have entered Crushbone.\r\n");
         this._watcher.Scan([this._eq], Start);
 
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", $"{Befallen}[Thu Oct 29 12:00:01 2026] Some chatter\r\n");
+        WriteLog("eqlog_Bob_fangbreaker.txt", $"{Befallen}[Thu Oct 29 12:00:01 2026] Some chatter\r\n");
 
         Assert.Equal(
             [new CharacterLogEvent(new Character("Bob", Server.Fangbreaker), new ZoneEnteredLogEvent("Befallen"))],
@@ -41,27 +41,27 @@ public sealed class LogWatcherTests : IDisposable
     [Fact]
     public void ALogIsActiveOnceItGrows()
     {
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
-        this.WriteLog("eqlog_Ann_frostreaver.txt", Befallen);
+        WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
+        WriteLog("eqlog_Ann_frostreaver.txt", Befallen);
         this._watcher.Scan([this._eq], Start);
         this._watcher.Poll();
         Assert.Empty(this._watcher.ActiveLogs);
 
-        this.WriteLog("eqlog_Ann_frostreaver.txt", Befallen);
+        WriteLog("eqlog_Ann_frostreaver.txt", Befallen);
         this._watcher.Poll();
 
-        var ann = Path.Combine(this.LogsFolder, "eqlog_Ann_frostreaver.txt");
+        var ann = Path.Combine(LogsFolder, "eqlog_Ann_frostreaver.txt");
         Assert.Equal([ann], this._watcher.ActiveLogs);
-        Assert.Equal($"12:00:00 Watching {ann}", this.Output());
+        Assert.Equal($"12:00:00 Watching {ann}", Output());
     }
 
     [Fact]
     public void LogsForOtherServersAreIgnored()
     {
-        this.WriteLog("eqlog_Bob_teek.txt", string.Empty);
+        WriteLog("eqlog_Bob_teek.txt", string.Empty);
         this._watcher.Scan([this._eq], Start);
 
-        this.WriteLog("eqlog_Bob_teek.txt", Befallen);
+        WriteLog("eqlog_Bob_teek.txt", Befallen);
 
         Assert.Empty(this._watcher.Poll());
         Assert.Empty(this._watcher.ActiveLogs);
@@ -72,7 +72,7 @@ public sealed class LogWatcherTests : IDisposable
     {
         this._watcher.Scan([this._eq], Start);
 
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
+        WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
         this._watcher.Scan([this._eq], Start.AddSeconds(30));
 
         Assert.Single(this._watcher.Poll());
@@ -81,10 +81,10 @@ public sealed class LogWatcherTests : IDisposable
     [Fact]
     public void SeveralProcessesInOneFolderShareOneTail()
     {
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
+        WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
         this._watcher.Scan([this._eq, this._eq with { Id = 101 }], Start);
 
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
+        WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
 
         Assert.Single(this._watcher.Poll());
     }
@@ -92,24 +92,24 @@ public sealed class LogWatcherTests : IDisposable
     [Fact]
     public void StopsWatchingWhenEverQuestExits()
     {
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
+        WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
         this._watcher.Scan([this._eq], Start);
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
+        WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
         this._watcher.Poll();
 
         this._watcher.Scan([], Start.AddSeconds(30));
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
+        WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
 
         Assert.Empty(this._watcher.Poll());
         Assert.Empty(this._watcher.ActiveLogs);
-        Assert.EndsWith($"Stopped watching {Path.Combine(this.LogsFolder, "eqlog_Bob_fangbreaker.txt")}", this.Output());
+        Assert.EndsWith($"Stopped watching {Path.Combine(LogsFolder, "eqlog_Bob_fangbreaker.txt")}", Output());
     }
 
     [Fact]
     public void ScanSaysWhoseLogsStopped()
     {
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
-        this.WriteLog("eqlog_Bob_teek.txt", string.Empty);
+        WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
+        WriteLog("eqlog_Bob_teek.txt", string.Empty);
         Assert.Empty(this._watcher.Scan([this._eq], Start));
 
         Assert.Equal([new Character("Bob", Server.Fangbreaker)], this._watcher.Scan([], Start.AddSeconds(30)));
@@ -118,19 +118,19 @@ public sealed class LogWatcherTests : IDisposable
     [Fact]
     public void WatchedLogsIncludeOnesThatHaventGrown()
     {
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
+        WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
         this._watcher.Scan([this._eq], Start);
 
-        Assert.Equal([Path.Combine(this.LogsFolder, "eqlog_Bob_fangbreaker.txt")], this._watcher.WatchedLogs);
+        Assert.Equal([Path.Combine(LogsFolder, "eqlog_Bob_fangbreaker.txt")], this._watcher.WatchedLogs);
     }
 
     [Fact]
     public void WhenEverQuestStartsAgainItStartsAtTheEnd()
     {
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
+        WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
         this._watcher.Scan([this._eq], Start);
         this._watcher.Scan([], Start.AddSeconds(30));
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
+        WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
 
         this._watcher.Scan([this._eq with { Id = 200 }], Start.AddSeconds(60));
 
@@ -140,14 +140,14 @@ public sealed class LogWatcherTests : IDisposable
     [Fact]
     public void HintsToTurnOnLoggingWhenNoLogGrowsForFiveMinutes()
     {
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
+        WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
         this._watcher.Scan([this._eq], Start);
 
         this._watcher.Scan([this._eq], Start.AddSeconds(270));
-        Assert.Equal(string.Empty, this.Output());
+        Assert.Equal(string.Empty, Output());
 
         this._watcher.Scan([this._eq], Start.AddSeconds(300));
-        Assert.Equal($"12:00:00 WARNING: {LogWatcher.LoggingHint}", this.Output());
+        Assert.Equal($"12:00:00 WARNING: {LogWatcher.LoggingHint}", Output());
     }
 
     [Fact]
@@ -157,7 +157,7 @@ public sealed class LogWatcherTests : IDisposable
         this._watcher.Scan([this._eq], Start.AddMinutes(5));
         this._watcher.Scan([this._eq], Start.AddMinutes(10));
 
-        Assert.Single(this.Output().Split('\n'));
+        Assert.Single(Output().Split('\n'));
     }
 
     [Fact]
@@ -168,20 +168,20 @@ public sealed class LogWatcherTests : IDisposable
         this._watcher.Scan([this._eq with { Id = 200 }], Start.AddMinutes(6));
         this._watcher.Scan([this._eq with { Id = 200 }], Start.AddMinutes(11));
 
-        Assert.Equal(2, this.Output().Split('\n').Length);
+        Assert.Equal(2, Output().Split('\n').Length);
     }
 
     [Fact]
     public void NoHintWhenAnyLogGrows()
     {
-        this.WriteLog("eqlog_Bob_teek.txt", Befallen);
+        WriteLog("eqlog_Bob_teek.txt", Befallen);
         this._watcher.Scan([this._eq], Start);
 
-        this.WriteLog("eqlog_Bob_teek.txt", Befallen);
+        WriteLog("eqlog_Bob_teek.txt", Befallen);
         this._watcher.Scan([this._eq], Start.AddSeconds(30));
         this._watcher.Scan([this._eq], Start.AddMinutes(10));
 
-        Assert.Equal(string.Empty, this.Output());
+        Assert.Equal(string.Empty, Output());
     }
 
     [Fact]
@@ -189,16 +189,16 @@ public sealed class LogWatcherTests : IDisposable
     {
         this._watcher.Scan([this._eq], Start);
 
-        this.WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
+        WriteLog("eqlog_Bob_fangbreaker.txt", Befallen);
         this._watcher.Scan([this._eq], Start.AddMinutes(10));
 
-        Assert.Equal(string.Empty, this.Output());
+        Assert.Equal(string.Empty, Output());
     }
 
     [Fact]
     public void MissingLogsFolderIsFine()
     {
-        Directory.Delete(this.LogsFolder);
+        Directory.Delete(LogsFolder);
 
         this._watcher.Scan([this._eq], Start);
 
@@ -211,7 +211,7 @@ public sealed class LogWatcherTests : IDisposable
         Assert.NotNull(EqProcesses.Find());
     }
 
-    void WriteLog(string name, string text) => File.AppendAllText(Path.Combine(this.LogsFolder, name), text);
+    void WriteLog(string name, string text) => File.AppendAllText(Path.Combine(LogsFolder, name), text);
 
     string Output() => this._output.ToString().TrimEnd();
 }

@@ -1,4 +1,4 @@
-using ResourceHunterBonusScout.Scouting;
+﻿using ResourceHunterBonusScout.Scouting;
 using ResourceHunterBonusScout.Site;
 
 namespace ResourceHunterBonusScout.Reporting;
@@ -29,11 +29,11 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
     /// <summary>Sets the key and checks it with the site, logging whether it's working, rejected, or missing.</summary>
     public async Task ChangeApiKeyAsync(ApiKey? apiKey, CancellationToken cancellationToken = default)
     {
-        this.SetApiKey(apiKey);
+        SetApiKey(apiKey);
         if (apiKey is null)
         {
             log.Info("API key missing. Nothing will be reported.");
-            this.ApiKeyNeeded();
+            ApiKeyNeeded();
             return;
         }
 
@@ -46,7 +46,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
 
         if (result.Outcome == ApiOutcome.KeyRejected)
         {
-            await this.StopUntilKeyChanges();
+            await StopUntilKeyChanges();
             return;
         }
 
@@ -55,10 +55,10 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
 
     public Task ExecuteAsync(ScoutAction action, DateTimeOffset now, CancellationToken cancellationToken = default) => action switch
     {
-        LogErrorAction a => this.LogErrorAsync(a.Message),
-        LogInfoAction a => this.LogInfoAsync(a.Message),
-        DropPendingReportsAction a => this.DropRetriesAsync(a.Character),
-        ReportBonusAction or ReportNoBonusAction => this.AttemptAsync(action, now, isRetry: false, cancellationToken),
+        LogErrorAction a => LogErrorAsync(a.Message),
+        LogInfoAction a => LogInfoAsync(a.Message),
+        DropPendingReportsAction a => DropRetriesAsync(a.Character),
+        ReportBonusAction or ReportNoBonusAction => AttemptAsync(action, now, isRetry: false, cancellationToken),
         _ => throw new ArgumentOutOfRangeException(nameof(action), action, null),
     };
 
@@ -69,7 +69,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
         foreach (var (key, retry) in due)
         {
             this._retries.Remove(key);
-            await this.AttemptAsync(retry.Action, now, isRetry: true, cancellationToken);
+            await AttemptAsync(retry.Action, now, isRetry: true, cancellationToken);
         }
     }
 
@@ -109,12 +109,12 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
         // A newer report for the same character and zone replaces one waiting to retry.
         this._retries.Remove((character, report.Zone));
 
-        if (!this.CanReport(report))
+        if (!CanReport(report))
         {
             return;
         }
 
-        if (action is ReportNoBonusAction && !await this.SiteHasNoBonusAsync(report, cancellationToken))
+        if (action is ReportNoBonusAction && !await SiteHasNoBonusAsync(report, cancellationToken))
         {
             return;
         }
@@ -127,7 +127,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
         }
 
         log.Error($"Couldn't report {report}. {result.Error}");
-        await this.HandleFailureAsync(result.Outcome, action, character, report, now, isRetry, cancellationToken);
+        await HandleFailureAsync(result.Outcome, action, character, report, now, isRetry, cancellationToken);
     }
 
     bool CanReport(BonusReport report)
@@ -175,10 +175,10 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
 
     Task HandleFailureAsync(ApiOutcome outcome, ScoutAction action, Character character, BonusReport report, DateTimeOffset now, bool isRetry, CancellationToken cancellationToken) => outcome switch
     {
-        ApiOutcome.KeyRejected => this.StopUntilKeyChanges(),
-        ApiOutcome.Banned => this.StopReportingTo(report.Server),
+        ApiOutcome.KeyRejected => StopUntilKeyChanges(),
+        ApiOutcome.Banned => StopReportingTo(report.Server),
         ApiOutcome.NotFound => lists.ReloadAsync(report.Server, now, cancellationToken),
-        ApiOutcome.Unavailable => this.RetryOnce(action, character, report, now, isRetry),
+        ApiOutcome.Unavailable => RetryOnce(action, character, report, now, isRetry),
         _ => Task.CompletedTask,
     };
 
@@ -186,7 +186,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
     {
         this._keyRejected = true;
         log.Error("API key: rejected. Reporting is stopped until the key changes.");
-        this.ApiKeyNeeded();
+        ApiKeyNeeded();
         return Task.CompletedTask;
     }
 

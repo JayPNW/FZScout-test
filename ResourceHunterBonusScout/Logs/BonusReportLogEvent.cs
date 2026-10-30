@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Logs;
+﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>EverQuest announced the current zone's bonus.</summary>
 sealed record BonusReportLogEvent(BonusKey BonusKey) : LogEvent

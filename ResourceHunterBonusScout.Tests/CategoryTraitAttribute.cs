@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Tests.Site;
+﻿namespace ResourceHunterBonusScout.Tests.Site;
 
 class CategoryTraitAttribute : TraitAttribute
 {
