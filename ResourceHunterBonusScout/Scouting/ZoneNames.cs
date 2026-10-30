@@ -3,7 +3,6 @@ namespace ResourceHunterBonusScout.Scouting;
 /// <summary>Turns the zone name in the log into the site's zone name. See InternalDocumentation/Zones.md.</summary>
 static class ZoneNames
 {
-    const string The = "The ";
 
     static readonly HashSet<string> NeverHaveABonus =
     [
@@ -81,12 +80,14 @@ static class ZoneNames
     static string? SiteName(string logZone, IReadOnlySet<string> siteZones)
     {
         var candidate = LogToSite.GetValueOrDefault(logZone, logZone);
-        return WithAndWithoutThe(candidate).FirstOrDefault(siteZones.Contains);
+        return AddOrRemoveThePrefix(candidate).FirstOrDefault(siteZones.Contains);
     }
 
     /// <summary>A leading "The " is optional: "The Burning Woods" in the log is "Burning Woods" on the site, and the other way around.</summary>
-    static IEnumerable<string> WithAndWithoutThe(string name)
+    static IEnumerable<string> AddOrRemoveThePrefix(string name)
     {
+        const string The = "The ";
+
         yield return name;
         if (name.StartsWith(The, StringComparison.Ordinal))
         {

@@ -1,4 +1,4 @@
-﻿using ResourceHunterBonusScout.Logs;
+using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Site;
 
 namespace ResourceHunterBonusScout.Scouting;
@@ -111,18 +111,17 @@ sealed class CharacterScout(Character character)
         this._idleDeadline = null;
         this._camping = false;
 
+        if (this.Zone is UnknownZone)
+        {
+            return [this.UnknownZoneError(logZone)];
+        }
+
         if (IsReportable(this.Zone))
         {
             this.StartIdleTimer(now);
-            return [];
         }
 
-        if (this.Zone is not UnknownZone)
-        {
-            return [];
-        }
-
-        return [this.UnknownZoneError(logZone)];
+        return [new LogInfoAction($"{character} entered {logZone}.")];
     }
 
     IReadOnlyList<ScoutAction> OnKill(DateTimeOffset now)

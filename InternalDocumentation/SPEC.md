@@ -51,6 +51,7 @@ Strip the timestamp (`[Mon Sep 14 16:10:29 2026] `) from each line.
 - `You have entered {zone}.` changes the current zone, except lines that start with `You have entered an area` (like `You have entered an area where levitation effects do not function.`).
 - Some zone names differ between site and log. See @Zones.md for the full mapping.
 - If it's still not on the list, the current zone is unknown. Log it as an error and invite the user to report it.
+- Otherwise log `{character} entered {zone}.` (the zone as written in the EQ log).
 
 
 ### Bonus message

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Microsoft.Extensions.Time.Testing;
 using ResourceHunterBonusScout.Reporting;
 using ResourceHunterBonusScout.Scouting;
@@ -87,6 +87,14 @@ public class BonusReporterTests
         await this.Execute(0, new LogErrorAction("Something broke."));
 
         Assert.Equal("12:00:00 ERROR: Something broke.", this.Output());
+    }
+
+    [Fact]
+    public async Task LogsInfo()
+    {
+        await this.Execute(0, new LogInfoAction("Hello."));
+
+        Assert.Equal("12:00:00 Hello.", this.Output());
     }
 
     [Fact]

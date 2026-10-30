@@ -1,4 +1,4 @@
-﻿using ResourceHunterBonusScout.Scouting;
+using ResourceHunterBonusScout.Scouting;
 using ResourceHunterBonusScout.Site;
 
 namespace ResourceHunterBonusScout.Reporting;
@@ -56,6 +56,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
     public Task ExecuteAsync(ScoutAction action, DateTimeOffset now, CancellationToken cancellationToken = default) => action switch
     {
         LogErrorAction a => this.LogErrorAsync(a.Message),
+        LogInfoAction a => this.LogInfoAsync(a.Message),
         DropPendingReportsAction a => this.DropRetriesAsync(a.Character),
         ReportBonusAction or ReportNoBonusAction => this.AttemptAsync(action, now, isRetry: false, cancellationToken),
         _ => throw new ArgumentOutOfRangeException(nameof(action), action, null),
@@ -86,6 +87,12 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
             this._retries.Remove(key);
         }
 
+        return Task.CompletedTask;
+    }
+
+    Task LogInfoAsync(string message)
+    {
+        log.Info(message);
         return Task.CompletedTask;
     }
 

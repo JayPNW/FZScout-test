@@ -1,4 +1,4 @@
-﻿using ResourceHunterBonusScout.Logs;
+using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Scouting;
 using ResourceHunterBonusScout.Site;
 
@@ -21,7 +21,7 @@ public class CharacterScoutTests
     // Like Frostreaver's: no tribute.
     static readonly ServerLists Lists = new(
         new HashSet<BonusKey> { new("experience"), new("aa"), new("loot"), BonusKey.None },
-        new HashSet<string> { "Befallen", "Crushbone" });
+        new HashSet<string> { "Befallen", "Crushbone", "Greater Faydark" });
 
     readonly CharacterScout _scout = new(Bob);
 
@@ -190,6 +190,12 @@ public class CharacterScoutTests
     }
 
     [Fact]
+    public void EnteringAZoneIsLogged()
+    {
+        Assert.Equal([new LogInfoAction("Bob (Frostreaver) entered The Greater Faydark.")], this.Log(0, "You have entered The Greater Faydark."));
+    }
+
+    [Fact]
     public void BonusBeforeAnyZoneIsIgnored()
     {
         Assert.Empty(this.Log(0, Experience));
@@ -227,7 +233,7 @@ public class CharacterScoutTests
     [Fact]
     public void ZoneEnteredWithoutListsIsResolvedWhenTheyLoad()
     {
-        Assert.Empty(this.LogWithoutLists(0, Befallen));
+        Assert.Equal([new LogInfoAction("Bob (Frostreaver) entered Befallen.")], this.LogWithoutLists(0, Befallen));
         Assert.Empty(this._scout.Tick(Start.AddSeconds(60), null));
 
         Assert.Empty(this.Tick(61));
@@ -284,7 +290,7 @@ public class CharacterScoutTests
     [Fact]
     public void ZoneThatNeverHasABonusWaitsForNothing()
     {
-        Assert.Empty(this.Log(0, "You have entered The Plane of Knowledge."));
+        this.Log(0, "You have entered The Plane of Knowledge.");
         Assert.Empty(this.Log(10, Kill));
         Assert.Empty(this.Tick(1000));
     }
