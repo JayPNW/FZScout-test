@@ -100,4 +100,10 @@ public class LogEventTests
     {
         Assert.Equal("You have slain a rat!", LogLine.StripTimestamp("[Mon Sep 14 16:10:29 2026] You have slain a rat!"));
     }
+
+    [Fact]
+    public void LineWithoutTimestampIsUnchanged()
+    {
+        Assert.Equal("You have slain a rat!", LogLine.StripTimestamp("You have slain a rat!"));
+    }
 }

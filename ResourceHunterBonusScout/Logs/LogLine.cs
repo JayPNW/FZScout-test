@@ -1,12 +1,21 @@
-using System.Text.RegularExpressions;
-
 namespace ResourceHunterBonusScout.Logs;
 
-internal static partial class LogLine
+static class LogLine
 {
     /// <summary>Removes the leading <c>[Mon Sep 14 16:10:29 2026] </c>.</summary>
-    public static string StripTimestamp(string line) => Timestamp().Replace(line, string.Empty);
+    public static string StripTimestamp(string line)
+    {
+        if (!line.StartsWith('['))
+        {
+            return line;
+        }
 
-    [GeneratedRegex(@"^\[[^\]]*\] ")]
-    private static partial Regex Timestamp();
+        var end = line.IndexOf("] ", StringComparison.Ordinal);
+        if (end < 0)
+        {
+            return line;
+        }
+
+        return line[(end + 2)..];
+    }
 }
