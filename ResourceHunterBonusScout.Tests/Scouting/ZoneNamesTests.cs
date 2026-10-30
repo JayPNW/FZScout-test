@@ -57,7 +57,7 @@ public class ZoneNamesTests
 
     static string[] ToCells(ITuple row)
     {
-        return Enumerable.Range(0, row.Length).Select(i => row[i]?.ToString() ?? "").ToArray();
+        return [.. Enumerable.Range(0, row.Length).Select(i => row[i]?.ToString() ?? "")];
     }
 
     static string ToLine(IEnumerable<string> cells, string padding)

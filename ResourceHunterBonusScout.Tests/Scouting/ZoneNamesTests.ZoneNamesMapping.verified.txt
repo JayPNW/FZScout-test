@@ -7,6 +7,8 @@
 | Deepest Guk: Ritualist of Hate                   | Deepest Guk                                    |
 | Deepest Guk: The Curse Reborn                    | Deepest Guk                                    |
 | Deepest Guk: The Rescue                          | Deepest Guk                                    |
+| Doomfire, the Burning Lands                      | Plane of Fire                                  |
+| Drunder, the Fortress of Zek                     | Plane of Tactics                               |
 | Eryslai, the Kingdom of Wind                     | Plane of Air                                   |
 | Kael Drakkel                                     | Kael Drakkal                                   |
 | Miragul's Menagerie: Frozen Nightmare            | Miragul's Menagerie                            |
@@ -20,6 +22,7 @@
 | North Desert of Ro                               | North Ro                                       |
 | North Kaladim                                    | Kaladim                                        |
 | Northern Felwithe                                | Felwithe                                       |
+| Ruins of Lxanvom                                 | Crypt of Decay                                 |
 | Rujarkin Hills: Prison Break                     | Rujarkin Hills                                 |
 | Rujarkin Hills: The Hidden Vale                  | Rujarkin Hills                                 |
 | South Desert of Ro                               | South Ro                                       |
@@ -35,14 +38,18 @@
 | The Eastern Plains of Karana                     | East Karana                                    |
 | The Liberated Citadel of Runnyeye                | Clan Runnyeye                                  |
 | The Northern Plains of Karana                    | North Karana                                   |
+| The Plane of Storms                              | Plane of Storm                                 |
 | The Qeynos Aqueduct System                       | Qeynos Catacombs                               |
+| The Reef of Coirnav                              | Plane of Water                                 |
 | The Ruins of Old Guk                             | Lower Guk                                      |
 | The Ruins of Old Paineel                         | The Hole                                       |
 | The Ruins of Sebilis                             | Old Sebilis                                    |
 | The Southern Plains of Karana                    | South Karana                                   |
 | The Warsliks Woods                               | Warsliks Wood                                  |
 | The Western Plains of Karana                     | West Karana                                    |
+| Torden, the Bastion of Thunder                   | Plane of War                                   |
 | Torment, the Plane of Pain                       | Plane of Torment                               |
+| Vegarlson, The Earthen Badlands                  | Plane of Earth                                 |
 | <same>                                           | Abysmal Sea                                    |
 | <same>                                           | Acrylia Caverns                                |
 | <same>                                           | Ak'Anon                                        |
@@ -64,7 +71,6 @@
 | <same>                                           | Cobalt Scar                                    |
 | <same>                                           | Commonlands                                    |
 | <same>                                           | Corathus Creep                                 |
-| <same>                                           | Crypt of Decay                                 |
 | <same>                                           | Crypt of Nadox                                 |
 | <same>                                           | Crystal Caverns                                |
 | <same>                                           | Dagnor's Cauldron                              |
@@ -152,9 +158,7 @@
 | <same>                                           | Paludal Caverns                                |
 | <same>                                           | Permafrost Keep                                |
 | <same>                                           | Plane of Disease                               |
-| <same>                                           | Plane of Earth                                 |
 | <same>                                           | Plane of Fear                                  |
-| <same>                                           | Plane of Fire                                  |
 | <same>                                           | Plane of Growth                                |
 | <same>                                           | Plane of Hate                                  |
 | <same>                                           | Plane of Hate: Innoruuk's Realm                |
@@ -163,13 +167,9 @@
 | <same>                                           | Plane of Mischief                              |
 | <same>                                           | Plane of Nightmare                             |
 | <same>                                           | Plane of Sky                                   |
-| <same>                                           | Plane of Storm                                 |
-| <same>                                           | Plane of Tactics                               |
 | <same>                                           | Plane of Time A                                |
 | <same>                                           | Plane of Time B                                |
 | <same>                                           | Plane of Valor                                 |
-| <same>                                           | Plane of War                                   |
-| <same>                                           | Plane of Water                                 |
 | <same>                                           | Proving Grounds: The Mastery of Adaptation     |
 | <same>                                           | Proving Grounds: The Mastery of Corruption     |
 | <same>                                           | Proving Grounds: The Mastery of Destruction    |
