@@ -5,47 +5,30 @@ namespace ResourceHunterBonusScout.Tests.Scouting;
 
 public class ZoneNamesTests
 {
-    /// <summary>Zones on the sites whose name in the EverQuest log isn't known yet.</summary>
-    static readonly HashSet<string> UnknownLogNames =
-    [
-        "Felwithe",
-        "Kaladim",
-        "Neriak",
-        "Plane of Mischief",
-        "Qeynos Catacombs",
-        "Sleeper's Tomb",
-        "The Hole",
-        "Veeshan's Peak",
-    ];
-
-    /// <summary>Generates the table in InternalDocumentation/Zones.md from the sites' zone lists.</summary>
+    /// <summary>Generates the zone name mapping, linked from InternalDocumentation/Zones.md, from the sites' zone lists.</summary>
     [Fact]
     public Task ZoneNamesMapping()
     {
         var path = Path.Combine(AppContext.BaseDirectory, "Site", "SiteZonesIntegrationTests.KnownZones.verified.txt");
         var siteZones = File.ReadAllLines(path).Where(line => line.Length > 0).ToHashSet();
-        var logNames = ZoneNames.LogToSite.ToDictionary(pair => pair.Value, pair => pair.Key);
+        var logNames = ZoneNames.LogToSite.ToLookup(pair => pair.Value, pair => pair.Key);
 
-        // Unknown log names first, then zones with a different log name, then zones whose names match.
-        static (int Group, string LogName, string Site) ToRow(
-            string zone, Dictionary<string, string> logNames, HashSet<string> siteZones)
+        // Zones with a different log name, then zones whose names match.
+        static IEnumerable<(int Group, string LogName, string Site)> ToRows(
+            string zone, ILookup<string, string> logNames, HashSet<string> siteZones)
         {
-            if (UnknownLogNames.Contains(zone))
+            if (logNames.Contains(zone))
             {
-                return (0, "<unknown>", zone);
+                return logNames[zone].Select(logName =>
+                    (0, logName, Describe(ZoneNames.Resolve(logName, siteZones))));
             }
 
-            if (logNames.TryGetValue(zone, out var logName))
-            {
-                return (1, logName, Describe(ZoneNames.Resolve(logName, siteZones)));
-            }
-
-            return (2, "<same>", Describe(ZoneNames.Resolve(zone, siteZones)));
+            return [(1, "<same>", Describe(ZoneNames.Resolve(zone, siteZones)))];
         }
 
         var rows = from zone in siteZones
-                   let r = ToRow(zone, logNames, siteZones)
-                   orderby r.Group, r.Group == 1 ? r.LogName : r.Site
+                   from r in ToRows(zone, logNames, siteZones)
+                   orderby r.Group, r.Group == 0 ? r.LogName : r.Site
                    select (r.LogName, r.Site);
 
         return Verify(FormatAsMarkdownTable(("EQ log message name", "Site zone name"), rows));

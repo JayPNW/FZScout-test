@@ -1,20 +1,20 @@
 ﻿| EQ log message name               | Site zone name                                   |
 |-----------------------------------|--------------------------------------------------|
-| <unknown>                         | Felwithe                                         |
-| <unknown>                         | Kaladim                                          |
-| <unknown>                         | Neriak                                           |
-| <unknown>                         | Plane of Mischief                                |
-| <unknown>                         | Qeynos Catacombs                                 |
-| <unknown>                         | Sleeper's Tomb                                   |
-| <unknown>                         | The Hole                                         |
-| <unknown>                         | Veeshan's Peak                                   |
 | Cabilis East                      | Cabilis                                          |
+| Cabilis West                      | Cabilis                                          |
 | Chardok: The Halls of Betrayal    | Halls of Betrayal                                |
 | Clan Crushbone                    | Crushbone                                        |
 | Kael Drakkel                      | Kael Drakkal                                     |
 | Nagafen's Lair                    | Nagafen's Lair (SolB)                            |
+| Neriak - Commons                  | Neriak                                           |
+| Neriak - Foreign Quarter          | Neriak                                           |
+| Neriak - Third Gate               | Neriak                                           |
 | North Desert of Ro                | North Ro                                         |
+| North Kaladim                     | Kaladim                                          |
+| Northern Felwithe                 | Felwithe                                         |
 | South Desert of Ro                | South Ro                                         |
+| South Kaladim                     | Kaladim                                          |
+| Southern Felwithe                 | Felwithe                                         |
 | The Castle of Mistmoore           | Castle Mistmoore                                 |
 | The City of Guk                   | Upper Guk                                        |
 | The City of Thurgadin             | Thurgadin                                        |
@@ -22,7 +22,9 @@
 | The Eastern Plains of Karana      | East Karana                                      |
 | The Liberated Citadel of Runnyeye | Clan Runnyeye                                    |
 | The Northern Plains of Karana     | North Karana                                     |
+| The Qeynos Aqueduct System        | Qeynos Catacombs                                 |
 | The Ruins of Old Guk              | Lower Guk                                        |
+| The Ruins of Old Paineel          | The Hole                                         |
 | The Ruins of Sebilis              | Old Sebilis                                      |
 | The Southern Plains of Karana     | South Karana                                     |
 | The Warsliks Woods                | Warsliks Wood                                    |
@@ -155,6 +157,7 @@
 | <same>                            | Plane of Hate: Innoruuk's Realm                  |
 | <same>                            | Plane of Innovation                              |
 | <same>                            | Plane of Justice                                 |
+| <same>                            | Plane of Mischief                                |
 | <same>                            | Plane of Nightmare                               |
 | <same>                            | Plane of Sky                                     |
 | <same>                            | Plane of Storm                                   |
@@ -204,6 +207,7 @@
 | <same>                            | Siren's Grotto                                   |
 | <same>                            | Skyfire Mountains                                |
 | <same>                            | Skyshrine                                        |
+| <same>                            | Sleeper's Tomb                                   |
 | <same>                            | Solusek Ro's Tower                               |
 | <same>                            | Solusek's Eye                                    |
 | <same>                            | South Qeynos                                     |
@@ -253,6 +257,7 @@
 | <same>                            | Txevu, Lair of the Elite                         |
 | <same>                            | Umbral Plains                                    |
 | <same>                            | Uqua, The Ocean God Chantry                      |
+| <same>                            | Veeshan's Peak                                   |
 | <same>                            | Veksar                                           |
 | <same>                            | Velketor's Labyrinth                             |
 | <same>                            | Vex Thal                                         |
