@@ -6,7 +6,6 @@
 /// </summary>
 sealed class LogWatcher(Log log)
 {
-    /// <summary>How often to look for EverQuest processes.</summary>
     public static readonly TimeSpan ScanInterval = TimeSpan.FromSeconds(30);
 
     /// <summary>How long an EverQuest process may run with no log growing before we suggest <c>/log on</c>.</summary>

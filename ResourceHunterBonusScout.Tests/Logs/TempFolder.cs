@@ -1,6 +1,5 @@
 namespace ResourceHunterBonusScout.Tests.Logs;
 
-/// <summary>A real folder on disk for a test, deleted afterward.</summary>
 sealed class TempFolder : IDisposable
 {
     public TempFolder()

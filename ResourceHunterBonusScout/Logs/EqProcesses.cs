@@ -4,7 +4,6 @@ using System.Text;
 
 namespace ResourceHunterBonusScout.Logs;
 
-/// <summary>Finds running <c>eqgame.exe</c> processes.</summary>
 static class EqProcesses
 {
     const uint ProcessQueryLimitedInformation = 0x1000;

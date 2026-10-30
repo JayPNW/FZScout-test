@@ -2,7 +2,6 @@
 
 namespace ResourceHunterBonusScout.Logs;
 
-/// <summary>Reads lines as they're added to a file.</summary>
 sealed class LogTail
 {
     long _position;
