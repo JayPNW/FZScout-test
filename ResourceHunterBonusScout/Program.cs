@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Reporting;
 using ResourceHunterBonusScout.Site;
@@ -52,18 +52,48 @@ static class Program
             cancel.Cancel();
         };
 
-        Console.WriteLine("Watching for EverQuest logs. Each log is listed once it grows. Press Ctrl+C to exit.");
+        await TickAsync(scout, time, log, cancel.Token);
+        PrintWatchedLogs(scout.Watcher);
+        Console.WriteLine("Press Ctrl+C to exit.");
+
         using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1), time);
         try
         {
-            do
+            while (await timer.WaitForNextTickAsync(cancel.Token))
             {
-                await scout.TickAsync(time.GetUtcNow(), cancel.Token);
+                await TickAsync(scout, time, log, cancel.Token);
             }
-            while (await timer.WaitForNextTickAsync(cancel.Token));
         }
         catch (OperationCanceledException) when (cancel.IsCancellationRequested)
         {
+        }
+    }
+
+    /// <summary>One bad tick is logged, not fatal: the next one gets a fresh start.</summary>
+    static async Task TickAsync(Scout scout, TimeProvider time, Log log, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await scout.TickAsync(time.GetUtcNow(), cancellationToken);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            log.Error($"Unexpected problem: {e}");
+        }
+    }
+
+    static void PrintWatchedLogs(LogWatcher watcher)
+    {
+        if (watcher.WatchedLogs.Count == 0)
+        {
+            Console.WriteLine("No EverQuest logs found yet. Looking every 30 seconds while EverQuest runs.");
+            return;
+        }
+
+        Console.WriteLine("EverQuest logs found (each is reported as watched once it grows):");
+        foreach (var path in watcher.WatchedLogs)
+        {
+            Console.WriteLine($"  {path}");
         }
     }
 

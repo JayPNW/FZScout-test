@@ -1,4 +1,4 @@
-using ResourceHunterBonusScout.Scouting;
+﻿using ResourceHunterBonusScout.Scouting;
 
 namespace ResourceHunterBonusScout.Tests.Scouting;
 
@@ -64,9 +64,17 @@ public class ZoneNamesTests
     }
 
     [Fact]
-    public void WithoutASiteListEveryZoneIsUnknown()
+    public void MappedZoneWithAColonIsNotTreatedAsAnInstance()
     {
-        Assert.Equal(new UnknownZone("Befallen"), ZoneNames.Resolve("Befallen", null));
+        Assert.Equal(
+            new UnknownZone("Chardok: The Halls of Betrayal"),
+            ZoneNames.Resolve("Chardok: The Halls of Betrayal", new HashSet<string> { "Chardok" }));
+    }
+
+    [Fact]
+    public void WithoutASiteListEveryZoneIsUnresolved()
+    {
+        Assert.Equal(new UnresolvedZone("Befallen"), ZoneNames.Resolve("Befallen", null));
     }
 
     [Fact]

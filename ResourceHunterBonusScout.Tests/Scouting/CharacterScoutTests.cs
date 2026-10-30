@@ -1,4 +1,4 @@
-using ResourceHunterBonusScout.Logs;
+﻿using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Scouting;
 using ResourceHunterBonusScout.Site;
 
@@ -225,14 +225,60 @@ public class CharacterScoutTests
     }
 
     [Fact]
-    public void WithoutListsZonesCantBeChecked()
+    public void ZoneEnteredWithoutListsIsResolvedWhenTheyLoad()
     {
-        var actions = this._scout.Handle(LogEvent.Parse(Befallen)!, Start, null);
+        Assert.Empty(this.LogWithoutLists(0, Befallen));
+        Assert.Empty(this._scout.Tick(Start.AddSeconds(60), null));
+
+        Assert.Empty(this.Tick(61));
+        Assert.Equal(new KnownZone("Befallen"), this._scout.Zone);
+        Assert.Equal([ReportNone("Befallen")], this.Tick(300));
+    }
+
+    [Fact]
+    public void BonusAfterTheListsLoadIsReported()
+    {
+        this.LogWithoutLists(0, Befallen);
+
+        Assert.Equal([Report("Befallen", "experience")], this.Log(10, Experience));
+    }
+
+    [Fact]
+    public void ZoneEnteredWithoutListsThatTurnsOutUnknownIsAnError()
+    {
+        this.LogWithoutLists(0, "You have entered The Halls of Honor.");
 
         Assert.Equal(
-            [new LogErrorAction("Bob (Frostreaver) entered 'Befallen', but the Frostreaver zones list isn't loaded, so it won't be reported.")],
-            actions);
+            [new LogErrorAction($"Bob (Frostreaver) entered 'The Halls of Honor', which isn't on the Frostreaver zones list. Please report it at {CharacterScout.ReportIssuesUrl}")],
+            this.Tick(60));
         Assert.Empty(this.Tick(1000));
+    }
+
+    [Fact]
+    public void ListsThatNeverLoadMeanNoneIsntReported()
+    {
+        this.LogWithoutLists(0, Befallen);
+
+        Assert.Equal(
+            [new LogErrorAction("Bob (Frostreaver) was in 'Befallen', but the Frostreaver zones list still isn't loaded, so 'none' wasn't reported.")],
+            this._scout.Tick(Start.AddSeconds(300), null));
+        Assert.Empty(this._scout.Tick(Start.AddSeconds(1000), null));
+    }
+
+    [Fact]
+    public void BonusWhileListsAreMissingIsAnError()
+    {
+        this.LogWithoutLists(0, Befallen);
+
+        Assert.Equal(
+            [new LogErrorAction("Bob (Frostreaver) saw a 'experience' bonus in 'Befallen', but the Frostreaver zones list isn't loaded, so it wasn't reported.")],
+            this.LogWithoutLists(10, Experience));
+    }
+
+    [Fact]
+    public void DailyResetDropsPendingReports()
+    {
+        Assert.Equal([new DropPendingReportsAction(Bob)], this.Log(0, DailyReset));
     }
 
     [Fact]
@@ -277,5 +323,10 @@ public class CharacterScoutTests
         return this._scout.Handle(logEvent, Start.AddSeconds(seconds), Lists);
     }
 
-    IReadOnlyList<ScoutAction> Tick(int seconds) => this._scout.Tick(Start.AddSeconds(seconds));
+    IReadOnlyList<ScoutAction> Tick(int seconds) => this._scout.Tick(Start.AddSeconds(seconds), Lists);
+
+    IReadOnlyList<ScoutAction> LogWithoutLists(int seconds, string message)
+    {
+        return this._scout.Handle(LogEvent.Parse(message)!, Start.AddSeconds(seconds), null);
+    }
 }

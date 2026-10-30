@@ -1,4 +1,4 @@
-namespace ResourceHunterBonusScout.Scouting;
+﻿namespace ResourceHunterBonusScout.Scouting;
 
 /// <summary>Turns the zone name in the log into the site's zone name. See InternalDocumentation/Zones.md.</summary>
 static class ZoneNames
@@ -81,11 +81,11 @@ static class ZoneNames
 
         if (siteZones is null)
         {
-            return new UnknownZone(logZone);
+            return new UnresolvedZone(logZone);
         }
 
         var siteName = SiteName(logZone, siteZones);
-        if (siteName is null)
+        if (siteName is null && !LogToSite.ContainsKey(logZone))
         {
             var colon = logZone.IndexOf(':');
             if (colon > 0)

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Time.Testing;
+﻿using Microsoft.Extensions.Time.Testing;
 using ResourceHunterBonusScout.Logs;
 
 namespace ResourceHunterBonusScout.Tests.Logs;
@@ -103,6 +103,25 @@ public sealed class LogWatcherTests : IDisposable
         Assert.Empty(this._watcher.Poll());
         Assert.Empty(this._watcher.ActiveLogs);
         Assert.EndsWith($"Stopped watching {Path.Combine(this.LogsFolder, "eqlog_Bob_fangbreaker.txt")}", this.Output());
+    }
+
+    [Fact]
+    public void ScanSaysWhoseLogsStopped()
+    {
+        this.WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
+        this.WriteLog("eqlog_Bob_teek.txt", string.Empty);
+        Assert.Empty(this._watcher.Scan([this._eq], Start));
+
+        Assert.Equal([new Character("Bob", Server.Fangbreaker)], this._watcher.Scan([], Start.AddSeconds(30)));
+    }
+
+    [Fact]
+    public void WatchedLogsIncludeOnesThatHaventGrown()
+    {
+        this.WriteLog("eqlog_Bob_fangbreaker.txt", string.Empty);
+        this._watcher.Scan([this._eq], Start);
+
+        Assert.Equal([Path.Combine(this.LogsFolder, "eqlog_Bob_fangbreaker.txt")], this._watcher.WatchedLogs);
     }
 
     [Fact]

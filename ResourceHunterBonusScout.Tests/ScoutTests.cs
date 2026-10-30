@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Time.Testing;
+﻿using Microsoft.Extensions.Time.Testing;
 using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Reporting;
 using ResourceHunterBonusScout.Site;
@@ -74,6 +74,20 @@ public sealed class ScoutTests : IDisposable
         Assert.Equal(
             """POST /api/client/bonuses {"serverName":"Fangbreaker","zoneName":"Befallen","bonusKey":"none"}""",
             this._site.Requests[^1]);
+    }
+
+    [Fact]
+    public async Task NoNoneAfterEverQuestExits()
+    {
+        await this.Tick(0);
+        this.Write("You have entered Befallen.");
+        await this.Tick(1);
+
+        this._processes = [];
+        await this.Tick(30);
+        await this.Tick(1000);
+
+        Assert.DoesNotContain(this._site.Requests, r => r.StartsWith("POST", StringComparison.Ordinal));
     }
 
     [Fact]

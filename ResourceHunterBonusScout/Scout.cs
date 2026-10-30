@@ -1,4 +1,4 @@
-using ResourceHunterBonusScout.Logs;
+﻿using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Reporting;
 using ResourceHunterBonusScout.Scouting;
 
@@ -17,7 +17,12 @@ sealed class Scout(LogWatcher watcher, ServerListCache lists, BonusReporter repo
     {
         if (this._nextScan is null || now >= this._nextScan)
         {
-            watcher.Scan(findEqProcesses(), now);
+            foreach (var character in watcher.Scan(findEqProcesses(), now))
+            {
+                // EverQuest stopped, so the character can't see a bonus message; don't let a timer report a false 'none'.
+                this._characters.Remove(character);
+            }
+
             this._nextScan = now + LogWatcher.ScanInterval;
         }
 
@@ -30,7 +35,7 @@ sealed class Scout(LogWatcher watcher, ServerListCache lists, BonusReporter repo
 
         foreach (var scout in this._characters.Values)
         {
-            await this.ExecuteAsync(scout.Tick(now), now, cancellationToken);
+            await this.ExecuteAsync(scout.Tick(now, lists.Peek(scout.Character.Server)), now, cancellationToken);
         }
 
         await lists.TickAsync(now, cancellationToken);

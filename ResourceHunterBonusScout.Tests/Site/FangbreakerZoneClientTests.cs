@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using ResourceHunterBonusScout.Site;
 
 namespace ResourceHunterBonusScout.Tests.Site;
@@ -53,6 +53,18 @@ public class FangbreakerZoneClientTests
         Assert.Equal(BonusKey.Unconfirmed, result.Value!["Abysmal Sea"]);
         Assert.Equal(new BonusKey("experience"), result.Value["Bastion of Thunder"]);
         Assert.Equal(new Uri("https://fangbreaker.zone/api/servers/fangbreaker/bonuses/today"), handler.Sent.Single().Uri);
+    }
+
+    [Fact]
+    public async Task GetTodayToleratesADuplicateZone()
+    {
+        var (client, _) = Create(HttpStatusCode.OK, """
+            {"ok":true,"data":[{"name":"Befallen","bonus":"loot"},{"name":"Befallen","bonus":"loot"}]}
+            """);
+
+        var result = await client.GetTodayAsync(Server.Fangbreaker, TestContext.Current.CancellationToken);
+
+        Assert.Equal(new BonusKey("loot"), result.Value!["Befallen"]);
     }
 
     [Fact]

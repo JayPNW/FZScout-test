@@ -216,6 +216,25 @@ public class BonusReporterTests
     }
 
     [Fact]
+    public async Task DailyResetDropsThatCharactersRetries()
+    {
+        this._site.Fail(Post, HttpStatusCode.InternalServerError);
+        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+        await this.Execute(0, Bonus(Ann, "Befallen", "loot"));
+
+        await this.Execute(30, new DropPendingReportsAction(Bob));
+        await this.Tick(60);
+
+        Assert.Equal(
+            [
+                PostBody("Fangbreaker", "Befallen", "loot"),
+                PostBody("Frostreaver", "Befallen", "loot"),
+                PostBody("Frostreaver", "Befallen", "loot"),
+            ],
+            this._site.Requests);
+    }
+
+    [Fact]
     public async Task RetriesForOtherZonesAreKept()
     {
         this._site.Fail(Post, HttpStatusCode.InternalServerError);

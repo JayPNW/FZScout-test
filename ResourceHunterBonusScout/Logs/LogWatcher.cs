@@ -25,11 +25,15 @@ sealed class LogWatcher(Log log)
     /// <summary>The logs that have grown, which is how we know a character is playing.</summary>
     public IReadOnlyList<string> ActiveLogs => [.. this._logs.Values.Where(l => l.IsActive).Select(l => l.Tail.Path).Order()];
 
+    /// <summary>Every log being watched for growth, active or not.</summary>
+    public IReadOnlyList<string> WatchedLogs => [.. this._logs.Keys.Order()];
+
     /// <summary>Call every <see cref="ScanInterval"/> with the running EverQuest processes.</summary>
-    public void Scan(IReadOnlyCollection<EqProcess> processes, DateTimeOffset now)
+    /// <returns>The characters whose logs are no longer watched because EverQuest stopped.</returns>
+    public IReadOnlyList<Character> Scan(IReadOnlyCollection<EqProcess> processes, DateTimeOffset now)
     {
         var folders = processes.Select(p => p.LogsFolder).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        this.StopWatchingLogsOutside(folders);
+        var stopped = this.StopWatchingLogsOutside(folders);
         foreach (var folder in folders)
         {
             this.StartWatchingLogsIn(folder);
@@ -39,6 +43,7 @@ sealed class LogWatcher(Log log)
         this._folders.UnionWith(folders);
 
         this.CheckLoggingIsOn(processes, now);
+        return stopped;
     }
 
     /// <summary>Call often. Reads what's been added to each log since the last poll.</summary>
@@ -71,7 +76,7 @@ sealed class LogWatcher(Log log)
         {
             return tail.ReadNewLines();
         }
-        catch (IOException)
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             // Busy or gone for the moment; try again next poll.
             return [];
@@ -80,15 +85,17 @@ sealed class LogWatcher(Log log)
 
     static Dictionary<string, long> LogSizes(string folder)
     {
-        if (!Directory.Exists(folder))
+        try
+        {
+            return new DirectoryInfo(folder).EnumerateFiles(LogFileName.Pattern).ToDictionary(f => f.FullName, f => f.Length, StringComparer.OrdinalIgnoreCase);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             return [];
         }
-
-        return new DirectoryInfo(folder).EnumerateFiles(LogFileName.Pattern).ToDictionary(f => f.FullName, f => f.Length, StringComparer.OrdinalIgnoreCase);
     }
 
-    void StopWatchingLogsOutside(HashSet<string> folders)
+    List<Character> StopWatchingLogsOutside(HashSet<string> folders)
     {
         var stopped = this._logs.Where(l => !folders.Contains(Path.GetDirectoryName(l.Key)!)).ToList();
         foreach (var (path, watched) in stopped)
@@ -99,6 +106,8 @@ sealed class LogWatcher(Log log)
                 log.Info($"Stopped watching {path}");
             }
         }
+
+        return [.. stopped.Select(l => l.Value.Character)];
     }
 
     void StartWatchingLogsIn(string folder)

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -25,7 +25,7 @@ sealed class FangbreakerZoneClient(HttpClient http)
     public async Task<ApiResult<IReadOnlyDictionary<string, BonusKey>>> GetTodayAsync(Server server, CancellationToken cancellationToken = default)
     {
         var result = await this.GetAsync<TodayDto[]>(server, "today", cancellationToken);
-        return Map(result, zones => (IReadOnlyDictionary<string, BonusKey>)zones.ToDictionary(z => z.Name, z => new BonusKey(z.Bonus)));
+        return Map(result, zones => (IReadOnlyDictionary<string, BonusKey>)zones.DistinctBy(z => z.Name).ToDictionary(z => z.Name, z => new BonusKey(z.Bonus)));
     }
 
     public async Task<ApiResult<bool>> ReportBonusAsync(BonusReport report, ApiKey apiKey, CancellationToken cancellationToken = default)
