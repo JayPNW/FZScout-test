@@ -78,10 +78,9 @@ static class Program
             return;
         }
 
-        log.Info("EverQuest logs found (each is reported as watched once it grows):");
-        foreach (var path in watcher.WatchedLogs)
+        foreach (var folder in watcher.WatchedLogs.Select(Path.GetDirectoryName).Distinct())
         {
-            log.Info($"  {path}");
+            log.Info($"EverQuest logs found in {folder}");
         }
     }
 }

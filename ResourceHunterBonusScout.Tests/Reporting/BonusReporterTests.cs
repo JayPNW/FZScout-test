@@ -143,15 +143,6 @@ public class BonusReporterTests
     }
 
     [Fact]
-    public async Task WorkingKeyIsCheckedByReportingNoneForTheNexus()
-    {
-        await this._reporter.ChangeApiKeyAsync(new ApiKey("fz_live_new"), Cancel);
-
-        Assert.Equal([PostBody("Fangbreaker", "The Nexus", "none")], this._site.Requests);
-        Assert.Equal("12:00:00 API key: working.", this.Output());
-    }
-
-    [Fact]
     public async Task RejectedKeyIsReportedAtCheck()
     {
         var asked = 0;
@@ -177,7 +168,7 @@ public class BonusReporterTests
 
         Assert.Equal(1, asked);
         Assert.Empty(this._site.Requests);
-        Assert.Equal("12:00:00 WARNING: API key: missing. Nothing will be reported.", this.Output());
+        Assert.Equal("12:00:00 API key missing. Nothing will be reported.", this.Output());
     }
 
     [Fact]

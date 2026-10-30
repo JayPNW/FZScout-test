@@ -27,7 +27,7 @@ sealed class ApiKeyPrompt
         if (this._needed && this._answer is null)
         {
             this._needed = false;
-            this._log.Info("Paste your API key. For help see https://github.com/JayBazuzi/ResourceHunterBonusScout/blob/main/docs/create-api-key.md:");
+            this._log.Info("Paste your API key. For help see https://tinyurl.com/2t9ccwm5:");
             this._answer = Task.Run(ReadHidden, cancellationToken);
         }
 
