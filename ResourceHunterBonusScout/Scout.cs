@@ -5,19 +5,19 @@ using ResourceHunterBonusScout.Scouting;
 namespace ResourceHunterBonusScout;
 
 /// <summary>Connects the pieces: log events go to each character's scout, and what the scouts decide goes to the reporter.</summary>
-sealed class Scout(LogWatcher watcher, ServerListCache lists, BonusReporter reporter, Func<IReadOnlyCollection<EqProcess>> findEqProcesses)
+sealed class Scout(LogWatcher logWatcher, ServerListCache serverListCache, BonusReporter bonusReporter, Func<IReadOnlyCollection<EqProcess>> findEqProcesses)
 {
     readonly Dictionary<Character, CharacterScout> _characters = [];
     DateTimeOffset? _nextScan;
 
-    public LogWatcher Watcher => watcher;
+    public LogWatcher Watcher => logWatcher;
 
     /// <summary>Call about once a second.</summary>
     public async Task TickAsync(DateTimeOffset now, CancellationToken cancellationToken = default)
     {
         if (this._nextScan is null || now >= this._nextScan)
         {
-            foreach (var character in watcher.Scan(findEqProcesses(), now))
+            foreach (var character in logWatcher.Scan(findEqProcesses(), now))
             {
                 // EverQuest stopped, so the character can't see a bonus message; don't let a timer report a false 'none'.
                 this._characters.Remove(character);
@@ -26,20 +26,20 @@ sealed class Scout(LogWatcher watcher, ServerListCache lists, BonusReporter repo
             this._nextScan = now + LogWatcher.ScanInterval;
         }
 
-        foreach (var logEvent in watcher.Poll())
+        foreach (var logEvent in logWatcher.Poll())
         {
-            var serverLists = await lists.GetAsync(logEvent.Character.Server, now, cancellationToken);
+            var serverLists = await serverListCache.GetAsync(logEvent.Character.Server, now, cancellationToken);
             var actions = ScoutFor(logEvent.Character).Handle(logEvent.Event, now, serverLists);
             await ExecuteAsync(actions, now, cancellationToken);
         }
 
         foreach (var scout in this._characters.Values)
         {
-            await ExecuteAsync(scout.Tick(now, lists.Peek(scout.Character.Server)), now, cancellationToken);
+            await ExecuteAsync(scout.Tick(now, serverListCache.Peek(scout.Character.Server)), now, cancellationToken);
         }
 
-        await lists.TickAsync(now, cancellationToken);
-        await reporter.TickAsync(now, cancellationToken);
+        await serverListCache.TickAsync(now, cancellationToken);
+        await bonusReporter.TickAsync(now, cancellationToken);
     }
 
     CharacterScout ScoutFor(Character character)
@@ -57,7 +57,7 @@ sealed class Scout(LogWatcher watcher, ServerListCache lists, BonusReporter repo
     {
         foreach (var action in actions)
         {
-            await reporter.ExecuteAsync(action, now, cancellationToken);
+            await bonusReporter.ExecuteAsync(action, now, cancellationToken);
         }
     }
 }

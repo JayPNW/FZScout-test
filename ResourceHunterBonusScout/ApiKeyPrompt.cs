@@ -14,11 +14,11 @@ sealed class ApiKeyPrompt
     bool _needed;
     Task<string>? _answer;
 
-    public ApiKeyPrompt(BonusReporter reporter, Log log)
+    public ApiKeyPrompt(BonusReporter bonusReporter, Log log)
     {
-        this._reporter = reporter;
+        this._reporter = bonusReporter;
         this._log = log;
-        reporter.ApiKeyNeeded += () => this._needed = true;
+        bonusReporter.ApiKeyNeeded += () => this._needed = true;
     }
 
     /// <summary>Call every tick. Asks if needed, and uses the answer once it comes.</summary>

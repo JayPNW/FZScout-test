@@ -9,8 +9,8 @@ static class Program
 {
     static async Task Main()
     {
-        var time = TimeProvider.System;
-        var log = Log.ForConsole(time);
+        var timeProvider = TimeProvider.System;
+        var log = Log.ForConsole(timeProvider);
 
         using var mutex = new Mutex(true, "ResourceHunterBonusScout", out var isOnlyInstance);
         if (!isOnlyInstance)
@@ -24,12 +24,12 @@ static class Program
         var version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         log.Info($"Resource Hunter Bonus Scout v{version}");
 
-        using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-        var client = new FangbreakerZoneClient(http);
-        var lists = new ServerListCache(client, log);
-        var reporter = new BonusReporter(client, lists, log);
-        var prompt = new ApiKeyPrompt(reporter, log);
-        var scout = new Scout(new LogWatcher(log), lists, reporter, EqProcesses.Find);
+        using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        var fangbreakerZoneClient = new FangbreakerZoneClient(httpClient);
+        var serverListCache = new ServerListCache(fangbreakerZoneClient, log);
+        var bonusReporter = new BonusReporter(fangbreakerZoneClient, serverListCache, log);
+        var prompt = new ApiKeyPrompt(bonusReporter, log);
+        var scout = new Scout(new LogWatcher(log), serverListCache, bonusReporter, EqProcesses.Find);
 
         using var cancel = new CancellationTokenSource();
         Console.CancelKeyPress += (_, e) =>
@@ -38,19 +38,19 @@ static class Program
             cancel.Cancel();
         };
 
-        await new UpdateChecker(http, log).CheckAsync(version, cancel.Token);
-        await reporter.ChangeApiKeyAsync(ApiKeyStore.Load(), cancel.Token);
-        await TickAsync(scout, time, log, cancel.Token);
+        await new UpdateChecker(httpClient, log).CheckAsync(version, cancel.Token);
+        await bonusReporter.ChangeApiKeyAsync(ApiKeyStore.Load(), cancel.Token);
+        await TickAsync(scout, timeProvider, log, cancel.Token);
         PrintWatchedLogs(scout.Watcher, log);
         log.Info("Press Ctrl+C to exit.");
 
-        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1), time);
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1), timeProvider);
         try
         {
             while (await timer.WaitForNextTickAsync(cancel.Token))
             {
                 await prompt.TickAsync(cancel.Token);
-                await TickAsync(scout, time, log, cancel.Token);
+                await TickAsync(scout, timeProvider, log, cancel.Token);
             }
         }
         catch (OperationCanceledException) when (cancel.IsCancellationRequested)
@@ -59,27 +59,27 @@ static class Program
     }
 
     /// <summary>One bad tick is logged, not fatal: the next one gets a fresh start.</summary>
-    static async Task TickAsync(Scout scout, TimeProvider time, Log log, CancellationToken cancellationToken)
+    static async Task TickAsync(Scout scout, TimeProvider timeProvider, Log log, CancellationToken cancellationToken)
     {
         try
         {
-            await scout.TickAsync(time.GetUtcNow(), cancellationToken);
+            await scout.TickAsync(timeProvider.GetUtcNow(), cancellationToken);
         }
-        catch (Exception e) when (e is not OperationCanceledException)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            log.Error($"Unexpected problem: {e}");
+            log.Error($"Unexpected problem: {exception}");
         }
     }
 
-    static void PrintWatchedLogs(LogWatcher watcher, Log log)
+    static void PrintWatchedLogs(LogWatcher logWatcher, Log log)
     {
-        if (watcher.WatchedLogs.Count == 0)
+        if (logWatcher.WatchedLogs.Count == 0)
         {
             log.Info("No EverQuest logs found yet. Looking every 30 seconds while EverQuest runs.");
             return;
         }
 
-        foreach (var folder in watcher.WatchedLogs.Select(Path.GetDirectoryName).Distinct())
+        foreach (var folder in logWatcher.WatchedLogs.Select(Path.GetDirectoryName).Distinct())
         {
             log.Info($"EverQuest logs found in {folder}");
         }

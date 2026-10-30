@@ -75,7 +75,7 @@ sealed class LogWatcher(Log log)
         {
             return tail.ReadNewLines();
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             // Busy or gone for the moment; try again next poll.
             return [];
@@ -88,7 +88,7 @@ sealed class LogWatcher(Log log)
         {
             return new DirectoryInfo(folder).EnumerateFiles(LogFileName.Pattern).ToDictionary(f => f.FullName, f => f.Length, StringComparer.OrdinalIgnoreCase);
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             return [];
         }

@@ -10,13 +10,13 @@ public class SiteZonesIntegrationTests
     [Fact]
     public async Task KnownZones()
     {
-        using var http = new HttpClient();
-        var client = new FangbreakerZoneClient(http);
+        using var httpClient = new HttpClient();
+        var fangbreakerZoneClient = new FangbreakerZoneClient(httpClient);
 
         var lists = new List<(Server Server, IReadOnlySet<string> Zones)>();
         foreach (var server in Server.All)
         {
-            var result = await client.GetZonesAsync(server, TestContext.Current.CancellationToken);
+            var result = await fangbreakerZoneClient.GetZonesAsync(server, TestContext.Current.CancellationToken);
             Assert.True(result.IsSuccess, result.Error);
             lists.Add((server, result.Value!));
         }

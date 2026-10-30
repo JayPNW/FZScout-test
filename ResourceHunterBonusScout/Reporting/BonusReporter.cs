@@ -4,7 +4,7 @@ using ResourceHunterBonusScout.Site;
 namespace ResourceHunterBonusScout.Reporting;
 
 /// <summary>Carries out what the scouts decide, following the Reporting section of InternalDocumentation/SPEC.md.</summary>
-sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, Log log)
+sealed class BonusReporter(FangbreakerZoneClient fangbreakerZoneClient, ServerListCache serverListCache, Log log)
 {
     public static readonly TimeSpan RetryDelay = TimeSpan.FromMinutes(1);
 
@@ -37,7 +37,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
             return;
         }
 
-        var result = await client.ReportBonusAsync(KeyCheck, apiKey.Value, cancellationToken);
+        var result = await fangbreakerZoneClient.ReportBonusAsync(KeyCheck, apiKey.Value, cancellationToken);
         if (result.IsSuccess)
         {
             log.Info("API key working.");
@@ -119,7 +119,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
             return;
         }
 
-        var result = await client.ReportBonusAsync(report, this._apiKey!.Value, cancellationToken);
+        var result = await fangbreakerZoneClient.ReportBonusAsync(report, this._apiKey!.Value, cancellationToken);
         if (result.IsSuccess)
         {
             log.Success($"Reported {report}.");
@@ -156,7 +156,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
     /// <summary>True unless the site already shows a bonus for the zone, which we assume is right.</summary>
     async Task<bool> SiteHasNoBonusAsync(BonusReport report, CancellationToken cancellationToken)
     {
-        var today = await client.GetTodayAsync(report.Server, cancellationToken);
+        var today = await fangbreakerZoneClient.GetTodayAsync(report.Server, cancellationToken);
         if (!today.IsSuccess)
         {
             log.Error($"Couldn't check today's bonuses, so {report} wasn't reported. {today.Error}");
@@ -177,7 +177,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
     {
         ApiOutcome.KeyRejected => StopUntilKeyChanges(),
         ApiOutcome.Banned => StopReportingTo(report.Server),
-        ApiOutcome.NotFound => lists.ReloadAsync(report.Server, now, cancellationToken),
+        ApiOutcome.NotFound => serverListCache.ReloadAsync(report.Server, now, cancellationToken),
         ApiOutcome.Unavailable => RetryOnce(action, character, report, now, isRetry),
         _ => Task.CompletedTask,
     };

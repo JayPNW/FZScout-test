@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace ResourceHunterBonusScout.Site;
 
 /// <summary>Talks to fangbreaker.zone and frostreaver.zone. See InternalDocumentation/API.md.</summary>
-sealed class FangbreakerZoneClient(HttpClient http)
+sealed class FangbreakerZoneClient(HttpClient httpClient)
 {
     static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -48,7 +48,7 @@ sealed class FangbreakerZoneClient(HttpClient http)
         var description = $"{request.Method} {request.RequestUri}";
         try
         {
-            using var response = await http.SendAsync(request, cancellationToken);
+            using var response = await httpClient.SendAsync(request, cancellationToken);
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -63,13 +63,13 @@ sealed class FangbreakerZoneClient(HttpClient http)
 
             return ApiResult<T>.Success(envelope.Data);
         }
-        catch (Exception e) when (e is HttpRequestException or JsonException or TaskCanceledException && !cancellationToken.IsCancellationRequested)
+        catch (Exception exception) when (exception is HttpRequestException or JsonException or TaskCanceledException && !cancellationToken.IsCancellationRequested)
         {
-            return ApiResult<T>.Failure(ApiOutcome.Unavailable, $"{description} failed: {e.Message}");
+            return ApiResult<T>.Failure(ApiOutcome.Unavailable, $"{description} failed: {exception.Message}");
         }
     }
 
-    static ApiOutcome OutcomeFor(HttpStatusCode status) => status switch
+    static ApiOutcome OutcomeFor(HttpStatusCode httpStatusCode) => httpStatusCode switch
     {
         HttpStatusCode.BadRequest => ApiOutcome.BadPayload,
         HttpStatusCode.Unauthorized => ApiOutcome.KeyRejected,

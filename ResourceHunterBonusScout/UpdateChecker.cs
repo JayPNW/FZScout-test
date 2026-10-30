@@ -7,7 +7,7 @@ namespace ResourceHunterBonusScout;
 /// Releases are numbered 1, 2, 3... and a CI build of release N is <c>N-ci.99</c>, which comes before release N.
 /// Asks GitHub for the latest release (never a prerelease) and tells the user if it is newer than this build.
 /// </summary>
-sealed class UpdateChecker(HttpClient http, Log log)
+sealed class UpdateChecker(HttpClient httpClient, Log log)
 {
     public static readonly Uri LatestReleaseApi = new("https://api.github.com/repos/JayBazuzi/ResourceHunterBonusScout/releases/latest");
 
@@ -22,7 +22,7 @@ sealed class UpdateChecker(HttpClient http, Log log)
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, LatestReleaseApi);
             request.Headers.UserAgent.ParseAdd("ResourceHunterBonusScout");
-            using var response = await http.SendAsync(request, cancellationToken);
+            using var response = await httpClient.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 return;
@@ -41,7 +41,7 @@ sealed class UpdateChecker(HttpClient http, Log log)
                 log.Success($"v{latest} is available: {release.HtmlUrl}");
             }
         }
-        catch (Exception e) when (e is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException && !cancellationToken.IsCancellationRequested)
+        catch (Exception exception) when (exception is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException && !cancellationToken.IsCancellationRequested)
         {
             // Not being able to check is not worth bothering anyone about.
         }

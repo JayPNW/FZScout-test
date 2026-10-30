@@ -18,7 +18,7 @@ sealed class FakeSite : HttpMessageHandler
     public FangbreakerZoneClient Client => new(new HttpClient(this));
 
     /// <summary>Fails every request to a route like <c>POST /api/client/bonuses</c> with this status.</summary>
-    public void Fail(string route, HttpStatusCode status) => this._failures[route] = status;
+    public void Fail(string route, HttpStatusCode httpStatusCode) => this._failures[route] = httpStatusCode;
 
     public void Succeed(string route) => this._failures.Remove(route);
 
@@ -35,9 +35,9 @@ sealed class FakeSite : HttpMessageHandler
 
         Requests.Add($"{route}{body}");
 
-        if (this._failures.TryGetValue(route, out var status))
+        if (this._failures.TryGetValue(route, out var httpStatusCode))
         {
-            return new HttpResponseMessage(status) { Content = new StringContent("""{"ok":false,"error":"Nope"}""") };
+            return new HttpResponseMessage(httpStatusCode) { Content = new StringContent("""{"ok":false,"error":"Nope"}""") };
         }
 
         return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(BodyFor(route)) };

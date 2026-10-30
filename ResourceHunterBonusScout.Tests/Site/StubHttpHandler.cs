@@ -9,9 +9,9 @@ sealed class StubHttpHandler : HttpMessageHandler
     readonly string _body;
     readonly Exception? _exception;
 
-    public StubHttpHandler(HttpStatusCode status, string body)
+    public StubHttpHandler(HttpStatusCode httpStatusCode, string body)
     {
-        this._status = status;
+        this._status = httpStatusCode;
         this._body = body;
     }
 

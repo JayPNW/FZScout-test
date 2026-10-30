@@ -2,19 +2,19 @@
 
 /// <summary>The app's log: timestamped lines, colored on the console. Never pass it the API key.</summary>
 /// <param name="write">Writes one line, in a color if one is given.</param>
-sealed class Log(Action<string, ConsoleColor?> write, TimeProvider time)
+sealed class Log(Action<string, ConsoleColor?> write, TimeProvider timeProvider)
 {
     public const ConsoleColor ErrorColor = ConsoleColor.Red;
 
     public const ConsoleColor HilightColor = ConsoleColor.Yellow;
 
     /// <summary>Plain text, for tests.</summary>
-    public Log(TextWriter writer, TimeProvider time)
-        : this((line, _) => writer.WriteLine(line), time)
+    public Log(TextWriter writer, TimeProvider timeProvider)
+        : this((line, _) => writer.WriteLine(line), timeProvider)
     {
     }
 
-    public static Log ForConsole(TimeProvider time) => new(WriteToConsole, time);
+    public static Log ForConsole(TimeProvider timeProvider) => new(WriteToConsole, timeProvider);
 
     public void Info(string message) => Write(message, null);
 
@@ -40,6 +40,6 @@ sealed class Log(Action<string, ConsoleColor?> write, TimeProvider time)
 
     void Write(string message, ConsoleColor? color)
     {
-        write($"{time.GetLocalNow():HH:mm:ss} {message}", color);
+        write($"{timeProvider.GetLocalNow():HH:mm:ss} {message}", color);
     }
 }

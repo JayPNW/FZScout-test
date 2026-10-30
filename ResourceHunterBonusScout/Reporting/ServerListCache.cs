@@ -7,7 +7,7 @@ namespace ResourceHunterBonusScout.Reporting;
 /// Each server's <c>types</c> and <c>zones</c> lists, loaded when first needed.
 /// If loading fails, it retries once after a minute; if that fails too, it tries again the next time the lists are needed.
 /// </summary>
-sealed class ServerListCache(FangbreakerZoneClient client, Log log)
+sealed class ServerListCache(FangbreakerZoneClient fangbreakerZoneClient, Log log)
 {
     public static readonly TimeSpan RetryDelay = TimeSpan.FromMinutes(1);
 
@@ -58,14 +58,14 @@ sealed class ServerListCache(FangbreakerZoneClient client, Log log)
 
     async Task<bool> LoadAsync(Server server, CancellationToken cancellationToken)
     {
-        var types = await client.GetTypesAsync(server, cancellationToken);
+        var types = await fangbreakerZoneClient.GetTypesAsync(server, cancellationToken);
         if (!types.IsSuccess)
         {
             log.Error($"Couldn't load the {server} bonus types list. {types.Error}");
             return false;
         }
 
-        var zones = await client.GetZonesAsync(server, cancellationToken);
+        var zones = await fangbreakerZoneClient.GetZonesAsync(server, cancellationToken);
         if (!zones.IsSuccess)
         {
             log.Error($"Couldn't load the {server} zones list. {zones.Error}");
