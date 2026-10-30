@@ -1,0 +1,7 @@
+namespace ResourceHunterBonusScout.Site;
+
+/// <param name="Zone">The site's zone name.</param>
+sealed record BonusReport(Server Server, string Zone, BonusKey Bonus)
+{
+    public override string ToString() => $"{this.Server} '{this.Zone}' is '{this.Bonus}'";
+}
