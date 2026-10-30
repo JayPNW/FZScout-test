@@ -4,7 +4,7 @@ using ResourceHunterBonusScout.Site;
 namespace ResourceHunterBonusScout.Reporting;
 
 /// <summary>Carries out what the scouts decide, following the Reporting section of InternalDocumentation/SPEC.md.</summary>
-sealed class BonusReporter(FangbreakerZoneClient fangbreakerZoneClient, ServerListCache serverListCache, Log log)
+class BonusReporter(FangbreakerZoneClient fangbreakerZoneClient, ServerListCache serverListCache, Log log)
 {
     public static readonly TimeSpan RetryDelay = TimeSpan.FromMinutes(1);
 
@@ -122,7 +122,8 @@ sealed class BonusReporter(FangbreakerZoneClient fangbreakerZoneClient, ServerLi
         var result = await fangbreakerZoneClient.ReportBonusAsync(report, this._apiKey!.Value, cancellationToken);
         if (result.IsSuccess)
         {
-            log.Success($"Reported {report}.");
+            var reason = action is ReportNoBonusAction ? " because no bonus message arrived in time" : "";
+            log.Success($"Reported {report}{reason}.");
             return;
         }
 
@@ -211,5 +212,5 @@ sealed class BonusReporter(FangbreakerZoneClient fangbreakerZoneClient, ServerLi
         return Task.CompletedTask;
     }
 
-    sealed record PendingRetry(ScoutAction Action, DateTimeOffset At);
+    record PendingRetry(ScoutAction Action, DateTimeOffset At);
 }
