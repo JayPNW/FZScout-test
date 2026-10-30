@@ -32,7 +32,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
         this.SetApiKey(apiKey);
         if (apiKey is null)
         {
-            log.Warning("API key: missing. Nothing will be reported.");
+            log.Info("API key missing. Nothing will be reported.");
             this.ApiKeyNeeded();
             return;
         }
@@ -40,7 +40,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
         var result = await client.ReportBonusAsync(KeyCheck, apiKey.Value, cancellationToken);
         if (result.IsSuccess)
         {
-            log.Info("API key: working.");
+            log.Info("API key working.");
             return;
         }
 

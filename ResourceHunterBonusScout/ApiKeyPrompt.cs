@@ -27,7 +27,7 @@ sealed class ApiKeyPrompt
         if (this._needed && this._answer is null)
         {
             this._needed = false;
-            Console.Write("Paste your API key (it starts with fz_live_; see docs/create-api-key.md), or press Enter to skip: ");
+            this._log.Info("Paste your API key. For help see https://github.com/JayBazuzi/ResourceHunterBonusScout/blob/main/docs/create-api-key.md:");
             this._answer = Task.Run(ReadHidden, cancellationToken);
         }
 
@@ -64,7 +64,6 @@ sealed class ApiKeyPrompt
             var key = Console.ReadKey(intercept: true);
             if (key.Key == ConsoleKey.Enter)
             {
-                Console.WriteLine();
                 return text.ToString();
             }
 

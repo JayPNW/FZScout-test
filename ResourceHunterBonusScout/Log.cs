@@ -6,7 +6,7 @@ sealed class Log(Action<string, ConsoleColor?> write, TimeProvider time)
 {
     public const ConsoleColor ErrorColor = ConsoleColor.Red;
 
-    public const ConsoleColor SuccessColor = ConsoleColor.Yellow;
+    public const ConsoleColor HilightColor = ConsoleColor.Yellow;
 
     /// <summary>Plain text, for tests.</summary>
     public Log(TextWriter writer, TimeProvider time)
@@ -19,7 +19,7 @@ sealed class Log(Action<string, ConsoleColor?> write, TimeProvider time)
     public void Info(string message) => this.Write(message, null);
 
     /// <summary>Something worked that the user cares about, like a bonus uploaded to the site.</summary>
-    public void Success(string message) => this.Write(message, SuccessColor);
+    public void Success(string message) => this.Write(message, HilightColor);
 
     public void Warning(string message) => this.Write($"WARNING: {message}", null);
 

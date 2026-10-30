@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using ResourceHunterBonusScout.Logs;
 using ResourceHunterBonusScout.Reporting;
 using ResourceHunterBonusScout.Site;
@@ -9,20 +9,21 @@ static class Program
 {
     static async Task Main()
     {
+        var time = TimeProvider.System;
+        var log = Log.ForConsole(time);
+
         using var mutex = new Mutex(true, "ResourceHunterBonusScout", out var isOnlyInstance);
         if (!isOnlyInstance)
         {
-            Console.Error.WriteLine("Resource Hunter Bonus Scout is already running.");
-            Console.WriteLine("Press any key to exit.");
+            log.Error("Resource Hunter Bonus Scout is already running.");
+            log.Info("Press any key to exit.");
             Console.ReadKey(intercept: true);
             return;
         }
 
         var version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-        Console.WriteLine($"Resource Hunter Bonus Scout {version}");
+        log.Info($"Resource Hunter Bonus Scout {version}");
 
-        var time = TimeProvider.System;
-        var log = Log.ForConsole(time);
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         var client = new FangbreakerZoneClient(http);
         var lists = new ServerListCache(client, log);
@@ -39,8 +40,8 @@ static class Program
 
         await reporter.ChangeApiKeyAsync(ApiKeyStore.Load(), cancel.Token);
         await TickAsync(scout, time, log, cancel.Token);
-        PrintWatchedLogs(scout.Watcher);
-        Console.WriteLine("Press Ctrl+C to exit.");
+        PrintWatchedLogs(scout.Watcher, log);
+        log.Info("Press Ctrl+C to exit.");
 
         using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1), time);
         try
@@ -69,18 +70,18 @@ static class Program
         }
     }
 
-    static void PrintWatchedLogs(LogWatcher watcher)
+    static void PrintWatchedLogs(LogWatcher watcher, Log log)
     {
         if (watcher.WatchedLogs.Count == 0)
         {
-            Console.WriteLine("No EverQuest logs found yet. Looking every 30 seconds while EverQuest runs.");
+            log.Info("No EverQuest logs found yet. Looking every 30 seconds while EverQuest runs.");
             return;
         }
 
-        Console.WriteLine("EverQuest logs found (each is reported as watched once it grows):");
+        log.Info("EverQuest logs found (each is reported as watched once it grows):");
         foreach (var path in watcher.WatchedLogs)
         {
-            Console.WriteLine($"  {path}");
+            log.Info($"  {path}");
         }
     }
 }
