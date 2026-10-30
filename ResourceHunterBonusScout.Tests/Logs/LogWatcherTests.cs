@@ -3,7 +3,7 @@ using ResourceHunterBonusScout.Logs;
 
 namespace ResourceHunterBonusScout.Tests.Logs;
 
-public sealed class LogWatcherTests : IDisposable
+public class LogWatcherTests : IDisposable
 {
     const string Befallen = "[Thu Oct 29 12:00:00 2026] You have entered Befallen.\r\n";
 

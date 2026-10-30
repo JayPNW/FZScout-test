@@ -2,7 +2,7 @@
 
 /// <param name="Value">Set only on <see cref="ApiOutcome.Success"/>.</param>
 /// <param name="Error">What went wrong, for the log. Set on every failure.</param>
-sealed record ApiResult<T>(ApiOutcome Outcome, T? Value, string? Error)
+record ApiResult<T>(ApiOutcome Outcome, T? Value, string? Error)
 {
     public bool IsSuccess => Outcome == ApiOutcome.Success;
 

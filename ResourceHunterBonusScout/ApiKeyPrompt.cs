@@ -7,7 +7,7 @@ namespace ResourceHunterBonusScout;
 /// Asks the user for an API key whenever the reporter needs one: at launch if there's none, or whenever the site rejects it.
 /// Waits for the answer in the background so the app keeps watching logs meanwhile.
 /// </summary>
-sealed class ApiKeyPrompt
+class ApiKeyPrompt
 {
     readonly BonusReporter _reporter;
     readonly Log _log;

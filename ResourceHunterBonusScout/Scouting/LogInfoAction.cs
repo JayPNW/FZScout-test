@@ -1,3 +1,3 @@
 ﻿namespace ResourceHunterBonusScout.Scouting;
 
-sealed record LogInfoAction(string Message) : ScoutAction;
+record LogInfoAction(string Message) : ScoutAction;

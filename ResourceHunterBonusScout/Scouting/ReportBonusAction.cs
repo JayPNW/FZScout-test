@@ -2,4 +2,4 @@
 
 namespace ResourceHunterBonusScout.Scouting;
 
-sealed record ReportBonusAction(Character Character, BonusReport Report) : ScoutAction;
+record ReportBonusAction(Character Character, BonusReport Report) : ScoutAction;

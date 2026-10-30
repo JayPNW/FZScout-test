@@ -1,7 +1,7 @@
 ﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>The player killed something. Kills by anyone else don't trigger a bonus message.</summary>
-sealed record KillLogEvent : LogEvent
+record KillLogEvent : LogEvent
 {
     public static LogEvent? TryParse(string message)
     {

@@ -2,7 +2,7 @@
 
 namespace ResourceHunterBonusScout.Tests.Logs;
 
-public sealed class LogTailTests : IDisposable
+public class LogTailTests : IDisposable
 {
     readonly TempFolder _folder = new();
     readonly string _path;

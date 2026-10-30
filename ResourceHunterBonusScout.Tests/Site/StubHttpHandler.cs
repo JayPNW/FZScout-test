@@ -3,7 +3,7 @@
 namespace ResourceHunterBonusScout.Tests.Site;
 
 /// <summary>Stands in for the network: answers every request with one canned response and remembers what was sent.</summary>
-sealed class StubHttpHandler : HttpMessageHandler
+class StubHttpHandler : HttpMessageHandler
 {
     readonly HttpStatusCode _status;
     readonly string _body;
@@ -42,5 +42,5 @@ sealed class StubHttpHandler : HttpMessageHandler
         return new HttpResponseMessage(this._status) { Content = new StringContent(this._body) };
     }
 
-    public sealed record SentRequest(HttpMethod Method, Uri Uri, IReadOnlyDictionary<string, string> Headers, string Body);
+    public record SentRequest(HttpMethod Method, Uri Uri, IReadOnlyDictionary<string, string> Headers, string Body);
 }

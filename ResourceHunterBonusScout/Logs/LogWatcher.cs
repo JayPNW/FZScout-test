@@ -4,7 +4,7 @@
 /// Watches the logs of running EverQuest processes and turns new lines into events.
 /// See "Finding logs" and "Logging hint" in InternalDocumentation/SPEC.md.
 /// </summary>
-sealed class LogWatcher(Log log)
+class LogWatcher(Log log)
 {
     public static readonly TimeSpan ScanInterval = TimeSpan.FromSeconds(30);
 
@@ -167,7 +167,7 @@ sealed class LogWatcher(Log log)
         return after.Any(file => file.Value > before.GetValueOrDefault(file.Key));
     }
 
-    sealed class WatchedLog(Character character, LogTail tail)
+    class WatchedLog(Character character, LogTail tail)
     {
         public Character Character => character;
 
@@ -176,7 +176,7 @@ sealed class LogWatcher(Log log)
         public bool IsActive { get; set; }
     }
 
-    sealed class ProcessWatch(DateTimeOffset firstSeen, Dictionary<string, long> sizesWhenFirstSeen)
+    class ProcessWatch(DateTimeOffset firstSeen, Dictionary<string, long> sizesWhenFirstSeen)
     {
         public DateTimeOffset FirstSeen => firstSeen;
 

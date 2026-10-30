@@ -1,7 +1,7 @@
 ﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>The player is camping out. Repeats every 5 seconds during the countdown.</summary>
-sealed record CampingLogEvent : LogEvent
+record CampingLogEvent : LogEvent
 {
     public static LogEvent? TryParse(string message)
     {

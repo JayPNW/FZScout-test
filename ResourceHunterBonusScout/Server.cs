@@ -2,7 +2,7 @@
 
 /// <param name="Slug">The name in log files and in <c>/api/servers/{slug}</c> URLs.</param>
 /// <param name="Name">The <c>serverName</c> the POST API expects.</param>
-sealed record Server(string Slug, string Name, Uri Site)
+record Server(string Slug, string Name, Uri Site)
 {
     public static readonly Server Fangbreaker = new("fangbreaker", "Fangbreaker", new("https://fangbreaker.zone"));
 

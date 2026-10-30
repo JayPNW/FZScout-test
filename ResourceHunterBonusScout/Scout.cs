@@ -5,7 +5,7 @@ using ResourceHunterBonusScout.Scouting;
 namespace ResourceHunterBonusScout;
 
 /// <summary>Connects the pieces: log events go to each character's scout, and what the scouts decide goes to the reporter.</summary>
-sealed class Scout(LogWatcher logWatcher, ServerListCache serverListCache, BonusReporter bonusReporter, Func<IReadOnlyCollection<EqProcess>> findEqProcesses)
+class Scout(LogWatcher logWatcher, ServerListCache serverListCache, BonusReporter bonusReporter, Func<IReadOnlyCollection<EqProcess>> findEqProcesses)
 {
     readonly Dictionary<Character, CharacterScout> _characters = [];
     DateTimeOffset? _nextScan;

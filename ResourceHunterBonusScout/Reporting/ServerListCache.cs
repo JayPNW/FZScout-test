@@ -7,7 +7,7 @@ namespace ResourceHunterBonusScout.Reporting;
 /// Each server's <c>types</c> and <c>zones</c> lists, loaded when first needed.
 /// If loading fails, it retries once after a minute; if that fails too, it tries again the next time the lists are needed.
 /// </summary>
-sealed class ServerListCache(FangbreakerZoneClient fangbreakerZoneClient, Log log)
+class ServerListCache(FangbreakerZoneClient fangbreakerZoneClient, Log log)
 {
     public static readonly TimeSpan RetryDelay = TimeSpan.FromMinutes(1);
 

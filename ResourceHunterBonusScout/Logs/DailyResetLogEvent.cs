@@ -1,7 +1,7 @@
 ﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>The server reset every zone's bonus for the new day.</summary>
-sealed record DailyResetLogEvent : LogEvent
+record DailyResetLogEvent : LogEvent
 {
     public static LogEvent? TryParse(string message)
     {

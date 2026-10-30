@@ -7,7 +7,7 @@ namespace ResourceHunterBonusScout.Scouting;
 /// The business rules for one character: turns their log events and the passing of time into reports.
 /// See the Timing and Reporting sections of InternalDocumentation/SPEC.md.
 /// </summary>
-sealed class CharacterScout(Character character)
+class CharacterScout(Character character)
 {
     /// <summary>EverQuest announces a bonus 3 to 3.5 minutes after entry when there's no kill, so after 5 there is none.</summary>
     public static readonly TimeSpan IdleTimeout = TimeSpan.FromMinutes(5);

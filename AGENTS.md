@@ -19,6 +19,8 @@ A `switch` should only ever have a single statement in a case. If it's going to 
 
 Avoid ternary (`?:`) except for very simple cases.
 
+Don't use `sealed` on classes or records.
+
 ### MVVM
 
 WPF ViewModels should not contain logic and should not need to be tested.

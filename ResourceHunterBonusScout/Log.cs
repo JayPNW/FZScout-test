@@ -2,7 +2,7 @@
 
 /// <summary>The app's log: timestamped lines, colored on the console. Never pass it the API key.</summary>
 /// <param name="write">Writes one line, in a color if one is given.</param>
-sealed class Log(Action<string, ConsoleColor?> write, TimeProvider timeProvider)
+class Log(Action<string, ConsoleColor?> write, TimeProvider timeProvider)
 {
     public const ConsoleColor ErrorColor = ConsoleColor.Red;
 

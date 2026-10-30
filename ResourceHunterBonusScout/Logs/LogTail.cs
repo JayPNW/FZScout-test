@@ -2,7 +2,7 @@
 
 namespace ResourceHunterBonusScout.Logs;
 
-sealed class LogTail
+class LogTail
 {
     long _position;
     string _partialLine = string.Empty;

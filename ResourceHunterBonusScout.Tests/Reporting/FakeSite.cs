@@ -7,7 +7,7 @@ namespace ResourceHunterBonusScout.Tests.Reporting;
 /// An in-memory fangbreaker.zone/frostreaver.zone at the HTTP boundary, so the real client runs in tests.
 /// Every route succeeds unless told otherwise.
 /// </summary>
-sealed class FakeSite : HttpMessageHandler
+class FakeSite : HttpMessageHandler
 {
     readonly Dictionary<string, HttpStatusCode> _failures = [];
     readonly Dictionary<string, string> _today = [];

@@ -1,6 +1,6 @@
 ﻿namespace ResourceHunterBonusScout.Logs;
 
-sealed record CampAbandonedLogEvent : LogEvent
+record CampAbandonedLogEvent : LogEvent
 {
     public static LogEvent? TryParse(string message)
     {

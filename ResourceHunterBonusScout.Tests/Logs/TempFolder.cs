@@ -1,6 +1,6 @@
 ﻿namespace ResourceHunterBonusScout.Tests.Logs;
 
-sealed class TempFolder : IDisposable
+class TempFolder : IDisposable
 {
     public TempFolder()
     {

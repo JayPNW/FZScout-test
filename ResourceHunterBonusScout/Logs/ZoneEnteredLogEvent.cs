@@ -1,7 +1,7 @@
 ﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <param name="Zone">The zone name as EverQuest writes it, which may differ from the site's name.</param>
-sealed record ZoneEnteredLogEvent(string Zone) : LogEvent
+record ZoneEnteredLogEvent(string Zone) : LogEvent
 {
     const string Prefix = "You have entered ";
 

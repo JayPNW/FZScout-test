@@ -7,7 +7,7 @@ namespace ResourceHunterBonusScout;
 /// Releases are numbered 1, 2, 3... and a CI build of release N is <c>N-ci.99</c>, which comes before release N.
 /// Asks GitHub for the latest release (never a prerelease) and tells the user if it is newer than this build.
 /// </summary>
-sealed class UpdateChecker(HttpClient httpClient, Log log)
+class UpdateChecker(HttpClient httpClient, Log log)
 {
     public static readonly Uri LatestReleaseApi = new("https://api.github.com/repos/JayBazuzi/ResourceHunterBonusScout/releases/latest");
 
@@ -63,7 +63,7 @@ sealed class UpdateChecker(HttpClient httpClient, Log log)
         return int.TryParse(parts[0], out number);
     }
 
-    sealed record ReleaseDto(
+    record ReleaseDto(
         [property: JsonPropertyName("tag_name")] string TagName,
         [property: JsonPropertyName("html_url")] string HtmlUrl);
 }

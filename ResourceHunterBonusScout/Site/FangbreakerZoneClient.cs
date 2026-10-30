@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace ResourceHunterBonusScout.Site;
 
 /// <summary>Talks to fangbreaker.zone and frostreaver.zone. See InternalDocumentation/API.md.</summary>
-sealed class FangbreakerZoneClient(HttpClient httpClient)
+class FangbreakerZoneClient(HttpClient httpClient)
 {
     static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -88,15 +88,15 @@ sealed class FangbreakerZoneClient(HttpClient httpClient)
         return ApiResult<TOut>.Failure(result.Outcome, result.Error!);
     }
 
-    sealed record EnvelopeDto<T>(bool Ok, T? Data);
+    record EnvelopeDto<T>(bool Ok, T? Data);
 
-    sealed record TypeDto(string Key);
+    record TypeDto(string Key);
 
-    sealed record ZoneDto(string Name);
+    record ZoneDto(string Name);
 
-    sealed record TodayDto(string Name, string Bonus);
+    record TodayDto(string Name, string Bonus);
 
-    sealed record ReportDto(string ServerName, string ZoneName, string BonusKey);
+    record ReportDto(string ServerName, string ZoneName, string BonusKey);
 
-    sealed record ReportResponseDto(bool Updated);
+    record ReportResponseDto(bool Updated);
 }

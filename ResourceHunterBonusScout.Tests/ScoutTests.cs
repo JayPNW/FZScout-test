@@ -8,7 +8,7 @@ using ResourceHunterBonusScout.Tests.Reporting;
 namespace ResourceHunterBonusScout.Tests;
 
 /// <summary>The whole app, from a real log file on disk to requests to the site.</summary>
-public sealed class ScoutTests : IDisposable
+public class ScoutTests : IDisposable
 {
     static readonly DateTimeOffset Start = new(2026, 10, 29, 12, 0, 0, TimeSpan.Zero);
 

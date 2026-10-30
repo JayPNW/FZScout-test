@@ -1,7 +1,7 @@
 ﻿namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>EverQuest announced the current zone's bonus.</summary>
-sealed record BonusReportLogEvent(BonusKey BonusKey) : LogEvent
+record BonusReportLogEvent(BonusKey BonusKey) : LogEvent
 {
     const string Prefix = "This land is saturated with unstable magic, ";
 
