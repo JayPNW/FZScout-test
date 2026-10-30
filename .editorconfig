@@ -20,6 +20,12 @@ indent_size = 2
 [*.md]
 trim_trailing_whitespace = false
 
+# Verify requires LF and no trailing newline
+[*.verified.*]
+end_of_line = lf
+charset = utf-8-bom
+insert_final_newline = false
+
 # .NET code style
 [*.cs]
 dotnet_sort_system_directives_first = true

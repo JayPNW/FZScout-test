@@ -485,3 +485,6 @@ $RECYCLE.BIN/
 
 # Claude Code worktrees
 .claude/worktrees/
+
+# Verify
+*.received.*
