@@ -30,7 +30,7 @@ public class ZoneNamesTests
             }
 
             return [(1, "<same>", Describe(ZoneNames.Resolve(zone, siteZones)))];
-        } 
+        }
 
         var rows = from zone in siteZones
                    from r in ToRows(zone, logNames, siteZones)
@@ -43,6 +43,12 @@ public class ZoneNamesTests
     static string FormatAsMarkdownTable<TTuple>(TTuple header, IEnumerable<TTuple> rows)
         where TTuple : ITuple
     {
+        static string[] ToCells(ITuple row)
+            => [.. Enumerable.Range(0, row.Length).Select(i => row[i]?.ToString() ?? "")];
+
+        static string ToLine(IEnumerable<string> cells, string padding)
+            => $"|{padding}{string.Join($"{padding}|{padding}", cells)}{padding}|";
+
         var all = rows.Prepend(header).Select(row => ToCells(row)).ToList();
         var widths = Enumerable.Range(0, header.Length)
             .Select(column => all.Max(cells => cells[column].Length))
@@ -55,15 +61,6 @@ public class ZoneNamesTests
         return string.Join(Environment.NewLine, lines);
     }
 
-    static string[] ToCells(ITuple row)
-    {
-        return [.. Enumerable.Range(0, row.Length).Select(i => row[i]?.ToString() ?? "")];
-    }
-
-    static string ToLine(IEnumerable<string> cells, string padding)
-    {
-        return $"|{padding}{string.Join($"{padding}|{padding}", cells)}{padding}|";
-    }
 
     static string Describe(Zone zone)
     {
