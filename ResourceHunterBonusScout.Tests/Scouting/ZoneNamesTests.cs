@@ -24,7 +24,7 @@ public class ZoneNamesTests
             }
 
             return [(1, "<same>", Describe(ZoneNames.Resolve(zone, siteZones)))];
-        }
+        } 
 
         var rows = from zone in siteZones
                    from r in ToRows(zone, logNames, siteZones)

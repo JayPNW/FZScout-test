@@ -9,7 +9,7 @@ static class ZoneNames
     [
         "The Plane of Tranquility",
         "The Plane of Knowledge",
-        "The Guild Lobby",
+        "Guild Lobby",
         "Guild Hall",
     ];
 
