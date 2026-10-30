@@ -12,7 +12,9 @@ A console app that monitors Everquest logs for zone bonuses and posts them to th
 - **API key:** one key works on both sites. Store it in Windows Credential Manager. Never write it to a file or to the log.
 - When the app launches it prints out:
   - The app version.
-  - The status of the API key (working, rejected, or missing).
+  - The status of the API key (working, rejected, or missing). To check it, POST `none` for `The Nexus` on Fangbreaker.
+- When the key is missing or rejected, ask for one at the console. Keep watching logs while waiting for the answer.
+- Errors are red. Successful uploads are yellow.
   - List of EQ Log files it is watching.
 
 
@@ -84,8 +86,8 @@ Every failure is logged as an error.
 |---------------------|-------------------------------------------------------------------------------|
 | 200                 | Success.                                                                      |
 | 400 bad payload     | Don't retry.                                                                  |
-| 401 bad key         | Notify "API key rejected" (click opens settings). Stop until the key changes. |
-| 403 banned          | Notify. Stop reporting to that site until restart.                            |
+| 401 bad key         | Log "API key rejected" and ask for a new key. Stop until the key changes.     |
+| 403 banned          | Log it. Stop reporting to that site until restart.                            |
 | 404 zone not found  | Reload the zones list. Don't retry.                                           |
 | 500, other, network | Retry once after 1 minute, then drop.                                         |
 
