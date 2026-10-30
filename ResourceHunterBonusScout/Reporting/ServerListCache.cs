@@ -58,7 +58,7 @@ sealed class ServerListCache(FangbreakerZoneClient fangbreakerZoneClient, Log lo
 
     async Task<bool> LoadAsync(Server server, CancellationToken cancellationToken)
     {
-        var types = await fangbreakerZoneClient.GetTypesAsync(server, cancellationToken);
+        var types = await fangbreakerZoneClient.GetBonusTypesAsync(server, cancellationToken);
         if (!types.IsSuccess)
         {
             log.Error($"Couldn't load the {server} bonus types list. {types.Error}");

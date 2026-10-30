@@ -9,7 +9,7 @@ sealed class FangbreakerZoneClient(HttpClient httpClient)
 {
     static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
-    public async Task<ApiResult<IReadOnlySet<BonusKey>>> GetTypesAsync(Server server, CancellationToken cancellationToken = default)
+    public async Task<ApiResult<IReadOnlySet<BonusKey>>> GetBonusTypesAsync(Server server, CancellationToken cancellationToken = default)
     {
         var result = await GetAsync<TypeDto[]>(server, "types", cancellationToken);
         return Map(result, types => (IReadOnlySet<BonusKey>)types.Select(t => new BonusKey(t.Key)).ToHashSet());

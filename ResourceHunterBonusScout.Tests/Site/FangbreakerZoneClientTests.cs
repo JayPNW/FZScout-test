@@ -16,7 +16,7 @@ public class FangbreakerZoneClientTests
               {"id":"9c7c3f71-8094-44d9-b041-7df50b4e001e","key":"none","label":"No Bonus","sortOrder":999}]}
             """);
 
-        var result = await fangbreakerZoneClient.GetTypesAsync(Server.Frostreaver, TestContext.Current.CancellationToken);
+        var result = await fangbreakerZoneClient.GetBonusTypesAsync(Server.Frostreaver, TestContext.Current.CancellationToken);
 
         Assert.Equal(ApiOutcome.Success, result.Outcome);
         Assert.Equal(["experience", "none"], result.Value!.Select(k => k.Value).Order());
@@ -112,7 +112,7 @@ public class FangbreakerZoneClientTests
         var handler = new StubHttpHandler(new HttpRequestException("No such host is known."));
         var fangbreakerZoneClient = new FangbreakerZoneClient(new HttpClient(handler));
 
-        var result = await fangbreakerZoneClient.GetTypesAsync(Server.Fangbreaker, TestContext.Current.CancellationToken);
+        var result = await fangbreakerZoneClient.GetBonusTypesAsync(Server.Fangbreaker, TestContext.Current.CancellationToken);
 
         Assert.Equal(ApiOutcome.Unavailable, result.Outcome);
         Assert.Equal("GET https://fangbreaker.zone/api/servers/fangbreaker/bonuses/types failed: No such host is known.", result.Error);
@@ -125,7 +125,7 @@ public class FangbreakerZoneClientTests
     {
         var (fangbreakerZoneClient, _) = Create(HttpStatusCode.OK, body);
 
-        var result = await fangbreakerZoneClient.GetTypesAsync(Server.Fangbreaker, TestContext.Current.CancellationToken);
+        var result = await fangbreakerZoneClient.GetBonusTypesAsync(Server.Fangbreaker, TestContext.Current.CancellationToken);
 
         Assert.Equal(ApiOutcome.Unavailable, result.Outcome);
     }
