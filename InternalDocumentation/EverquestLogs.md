@@ -1,10 +1,8 @@
-# About Everquest
+# Everquest Logs
 
-## Logs
+## Overview
 
-### Overview
-
-EQ logs live in the eq directory, e.g. `C:\EverQuest\Logs\eqlog_{CHARACTERNAME}_fangbreaker.txt` and contents look like:
+EQ logs live in the eq directory, e.g. `...\EverQuest\Logs\eqlog_{CHARACTERNAME}_fangbreaker.txt` and contents look like:
 
 ```text
 [Mon Sep 14 16:10:29 2026] Welcome to EverQuest!
@@ -12,7 +10,7 @@ EQ logs live in the eq directory, e.g. `C:\EverQuest\Logs\eqlog_{CHARACTERNAME}_
 
 Timestamps are in local time. `Welcome to EverQuest!` appears at login and is followed by a zone entry. Logging out writes nothing.
 
-### Zone Entry
+## Zone Entry
 
 When you enter a zone the message will look like:
 
@@ -27,21 +25,7 @@ You have entered an area where levitation effects do not function.
 You have entered an area where Bind Affinity is allowed.
 ```
 
-Zone names in the log don't always match the site's `zones` list:
-
-| Log Message                               | Site                    |
-| ----------------------------------------- | ----------------------- |
-| The Halls of Honor                        | `halls-of-honor`        |
-| Ruins of Illsalin                         | `the-ruins-of-illsalin` |
-| Riftseekers' Sanctum                      | `riftseekers-sanctum`   |
-| The City of Thurgadin                     | `thurgadin`             |
-| Kael Drakkel                              | `kael-drakkal`          |
-| Cabilis East                              | `cabilis`               |
-| Torden, the Bastion of Thunder            | `bastion-of-thunder`    |
-| Drunder, the Fortress of Zek              | `plane-of-tactics`      |
-| Ruins of Lxanvom                          | `crypt-of-decay`        |
-
-### Bonus message
+## Bonus message
 
 A little while after entering a zone one of the following messages may appear in the log indicating a bonus:
 
@@ -61,14 +45,9 @@ This land is saturated with unstable magic, which has drawn numerous mundane cre
 The message will appear after your first kill in the zone, or after 3 to 3.5 minutes of being in the zone without a kill.
 If you get to that point without a kill and there's still no bonus message, it means the zone has no bonus today.
 
-In a real log from Sep 14 to Oct 27, 2026:
+## Kill messages
 
-- Without a kill, the message came 178–209 seconds after entry.
-- When a kill triggered it, the message came in the same second as the kill.
-- Many kills didn't trigger it: kills by NPCs, by other players, and occasionally your own. Of the kills that came first in a visit, 21 of 80 were followed by the message minutes later instead.
-- The message appeared once per zone visit, except at the daily reset.
-
-### Kill messages
+Kill messages look like this:
 
 ```text
 You have slain a Stillmoon leopard!
@@ -77,19 +56,29 @@ Kekab was slain by A jord militis!
 Kixu has been slain by an elite kyv hunter!
 ```
 
-`was slain by` is the most common form. The name before it can be blank (`  was slain by Gibarn!`). `has been slain by` is a player or pet dying, not a mob kill.
+Only "You have slain..." indicates a kill made by the player and only this message is relevant for identifying "none" zone bonus.
 
-### Daily reset
+## Real Log Analysis
+In a real log from Sep 14 to Oct 27, 2026:
 
-When the server resets the day's bonuses, this appears. It came at about midnight Pacific time, but watch for the message, not the clock:
+- Without a kill, the message came 178–209 seconds after entry.
+- When a kill triggered it, the message came in the same second as the kill.
+- Many kills didn't trigger the message: kills by NPCs, by other players, and occasionally your own. Of the kills that came first in a visit, 21 of 80 were followed by the message minutes later instead.
+- The message appeared once per zone visit, except at the daily reset.
+
+## Daily reset
+
+When the server resets the day's bonuses, this appears. 
 
 ```text
 Fonts of unstable magic are erupting and receding in response to some nameless power. The magic is cascading throughout Norrath and into the Planes beyond. Hunt for the lands that have been most recently saturated with this magic to reap their many and varied resources.
 ```
 
-If the new day's bonus applies to your current zone, its bonus message follows shortly after (20 seconds in the one example seen).
+It comes at about midnight Pacific time, but watch for the message, not the clock.
 
-### Camping
+After the reset the new day's bonus messages will show up on a similar timeline: triggered either by your first kill in a zone or by spending a few minutes there without a kill.
+
+## Camping
 
 ```text
 It will take you about 30 seconds to prepare your camp.

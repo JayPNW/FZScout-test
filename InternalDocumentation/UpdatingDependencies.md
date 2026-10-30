@@ -13,15 +13,6 @@
 
 ## What we do
 
-### .NET tools
-
-`vpk` must match the version of the `Velopack` NuGet package. Dependabot bumps the package but not the tool, so when a Velopack PR lands, update the tool to the same version:
-
-```
-dotnet tool update vpk --version <same version as Velopack>
-```
-
 ### .NET SDK
 
-[global.json](/global.json) pins an exact SDK version. CI installs exactly that version via `actions/setup-dotnet`.
-
+[global.json](/global.json) pins an exact SDK version. We always want to use the latest LTS.

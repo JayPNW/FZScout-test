@@ -29,8 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ResourceHunterBonusScout.Core\ResourceHunterBonusScout.Core.csproj" />
-  </ItemGroup>
+</ItemGroup>
 
   <ItemGroup>
     <Resource Include="Assets\*.ico" />

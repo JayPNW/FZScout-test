@@ -1,5 +1,4 @@
 <Solution>
-  <Project Path="ResourceHunterBonusScout.Core/ResourceHunterBonusScout.Core.csproj" />
   <Project Path="ResourceHunterBonusScout/ResourceHunterBonusScout.csproj" />
   <Project Path="ResourceHunterBonusScout.Tests/ResourceHunterBonusScout.Tests.csproj" />
 </Solution>
