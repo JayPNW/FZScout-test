@@ -136,7 +136,7 @@ sealed class CharacterScout(Character character)
 
     IReadOnlyList<ScoutAction> OnBonus(BonusKey bonus, ServerLists? lists)
     {
-        if (this.Zone is NoBonusZone noBonusZone)
+        if (this.Zone is NeverBonusZone noBonusZone)
         {
             return [new LogErrorAction($"{character} saw a '{bonus}' bonus in '{noBonusZone.Name}', which never has a bonus. Please report it at {ReportIssuesUrl}")];
         }

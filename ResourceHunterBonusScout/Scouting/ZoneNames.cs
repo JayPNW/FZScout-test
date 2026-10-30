@@ -71,7 +71,7 @@ static class ZoneNames
     {
         if (NeverHaveABonus.Contains(logZone))
         {
-            return new NoBonusZone(logZone);
+            return new NeverBonusZone(logZone);
         }
 
         if (siteZones is null)

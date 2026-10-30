@@ -70,7 +70,7 @@ public class ZoneNamesTests
         return zone switch
         {
             KnownZone known => known.SiteName,
-            NoBonusZone => "<no bonus>",
+            NeverBonusZone => "<no bonus>",
             UnknownZone => "<unknown>",
             UnresolvedZone => "<unresolved>",
             _ => throw new ArgumentOutOfRangeException(nameof(zone)),
