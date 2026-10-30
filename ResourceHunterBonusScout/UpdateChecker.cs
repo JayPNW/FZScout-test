@@ -1,0 +1,69 @@
+using System.Net.Http.Json;
+using System.Text.Json.Serialization;
+
+namespace ResourceHunterBonusScout;
+
+/// <summary>
+/// Releases are numbered 1, 2, 3... and a CI build of release N is <c>N-ci.99</c>, which comes before release N.
+/// Asks GitHub for the latest release (never a prerelease) and tells the user if it is newer than this build.
+/// </summary>
+sealed class UpdateChecker(HttpClient http, Log log)
+{
+    public static readonly Uri LatestReleaseApi = new("https://api.github.com/repos/JayBazuzi/ResourceHunterBonusScout/releases/latest");
+
+    public async Task CheckAsync(string? currentVersion, CancellationToken cancellationToken = default)
+    {
+        if (!TryParseVersion(currentVersion, out var current, out var isPrerelease))
+        {
+            return;
+        }
+
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, LatestReleaseApi);
+            request.Headers.UserAgent.ParseAdd("ResourceHunterBonusScout");
+            using var response = await http.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                return;
+            }
+
+            var release = await response.Content.ReadFromJsonAsync<ReleaseDto>(cancellationToken);
+            if (release is null || !TryParseVersion(release.TagName, out var latest, out _))
+            {
+                return;
+            }
+
+            // A prerelease of N comes before release N.
+            var isNewer = isPrerelease ? latest >= current : latest > current;
+            if (isNewer)
+            {
+                log.Success($"v{latest} is available: {release.HtmlUrl}");
+            }
+        }
+        catch (Exception e) when (e is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException && !cancellationToken.IsCancellationRequested)
+        {
+            // Not being able to check is not worth bothering anyone about.
+        }
+    }
+
+    /// <summary>Reads <c>1</c>, <c>v2</c>, <c>3-ci.99</c> or <c>3-ci.99+abc123</c>.</summary>
+    internal static bool TryParseVersion(string? text, out int number, out bool isPrerelease)
+    {
+        number = 0;
+        isPrerelease = false;
+        if (text is null)
+        {
+            return false;
+        }
+
+        var core = text.TrimStart('v').Split('+')[0];
+        var parts = core.Split('-', 2);
+        isPrerelease = parts.Length > 1;
+        return int.TryParse(parts[0], out number);
+    }
+
+    sealed record ReleaseDto(
+        [property: JsonPropertyName("tag_name")] string TagName,
+        [property: JsonPropertyName("html_url")] string HtmlUrl);
+}

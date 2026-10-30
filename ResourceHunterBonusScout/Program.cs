@@ -22,7 +22,7 @@ static class Program
         }
 
         var version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-        log.Info($"Resource Hunter Bonus Scout {version}");
+        log.Info($"Resource Hunter Bonus Scout v{version}");
 
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         var client = new FangbreakerZoneClient(http);
@@ -38,6 +38,7 @@ static class Program
             cancel.Cancel();
         };
 
+        await new UpdateChecker(http, log).CheckAsync(version, cancel.Token);
         await reporter.ChangeApiKeyAsync(ApiKeyStore.Load(), cancel.Token);
         await TickAsync(scout, time, log, cancel.Token);
         PrintWatchedLogs(scout.Watcher, log);

@@ -7,7 +7,8 @@
     <Nullable>enable</Nullable>
     <RootNamespace>ResourceHunterBonusScout</RootNamespace>
     <Product>Resource Hunter Bonus Scout</Product>
-    <Version>0.1.0</Version>
+    <!-- The release being worked on: a strictly incrementing integer. The release workflow publishes it, then bumps it. -->
+    <Version>1</Version>
   </PropertyGroup>
 
   <!-- Published as a self-contained, single-file x64 exe. Only when publishing, so the tests can reference this project. -->
