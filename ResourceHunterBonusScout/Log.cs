@@ -1,16 +1,45 @@
 namespace ResourceHunterBonusScout;
 
-/// <summary>The app's log: timestamped lines on the console. Never pass it the API key.</summary>
-sealed class Log(TextWriter writer, TimeProvider time)
+/// <summary>The app's log: timestamped lines, colored on the console. Never pass it the API key.</summary>
+/// <param name="write">Writes one line, in a color if one is given.</param>
+sealed class Log(Action<string, ConsoleColor?> write, TimeProvider time)
 {
-    public void Info(string message) => this.Write(message);
+    public const ConsoleColor ErrorColor = ConsoleColor.Red;
 
-    public void Warning(string message) => this.Write($"WARNING: {message}");
+    public const ConsoleColor SuccessColor = ConsoleColor.Yellow;
 
-    public void Error(string message) => this.Write($"ERROR: {message}");
-
-    void Write(string message)
+    /// <summary>Plain text, for tests.</summary>
+    public Log(TextWriter writer, TimeProvider time)
+        : this((line, _) => writer.WriteLine(line), time)
     {
-        writer.WriteLine($"{time.GetLocalNow():HH:mm:ss} {message}");
+    }
+
+    public static Log ForConsole(TimeProvider time) => new(WriteToConsole, time);
+
+    public void Info(string message) => this.Write(message, null);
+
+    /// <summary>Something worked that the user cares about, like a bonus uploaded to the site.</summary>
+    public void Success(string message) => this.Write(message, SuccessColor);
+
+    public void Warning(string message) => this.Write($"WARNING: {message}", null);
+
+    public void Error(string message) => this.Write($"ERROR: {message}", ErrorColor);
+
+    static void WriteToConsole(string line, ConsoleColor? color)
+    {
+        if (color is null)
+        {
+            Console.WriteLine(line);
+            return;
+        }
+
+        Console.ForegroundColor = color.Value;
+        Console.WriteLine(line);
+        Console.ResetColor();
+    }
+
+    void Write(string message, ConsoleColor? color)
+    {
+        write($"{time.GetLocalNow():HH:mm:ss} {message}", color);
     }
 }

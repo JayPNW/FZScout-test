@@ -8,16 +8,49 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
 {
     public static readonly TimeSpan RetryDelay = TimeSpan.FromMinutes(1);
 
+    /// <summary>Checks a key by posting 'none' for a zone that never has a bonus.</summary>
+    public static readonly BonusReport KeyCheck = new(Server.Fangbreaker, "The Nexus", BonusKey.None);
+
     readonly HashSet<Server> _banned = [];
     readonly Dictionary<(Character Character, string Zone), PendingRetry> _retries = [];
     ApiKey? _apiKey;
     bool _keyRejected;
+
+    /// <summary>Raised when there's no key or the site rejected it, so the user should be asked for one.</summary>
+    public event Action ApiKeyNeeded = delegate { };
 
     /// <summary>Changing the key resumes reporting after the old one was rejected.</summary>
     public void SetApiKey(ApiKey? apiKey)
     {
         this._apiKey = apiKey;
         this._keyRejected = false;
+    }
+
+    /// <summary>Sets the key and checks it with the site, logging whether it's working, rejected, or missing.</summary>
+    public async Task ChangeApiKeyAsync(ApiKey? apiKey, CancellationToken cancellationToken = default)
+    {
+        this.SetApiKey(apiKey);
+        if (apiKey is null)
+        {
+            log.Warning("API key: missing. Nothing will be reported.");
+            this.ApiKeyNeeded();
+            return;
+        }
+
+        var result = await client.ReportBonusAsync(KeyCheck, apiKey.Value, cancellationToken);
+        if (result.IsSuccess)
+        {
+            log.Info("API key: working.");
+            return;
+        }
+
+        if (result.Outcome == ApiOutcome.KeyRejected)
+        {
+            await this.StopUntilKeyChanges();
+            return;
+        }
+
+        log.Warning($"API key: couldn't check it, so it will be used as is. {result.Error}");
     }
 
     public Task ExecuteAsync(ScoutAction action, DateTimeOffset now, CancellationToken cancellationToken = default) => action switch
@@ -82,7 +115,7 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
         var result = await client.ReportBonusAsync(report, this._apiKey!.Value, cancellationToken);
         if (result.IsSuccess)
         {
-            log.Info($"Reported {report} for {character.Name}.");
+            log.Success($"Reported {report} for {character.Name}.");
             return;
         }
 
@@ -145,7 +178,8 @@ sealed class BonusReporter(FangbreakerZoneClient client, ServerListCache lists, 
     Task StopUntilKeyChanges()
     {
         this._keyRejected = true;
-        log.Error("API key rejected. Reporting is stopped until the key changes.");
+        log.Error("API key: rejected. Reporting is stopped until the key changes.");
+        this.ApiKeyNeeded();
         return Task.CompletedTask;
     }
 

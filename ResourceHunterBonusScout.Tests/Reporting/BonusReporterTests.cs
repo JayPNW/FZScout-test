@@ -119,7 +119,7 @@ public class BonusReporterTests
     {
         this._site.Fail(Post, HttpStatusCode.Unauthorized);
         await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
-        Assert.Contains("ERROR: API key rejected. Reporting is stopped until the key changes.", this.Output());
+        Assert.Contains("ERROR: API key: rejected. Reporting is stopped until the key changes.", this.Output());
 
         this._site.Succeed(Post);
         await this.Execute(10, Bonus(Ann, "Befallen", "loot"));
@@ -127,6 +127,68 @@ public class BonusReporterTests
 
         this._reporter.SetApiKey(new ApiKey("fz_live_new"));
         await this.Execute(20, Bonus(Ann, "Befallen", "loot"));
+        Assert.Equal(2, this._site.Requests.Count);
+    }
+
+    [Fact]
+    public async Task RejectedKeyAsksForANewOne()
+    {
+        var asked = 0;
+        this._reporter.ApiKeyNeeded += () => asked++;
+        this._site.Fail(Post, HttpStatusCode.Unauthorized);
+
+        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+
+        Assert.Equal(1, asked);
+    }
+
+    [Fact]
+    public async Task WorkingKeyIsCheckedByReportingNoneForTheNexus()
+    {
+        await this._reporter.ChangeApiKeyAsync(new ApiKey("fz_live_new"), Cancel);
+
+        Assert.Equal([PostBody("Fangbreaker", "The Nexus", "none")], this._site.Requests);
+        Assert.Equal("12:00:00 API key: working.", this.Output());
+    }
+
+    [Fact]
+    public async Task RejectedKeyIsReportedAtCheck()
+    {
+        var asked = 0;
+        this._reporter.ApiKeyNeeded += () => asked++;
+        this._site.Fail(Post, HttpStatusCode.Unauthorized);
+
+        await this._reporter.ChangeApiKeyAsync(new ApiKey("fz_live_bad"), Cancel);
+        this._site.Succeed(Post);
+        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
+
+        Assert.Equal(1, asked);
+        Assert.Single(this._site.Requests);
+        Assert.StartsWith("12:00:00 ERROR: API key: rejected. Reporting is stopped until the key changes.", this.Output());
+    }
+
+    [Fact]
+    public async Task MissingKeyAsksForOne()
+    {
+        var asked = 0;
+        this._reporter.ApiKeyNeeded += () => asked++;
+
+        await this._reporter.ChangeApiKeyAsync(null, Cancel);
+
+        Assert.Equal(1, asked);
+        Assert.Empty(this._site.Requests);
+        Assert.Equal("12:00:00 WARNING: API key: missing. Nothing will be reported.", this.Output());
+    }
+
+    [Fact]
+    public async Task KeyThatCantBeCheckedIsUsed()
+    {
+        this._site.Fail(Post, HttpStatusCode.InternalServerError);
+        await this._reporter.ChangeApiKeyAsync(new ApiKey("fz_live_new"), Cancel);
+        Assert.StartsWith("12:00:00 WARNING: API key: couldn't check it, so it will be used as is.", this.Output());
+
+        this._site.Succeed(Post);
+        await this.Execute(0, Bonus(Bob, "Befallen", "loot"));
         Assert.Equal(2, this._site.Requests.Count);
     }
 
