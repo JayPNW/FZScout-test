@@ -2,7 +2,7 @@
 
 ## Reporting a bonus
 
-The request header is:
+The request to report a bonus is:
 ```http
     POST https://fangbreaker.zone/api/client/bonuses
     Content-Type: application/json
@@ -40,8 +40,6 @@ The 200 OK response should look like:
 
 Duplicate submissions will return the same thing, and duplicate submissions are harmless. The backend will disregard them unless it's a change.
 
-The POST endpoint doesn't need a date, it's uses America/Los_Angeles per server configuration.
-
 The API key itself will tie submissions to the user and any timeouts or bans or whatever are respected. Basically a submission through the API is the same as a user trying to login and submit it on the web gui. 
 
 
@@ -50,10 +48,11 @@ The API key itself will tie submissions to the user and any timeouts or bans or 
 The public endpoints you can use to get bonus / zone data are:
 
 ```http
-GET https://fangbreaker.zone/api/servers/fangbreaker/bonuses/types
-GET https://fangbreaker.zone/api/servers/fangbreaker/bonuses/zones
-GET https://frostreaver.zone/api/servers/frostreaver/bonuses/types
-GET https://frostreaver.zone/api/servers/frostreaver/bonuses/zones
-GET https://fangbreaker.zone/api/servers/fangbreaker/bonuses/today
+GET https://{SERVER}/api/servers/fangbreaker/bonuses/today
+GET https://{SERVER}/api/servers/fangbreaker/bonuses/types
+GET https://{SERVER}/api/servers/fangbreaker/bonuses/zones
+GET https://{SERVER}/api/servers/frostreaver/bonuses/types
+GET https://{SERVER}/api/servers/frostreaver/bonuses/zones
 ```
 
+Server is either `fangbreaker.zone` or `frostreaver.zone`; it doesn't matter which you use in the `{SERVER}` placeholder.

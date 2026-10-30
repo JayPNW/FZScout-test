@@ -1,6 +1,6 @@
 # Spec
 
-A console app that monitors Everquest logs for zone bonuses and posts them to the http://fangbreaker.zone and http://frostreaver.zone.
+A console app that monitors Everquest logs for zone bonuses and posts them to the https://fangbreaker.zone and https://frostreaver.zone.
 
 ## Tech stack
 
@@ -8,7 +8,7 @@ A console app that monitors Everquest logs for zone bonuses and posts them to th
 
 ## App behavior
 
-- **Single instance:** a named mutex. A second copy prints and error and PRESS ANY KEY before exiting.
+- **Single instance:** a named mutex. A second copy prints an error waits for the user to press a key.
 - **API key:** one key works on both sites. Store it in Windows Credential Manager. Never write it to a file or to the log.
 - When the app launches it prints out:
   - The app version.
@@ -47,7 +47,6 @@ Strip the timestamp (`[Mon Sep 14 16:10:29 2026] `) from each line.
 ### Zone
 
 - `You have entered {zone}.` changes the current zone, except lines that start with `You have entered an area` (like `You have entered an area where levitation effects do not function.`).
-- Instances have a ':' in the name and follow their parent zone. For example, `Tirranun's Delve: Grounding the Drakes` reports as `Tirranun's Delve`.
 - Some zone names differ between site and log. See @Zones.md for the full mapping.
 - If it's still not on the list, the current zone is unknown. Log it as an error and invite the user to report it.
 
@@ -79,7 +78,7 @@ Each type of log message should become a LogEvent, e.g. `KillLogEvent` or `Bonus
 
 ### Responses
 
-Every failure is logged; except for 200 print it as an error.
+Every failure is logged as an error.
 
 | Response            | Result                                                                        |
 |---------------------|-------------------------------------------------------------------------------|

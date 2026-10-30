@@ -1,6 +1,6 @@
 # Create an API Key
 
-1. Open http://fangbreaker.zone or http://frostreaver.zone and log in with Discord.
+1. Open https://fangbreaker.zone or https://frostreaver.zone and log in with Discord.
 
    ![Login button](assets/login-button.png)
 

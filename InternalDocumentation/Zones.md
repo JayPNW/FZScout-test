@@ -17,18 +17,20 @@ But not all zones with a ':' in their name are instances. For example `Chardok: 
 
 Many zones are recognized by different names in different contexts.
 
-For each of these, the display name and the `zoneName` the POST API expects are the same string. **EQ log name** is filled in only where the log's `You have entered {zone}.` text differs from the site's spelling (see the alias table in [SPEC.md](SPEC.md#log-parsing)).
+For each of these, the display name and the `zoneName` the POST API expects are the same string. 
+
+Some zone names are unknown at this time. We'll fill them in later.
 
 | EQ log message name               | Site zone name         |
 |-----------------------------------|------------------------|
-|                                   | Felwithe               |
-|                                   | Kaladim                |
-|                                   | Neriak                 |
-|                                   | Plane of Mischief      |
-|                                   | Qeynos Catacombs       |
-|                                   | Sleeper's Tomb         |
-|                                   | The Hole               |
-|                                   | Veeshan's Peak         |
+| <unknown>                         | Felwithe               |
+| <unknown>                         | Kaladim                |
+| <unknown>                         | Neriak                 |
+| <unknown>                         | Plane of Mischief      |
+| <unknown>                         | Qeynos Catacombs       |
+| <unknown>                         | Sleeper's Tomb         |
+| <unknown>                         | The Hole               |
+| <unknown>                         | Veeshan's Peak         |
 | <same>                            | Acrylia Caverns        |
 | <same>                            | Ak'Anon                |
 | <same>                            | Befallen               |

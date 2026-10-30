@@ -1,22 +1,18 @@
 # Resource Hunter Bonus Scout
 
-A log parser for EverQuest's Resource Hunter feature. It automatically reports each zone's daily bonus to the community site as you travel. Every player who runs it helps fill in the day's bonus map for everyone.
+A console app that watches your EverQuest logs for Resource Hunter zone bonuses and reports them to [fangbreaker.zone](https://fangbreaker.zone) and [frostreaver.zone](https://frostreaver.zone) as you travel. Every player who runs it helps fill in the day's bonus map for everyone.
 
-## Getting Started
+# Getting Started
 
 1. In EverQuest enable logging by typing `/log on`.
 1. [Download](https://github.com/JayBazuzi/ResourceHunterBonusScout/releases/latest) and run Resource Hunter Bonus Scout.
     - If Windows says it protected your PC, click **More info**, then **Run anyway**. This only happens on the first install.
     - If this doesn't work for you, please report a bug to this project.
-1. [Create an API key](docs/create-api-key.md).
-1. Paste the key into the window that opens and click **Save**.
+1. [Create an API key](docs/create-api-key.md). One key works on both sites.
+1. Give the key to the app. It is stored in Windows Credential Manager.
 
-The app runs in the system tray. Right-click the tray icon to change settings.
+When it starts, the app prints its version, whether your API key is working, rejected, or missing, and which EverQuest log files it is watching. Only the Fangbreaker and Frostreaver servers are reported. Leave it running while you play.
 
 # Thanks
 
 Extra super thanks to Winter.xo for creating the site and the API that this modest client posts to.
-
-# Credits
-
-See [Credits](/CREDITS.md) for the icons this app uses.
