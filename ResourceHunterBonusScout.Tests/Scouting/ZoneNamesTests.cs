@@ -28,6 +28,30 @@ public class ZoneNamesTests
     }
 
     [Fact]
+    public void LeadingTheInTheLogIsOptional()
+    {
+        Assert.Equal(new KnownZone("Halls of Honor"), ZoneNames.Resolve("The Halls of Honor", new HashSet<string> { "Halls of Honor" }));
+    }
+
+    [Fact]
+    public void LeadingTheOnTheSiteIsOptional()
+    {
+        Assert.Equal(new KnownZone("The Nexus"), ZoneNames.Resolve("Nexus", new HashSet<string> { "The Nexus" }));
+    }
+
+    [Fact]
+    public void ExactNameWinsOverTheOptionalThe()
+    {
+        Assert.Equal(new KnownZone("The Deep"), ZoneNames.Resolve("The Deep", new HashSet<string> { "Deep", "The Deep" }));
+    }
+
+    [Fact]
+    public void MappedNameCanAlsoDropThe()
+    {
+        Assert.Equal(new KnownZone("Upper Guk"), ZoneNames.Resolve("The City of Guk", new HashSet<string> { "Upper Guk" }));
+    }
+
+    [Fact]
     public void ZoneWithAColonThatIsNotAnInstance()
     {
         Assert.Equal(new KnownZone("Halls of Betrayal"), ZoneNames.Resolve("Chardok: The Halls of Betrayal", SiteZones));

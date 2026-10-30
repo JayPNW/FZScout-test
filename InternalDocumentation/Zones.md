@@ -19,6 +19,8 @@ Many zones are recognized by different names in different contexts.
 
 For each of these, the display name and the `zoneName` the POST API expects are the same string. 
 
+A leading `The ` is optional when matching names: `The Burning Woods` in the log matches `Burning Woods` on the site, and the other way around. The table below only lists names that differ in some other way.
+
 Some zone names are unknown at this time. We'll fill them in later.
 
 | EQ log message name               | Site zone name         |
@@ -115,53 +117,16 @@ Some zone names are unknown at this time. We'll fill them in later.
 | Nagafen's Lair                    | Nagafen's Lair (SolB)  |
 | North Desert of Ro                | North Ro               |
 | South Desert of Ro                | South Ro               |
-| The Akheva Ruins                  | Akheva Ruins           |
-| The Burning Woods                 | Burning Woods          |
 | The Castle of Mistmoore           | Castle Mistmoore       |
-| The Caverns of Exile              | Caverns of Exile       |
 | The City of Guk                   | Upper Guk              |
-| The City of Mist                  | City of Mist           |
 | The City of Thurgadin             | Thurgadin              |
-| The Commonlands                   | Commonlands            |
 | The Crypt of Dalnir               | Dalnir                 |
-| The Dreadlands                    | Dreadlands             |
 | The Eastern Plains of Karana      | East Karana            |
-| The Emerald Jungle                | Emerald Jungle         |
-| The Estate of Unrest              | Estate of Unrest       |
-| The Field of Bone                 | Field of Bone          |
-| The Fungus Grove                  | Fungus Grove           |
-| The Gorge of King Xorbb           | Gorge of King Xorbb    |
-| The Great Divide                  | Great Divide           |
-| The Greater Faydark               | Greater Faydark        |
-| The Iceclad Ocean                 | Iceclad Ocean          |
-| The Lavastorm Mountains           | Lavastorm Mountains    |
-| The Lesser Faydark                | Lesser Faydark         |
 | The Liberated Citadel of Runnyeye | Clan Runnyeye          |
-| The Maiden's Eye                  | Maiden's Eye           |
-| The Mines of Nurga                | Mines of Nurga         |
 | The Northern Plains of Karana     | North Karana           |
-| The Ocean of Tears                | Ocean of Tears         |
-| The Plane of Fear                 | Plane of Fear          |
-| The Plane of Growth               | Plane of Growth        |
-| The Plane of Hate                 | Plane of Hate          |
-| The Plane of Sky                  | Plane of Sky           |
-| The Rathe Mountains               | Rathe Mountains        |
 | The Ruins of Old Guk              | Lower Guk              |
 | The Ruins of Sebilis              | Old Sebilis            |
-| The Scarlet Desert                | Scarlet Desert         |
-| The Skyfire Mountains             | Skyfire Mountains      |
 | The Southern Plains of Karana     | South Karana           |
-| The Steamfont Mountains           | Steamfont Mountains    |
-| The Stonebrunt Mountains          | Stonebrunt Mountains   |
-| The Swamp of No Hope              | Swamp of No Hope       |
-| The Temple of Droga               | Temple of Droga        |
-| The Temple of Solusek Ro          | Temple of Solusek Ro   |
-| The Temple of Veeshan             | Temple of Veeshan      |
-| The Tenebrous Mountains           | Tenebrous Mountains    |
-| The Tower of Frozen Shadow        | Tower of Frozen Shadow |
-| The Twilight Sea                  | Twilight Sea           |
-| The Umbral Plains                 | Umbral Plains          |
-| The Wakening Land                 | Wakening Land          |
 | The Warsliks Woods                | Warsliks Wood          |
 | The Western Plains of Karana      | West Karana            |
 
