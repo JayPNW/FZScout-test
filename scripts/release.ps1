@@ -2,7 +2,7 @@
 param(
     # A SemVer prerelease label, like ci.42. Makes it a GitHub prerelease, which the app's update check ignores.
     [string]$Prerelease,
-    [string]$GitHubToken)
+    [Parameter(Mandatory)][string]$GitHubToken)
 
 $ErrorActionPreference = 'Stop'
 $root = Join-Path $PSScriptRoot '..'
@@ -16,9 +16,7 @@ dotnet publish $project -c Release -o $publish -p:Version=$version
 if ($LASTEXITCODE -ne 0) { throw 'publish failed' }
 $exe = Join-Path $publish 'ResourceHunterBonusScout.exe'
 
-if ($GitHubToken) {
-    $env:GH_TOKEN = $GitHubToken
-    $flag = if ($Prerelease) { '--prerelease' } else { '--latest' }
-    gh release create "v$version" $exe --title $version --target (git rev-parse HEAD) --generate-notes $flag
-    if ($LASTEXITCODE -ne 0) { throw 'release failed' }
-}
+$env:GH_TOKEN = $GitHubToken
+$flag = if ($Prerelease) { '--prerelease' } else { '--latest' }
+gh release create "v$version" $exe --title $version --target (git rev-parse HEAD) --generate-notes $flag
+if ($LASTEXITCODE -ne 0) { throw 'release failed' }
