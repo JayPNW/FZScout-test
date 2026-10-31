@@ -23,13 +23,13 @@ class CharacterScout(Character character)
 
     TimeSpan? _idleTimeLeftWhileCampingPaused;
 
-    bool _camping;
+    bool _isCamping;
 
     DateTimeOffset? _killDeadline;
 
     public Character Character => character;
 
-    public Zone? Zone { get; private set; }
+    public Zone? CurrentZone { get; private set; }
 
     /// <param name="lists">The server's lists, or null if they couldn't be loaded.</param>
     public IReadOnlyList<ScoutAction> Handle(LogEvent logEvent, DateTimeOffset now, ServerLists? lists)
@@ -47,13 +47,13 @@ class CharacterScout(Character character)
             return resolved;
         }
 
-        if (Zone is UnresolvedZone unresolved)
+        if (CurrentZone is UnresolvedZone unresolved)
         {
             MarkAlreadyReportedThisZone();
             return [new LogErrorAction($"{character} was in '{unresolved.LogName}', but the {character.Server} zones list still isn't loaded, so 'none' wasn't reported.")];
         }
 
-        if (Zone is not KnownZone zone)
+        if (CurrentZone is not KnownZone zone)
         {
             return resolved;
         }
@@ -80,13 +80,13 @@ class CharacterScout(Character character)
     /// <summary>Once the zones list loads, works out which zone an <see cref="UnresolvedZone"/> is. Its timers keep running.</summary>
     IReadOnlyList<ScoutAction> ResolveZone(ServerLists? lists)
     {
-        if (Zone is not UnresolvedZone unresolved || lists is null)
+        if (CurrentZone is not UnresolvedZone unresolved || lists is null)
         {
             return [];
         }
 
-        Zone = ZoneNames.Resolve(unresolved.LogName, lists.Zones);
-        if (Zone is KnownZone)
+        CurrentZone = ZoneNames.Resolve(unresolved.LogName, lists.Zones);
+        if (CurrentZone is KnownZone)
         {
             return [];
         }
@@ -102,19 +102,19 @@ class CharacterScout(Character character)
 
     IReadOnlyList<ScoutAction> OnZoneEntered(string logZone, DateTimeOffset now, ServerLists? lists)
     {
-        Zone = ZoneNames.Resolve(logZone, lists?.Zones);
+        CurrentZone = ZoneNames.Resolve(logZone, lists?.Zones);
         this._alreadyReported = false;
         this._killDeadline = null;
         this._idleTimeLeftWhileCampingPaused = null;
         this._idleDeadline = null;
-        this._camping = false;
+        this._isCamping = false;
 
-        if (Zone is UnknownZone)
+        if (CurrentZone is UnknownZone)
         {
             return [UnknownZoneError(logZone)];
         }
 
-        if (IsReportable(Zone))
+        if (IsReportable(CurrentZone))
         {
             StartIdleTimer(now);
         }
@@ -129,7 +129,7 @@ class CharacterScout(Character character)
 
     IReadOnlyList<ScoutAction> OnKill(DateTimeOffset now)
     {
-        if (IsReportable(Zone) && !this._alreadyReported && this._killDeadline is null)
+        if (IsReportable(CurrentZone) && !this._alreadyReported && this._killDeadline is null)
         {
             this._killDeadline = now + KillTimeout;
             return [WaitingUntil(character, this._killDeadline.Value)];
@@ -140,18 +140,18 @@ class CharacterScout(Character character)
 
     IReadOnlyList<ScoutAction> OnBonus(BonusKey bonus, ServerLists? lists)
     {
-        if (Zone is NeverBonusZone noBonusZone)
+        if (CurrentZone is NeverBonusZone noBonusZone)
         {
             return [new LogErrorAction($"{character} saw a '{bonus}' bonus in '{noBonusZone.Name}', which never has a bonus. Please report it at {ReportIssuesUrl}")];
         }
 
-        if (Zone is UnresolvedZone unresolved)
+        if (CurrentZone is UnresolvedZone unresolved)
         {
             MarkAlreadyReportedThisZone();
             return [new LogErrorAction($"{character} saw a '{bonus}' bonus in '{unresolved.LogName}', but the {character.Server} zones list isn't loaded, so it wasn't reported.")];
         }
 
-        if (Zone is not KnownZone zone)
+        if (CurrentZone is not KnownZone zone)
         {
             return [];
         }
@@ -169,7 +169,7 @@ class CharacterScout(Character character)
     {
         // Yesterday's reports still waiting to retry would now be wrong.
         var drop = new DropPendingReportsAction(character);
-        if (!IsReportable(Zone))
+        if (!IsReportable(CurrentZone))
         {
             return [drop];
         }
@@ -182,7 +182,7 @@ class CharacterScout(Character character)
 
     IReadOnlyList<ScoutAction> OnCamping(DateTimeOffset now)
     {
-        this._camping = true;
+        this._isCamping = true;
         if (this._idleDeadline is { } deadline)
         {
             this._idleTimeLeftWhileCampingPaused = deadline - now;
@@ -194,7 +194,7 @@ class CharacterScout(Character character)
 
     IReadOnlyList<ScoutAction> OnCampAbandoned(DateTimeOffset now)
     {
-        this._camping = false;
+        this._isCamping = false;
         if (this._idleTimeLeftWhileCampingPaused is { } remaining)
         {
             this._idleDeadline = now + remaining;
@@ -217,7 +217,7 @@ class CharacterScout(Character character)
 
     void StartIdleTimer(DateTimeOffset now)
     {
-        if (this._camping)
+        if (this._isCamping)
         {
             this._idleTimeLeftWhileCampingPaused = IdleTimeout;
         }

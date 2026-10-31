@@ -1,22 +1,20 @@
-﻿namespace ResourceHunterBonusScout.Logs;
+﻿using System.Text.RegularExpressions;
 
-/// <param name="Zone">The zone name as EverQuest writes it, which may differ from the site's name.</param>
-record ZoneEnteredLogEvent(string Zone) : LogEvent
+namespace ResourceHunterBonusScout.Logs;
+
+partial record ZoneEnteredLogEvent(string Zone) : LogEvent
 {
-    const string Prefix = "You have entered ";
+    [GeneratedRegex(@"^You have entered (?!an area)(?<zone>.*)\.$", RegexOptions.CultureInvariant)]
+    private static partial Regex ZoneEnteredPattern();
 
     public static LogEvent? TryParse(string message)
     {
-        if (!message.StartsWith(Prefix, StringComparison.Ordinal) || !message.EndsWith('.'))
+        var match = ZoneEnteredPattern().Match(message);
+        if (!match.Success)
         {
             return null;
         }
 
-        if (message.StartsWith($"{Prefix}an area", StringComparison.Ordinal))
-        {
-            return null;
-        }
-
-        return new ZoneEnteredLogEvent(message[Prefix.Length..^1]);
+        return new ZoneEnteredLogEvent(match.Groups["zone"].Value);
     }
 }

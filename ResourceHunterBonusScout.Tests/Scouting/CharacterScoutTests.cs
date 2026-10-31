@@ -237,7 +237,7 @@ public class CharacterScoutTests
         Assert.Empty(this._scout.Tick(Start.AddSeconds(60), null));
 
         Assert.Empty(Tick(61));
-        Assert.Equal(new KnownZone("Befallen"), this._scout.Zone);
+        Assert.Equal(new KnownZone("Befallen"), this._scout.CurrentZone);
         Assert.Equal([ReportNone("Befallen")], Tick(300));
     }
 

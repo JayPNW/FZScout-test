@@ -55,11 +55,6 @@ class LogTail
     static long Length(string path)
     {
         var file = new FileInfo(path);
-        if (!file.Exists)
-        {
-            return 0;
-        }
-
-        return file.Length;
+        return file.Exists ? file.Length : 0;
     }
 }
