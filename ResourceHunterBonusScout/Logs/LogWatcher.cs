@@ -8,10 +8,9 @@ class LogWatcher(Log log)
 {
     public static readonly TimeSpan ScanInterval = TimeSpan.FromSeconds(30);
 
-    /// <summary>How long an EverQuest process may run with no log growing before we suggest <c>/log on</c>.</summary>
-    public static readonly TimeSpan LoggingHintDelay = TimeSpan.FromMinutes(5);
+    public static readonly TimeSpan EverquestLogNotGrowingDelay = TimeSpan.FromMinutes(5);
 
-    public const string LoggingHint = "No EverQuest log is growing. Type `/log on` in EverQuest.";
+    public const string EverquestLogNotGrowingMessage = "No EverQuest log is growing. Type `/log on` in EverQuest.";
 
     /// <summary>Every log for a server we report, in a folder EverQuest is running from, keyed by path.</summary>
     readonly Dictionary<string, WatchedLog> _logs = new(StringComparer.OrdinalIgnoreCase);
@@ -154,10 +153,10 @@ class LogWatcher(Log log)
             {
                 watch.Settled = true;
             }
-            else if (now - watch.FirstSeen >= LoggingHintDelay)
+            else if (now - watch.FirstSeen >= EverquestLogNotGrowingDelay)
             {
                 watch.Settled = true;
-                log.Warning(LoggingHint);
+                log.Warning(EverquestLogNotGrowingMessage);
             }
         }
     }

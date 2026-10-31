@@ -147,7 +147,7 @@ public class LogWatcherTests : IDisposable
         Assert.Equal(string.Empty, Output());
 
         this._watcher.Scan([this._eq], Start.AddSeconds(300));
-        Assert.Equal($"12:00:00 WARNING: {LogWatcher.LoggingHint}", Output());
+        Assert.Equal($"12:00:00 WARNING: {LogWatcher.EverquestLogNotGrowingMessage}", Output());
     }
 
     [Fact]

@@ -337,7 +337,7 @@ dotnet_diagnostic.SA1649.severity = warning
 # SA1201: Elements should appear in the correct order
 dotnet_diagnostic.SA1201.severity = warning
 # SA1205: Partial elements should declare an access modifier
-dotnet_diagnostic.SA1205.severity = warning
+dotnet_diagnostic.SA1205.severity = none
 # SA1208: System using directives should be placed before other using directives
 dotnet_diagnostic.SA1208.severity = warning
 # SA1209: Using alias directives should be placed after other using directives

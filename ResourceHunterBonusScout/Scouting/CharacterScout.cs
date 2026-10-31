@@ -17,13 +17,11 @@ class CharacterScout(Character character)
 
     public const string ReportIssuesUrl = "https://github.com/JayBazuzi/ResourceHunterBonusScout/issues/new";
 
-    /// <summary>Already reported this zone visit (or since the daily reset), so stop waiting.</summary>
-    bool _reported;
+    bool _alreadyReported;
 
     DateTimeOffset? _idleDeadline;
 
-    /// <summary>Set while camping: what was left on the idle timer when it was paused.</summary>
-    TimeSpan? _idleRemaining;
+    TimeSpan? _idleTimeLeftWhileCampingPaused;
 
     bool _camping;
 
@@ -36,7 +34,7 @@ class CharacterScout(Character character)
     /// <param name="lists">The server's lists, or null if they couldn't be loaded.</param>
     public IReadOnlyList<ScoutAction> Handle(LogEvent logEvent, DateTimeOffset now, ServerLists? lists)
     {
-        return [.. ResolveZone(lists), .. Dispatch(logEvent, now, lists)];
+        return [.. ResolveZone(lists), .. DispatchLogEvent(logEvent, now, lists)];
     }
 
     /// <summary>Call regularly. Reports <c>none</c> when a timer runs out without a bonus message.</summary>
@@ -51,7 +49,7 @@ class CharacterScout(Character character)
 
         if (Zone is UnresolvedZone unresolved)
         {
-            MarkReported();
+            MarkAlreadyReportedThisZone();
             return [new LogErrorAction($"{character} was in '{unresolved.LogName}', but the {character.Server} zones list still isn't loaded, so 'none' wasn't reported.")];
         }
 
@@ -60,7 +58,7 @@ class CharacterScout(Character character)
             return resolved;
         }
 
-        MarkReported();
+        MarkAlreadyReportedThisZone();
         return [new ReportNoBonusAction(character, zone.SiteName)];
     }
 
@@ -68,13 +66,13 @@ class CharacterScout(Character character)
 
     static bool IsReportable(Zone? zone) => zone is KnownZone or UnresolvedZone;
 
-    IReadOnlyList<ScoutAction> Dispatch(LogEvent logEvent, DateTimeOffset now, ServerLists? lists) => logEvent switch
+    IReadOnlyList<ScoutAction> DispatchLogEvent(LogEvent logEvent, DateTimeOffset now, ServerLists? lists) => logEvent switch
     {
         ZoneEnteredLogEvent e => OnZoneEntered(e.Zone, now, lists),
         KillLogEvent => OnKill(now),
         BonusReportLogEvent e => OnBonus(e.BonusKey, lists),
         DailyResetLogEvent => OnDailyReset(now),
-        CampingLogEvent => OnCamping(now),
+        PlayerIsCampingLogEvent => OnCamping(now),
         CampAbandonedLogEvent => OnCampAbandoned(now),
         _ => [],
     };
@@ -93,7 +91,7 @@ class CharacterScout(Character character)
             return [];
         }
 
-        MarkReported();
+        MarkAlreadyReportedThisZone();
         return [UnknownZoneError(unresolved.LogName)];
     }
 
@@ -105,9 +103,9 @@ class CharacterScout(Character character)
     IReadOnlyList<ScoutAction> OnZoneEntered(string logZone, DateTimeOffset now, ServerLists? lists)
     {
         Zone = ZoneNames.Resolve(logZone, lists?.Zones);
-        this._reported = false;
+        this._alreadyReported = false;
         this._killDeadline = null;
-        this._idleRemaining = null;
+        this._idleTimeLeftWhileCampingPaused = null;
         this._idleDeadline = null;
         this._camping = false;
 
@@ -131,7 +129,7 @@ class CharacterScout(Character character)
 
     IReadOnlyList<ScoutAction> OnKill(DateTimeOffset now)
     {
-        if (IsReportable(Zone) && !this._reported && this._killDeadline is null)
+        if (IsReportable(Zone) && !this._alreadyReported && this._killDeadline is null)
         {
             this._killDeadline = now + KillTimeout;
             return [WaitingUntil(character, this._killDeadline.Value)];
@@ -149,7 +147,7 @@ class CharacterScout(Character character)
 
         if (Zone is UnresolvedZone unresolved)
         {
-            MarkReported();
+            MarkAlreadyReportedThisZone();
             return [new LogErrorAction($"{character} saw a '{bonus}' bonus in '{unresolved.LogName}', but the {character.Server} zones list isn't loaded, so it wasn't reported.")];
         }
 
@@ -163,7 +161,7 @@ class CharacterScout(Character character)
             return [];
         }
 
-        MarkReported();
+        MarkAlreadyReportedThisZone();
         return [new ReportBonusAction(character, new BonusReport(character.Server, zone.SiteName, bonus))];
     }
 
@@ -176,7 +174,7 @@ class CharacterScout(Character character)
             return [drop];
         }
 
-        this._reported = false;
+        this._alreadyReported = false;
         this._killDeadline = null;
         StartIdleTimer(now);
         return [drop, .. IdleTimerStarted()];
@@ -187,7 +185,7 @@ class CharacterScout(Character character)
         this._camping = true;
         if (this._idleDeadline is { } deadline)
         {
-            this._idleRemaining = deadline - now;
+            this._idleTimeLeftWhileCampingPaused = deadline - now;
             this._idleDeadline = null;
         }
 
@@ -197,10 +195,10 @@ class CharacterScout(Character character)
     IReadOnlyList<ScoutAction> OnCampAbandoned(DateTimeOffset now)
     {
         this._camping = false;
-        if (this._idleRemaining is { } remaining)
+        if (this._idleTimeLeftWhileCampingPaused is { } remaining)
         {
             this._idleDeadline = now + remaining;
-            this._idleRemaining = null;
+            this._idleTimeLeftWhileCampingPaused = null;
             return IdleTimerStarted();
         }
 
@@ -221,7 +219,7 @@ class CharacterScout(Character character)
     {
         if (this._camping)
         {
-            this._idleRemaining = IdleTimeout;
+            this._idleTimeLeftWhileCampingPaused = IdleTimeout;
         }
         else
         {
@@ -229,11 +227,11 @@ class CharacterScout(Character character)
         }
     }
 
-    void MarkReported()
+    void MarkAlreadyReportedThisZone()
     {
-        this._reported = true;
+        this._alreadyReported = true;
         this._killDeadline = null;
         this._idleDeadline = null;
-        this._idleRemaining = null;
+        this._idleTimeLeftWhileCampingPaused = null;
     }
 }

@@ -9,7 +9,7 @@ abstract record LogEvent
         KillLogEvent.TryParse,
         BonusReportLogEvent.TryParse,
         DailyResetLogEvent.TryParse,
-        CampingLogEvent.TryParse,
+        PlayerIsCampingLogEvent.TryParse,
         CampAbandonedLogEvent.TryParse,
     ];
 

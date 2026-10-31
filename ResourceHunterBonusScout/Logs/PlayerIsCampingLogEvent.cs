@@ -1,14 +1,18 @@
-﻿namespace ResourceHunterBonusScout.Logs;
+﻿using System.Text.RegularExpressions;
+
+namespace ResourceHunterBonusScout.Logs;
 
 /// <summary>The player is camping out. Repeats every 5 seconds during the countdown.</summary>
-record CampingLogEvent : LogEvent
+partial record PlayerIsCampingLogEvent : LogEvent
 {
+    [GeneratedRegex(@"^It will take .+ to prepare your camp\.$", RegexOptions.CultureInvariant)]
+    private static partial Regex CampingMessagePattern();
+
     public static LogEvent? TryParse(string message)
     {
-        if (message.StartsWith("It will take ", StringComparison.Ordinal)
-            && message.EndsWith(" to prepare your camp.", StringComparison.Ordinal))
+        if (CampingMessagePattern().IsMatch(message))
         {
-            return new CampingLogEvent();
+            return new PlayerIsCampingLogEvent();
         }
 
         return null;
