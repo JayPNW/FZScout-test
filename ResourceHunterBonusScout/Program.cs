@@ -39,7 +39,8 @@ static class Program
             cancel.Cancel();
         };
 
-        await new UpdateChecker(log, httpClientHandler).CheckAsync(version, cancel.Token);
+        using var updateChecker = new UpdateChecker(log, httpClientHandler);
+        await updateChecker.CheckAsync(version, cancel.Token);
         await bonusReporter.ChangeApiKeyAsync(ApiKeyStore.Load(), cancel.Token);
         await TickAsync(scout, timeProvider, log, cancel.Token);
         PrintWatchedLogs(scout.Watcher, log);
