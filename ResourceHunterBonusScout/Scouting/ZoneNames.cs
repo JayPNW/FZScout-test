@@ -10,6 +10,7 @@ static class ZoneNames
         "The Plane of Knowledge",
         "Guild Lobby",
         "Guild Hall",
+        "The Arena",
     ];
 
     public static readonly Dictionary<string, string> LogToSite = new()

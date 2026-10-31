@@ -6,6 +6,7 @@
 - The Plane of Knowledge
 - Guild Lobby
 - Guild Hall
+- The Arena
 
 ## Instanced zones
 

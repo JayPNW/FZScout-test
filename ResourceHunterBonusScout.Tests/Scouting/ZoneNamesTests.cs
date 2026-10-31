@@ -40,6 +40,12 @@ public class ZoneNamesTests
         return Verify(FormatAsMarkdownTable(("EQ log message name", "Site zone name"), rows));
     }
 
+    [Fact]
+    public void TheArenaNeverHasABonus()
+    {
+        Assert.Equal(new NeverBonusZone("The Arena"), ZoneNames.Resolve("The Arena", new HashSet<string>()));
+    }
+
     static string FormatAsMarkdownTable<TTuple>(TTuple header, IEnumerable<TTuple> rows)
         where TTuple : ITuple
     {
