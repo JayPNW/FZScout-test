@@ -2,12 +2,9 @@
   "ignorePatterns": [
     {
       "pattern": "^https://github.com/JayBazuzi/ResourceHunterBonusScout/"
-    }
-  ],
-  "replacementPatterns": [
+    },
     {
-      "pattern": "^/",
-      "replacement": "https://github.com/JayBazuzi/ResourceHunterBonusScout/blob/main/"
+      "pattern": "^/"
     }
   ]
 }
