@@ -12,7 +12,7 @@ $publish = Join-Path $root 'publish'
 $version = dotnet msbuild $project -getProperty:Version
 if ($Prerelease) { $version = "$version-$Prerelease" }
 
-dotnet publish $project -c Release -o $publish -p:Version=$version
+dotnet publish $project -c Release -o $publish -p:Version=$version -p:IncludeSourceRevisionInInformationalVersion=false
 if ($LASTEXITCODE -ne 0) { throw 'publish failed' }
 $exe = Join-Path $publish 'ResourceHunterBonusScout.exe'
 
