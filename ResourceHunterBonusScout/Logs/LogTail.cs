@@ -35,18 +35,21 @@ class LogTail
             return [];
         }
 
-        string text;
-        using (var stream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
-        {
-            stream.Position = this._position;
-            using var reader = new StreamReader(stream, Encoding.Latin1);
-            text = this._partialLine + reader.ReadToEnd();
-            this._position = stream.Position;
-        }
+        var text = this._partialLine + ReadTextFromPositionAndAdvance();
 
         var lines = text.Split('\n');
         this._partialLine = lines[^1];
         return [.. lines[..^1].Select(l => l.TrimEnd('\r')).Where(l => l.Length > 0)];
+    }
+
+    string ReadTextFromPositionAndAdvance()
+    {
+        using var stream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+        stream.Position = this._position;
+        using var reader = new StreamReader(stream, Encoding.Latin1);
+        var text = reader.ReadToEnd();
+        this._position = stream.Position;
+        return text;
     }
 
     static long Length(string path)
