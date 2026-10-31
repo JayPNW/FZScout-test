@@ -43,10 +43,18 @@ class ApiKeyPrompt
             this._log.Warning("No API key entered, so nothing will be reported. Restart the app to enter one.");
             return;
         }
-
         var apiKey = new ApiKey(text);
-        ApiKeyStore.Save(apiKey);
+
+        try
+        {
+            ApiKeyStore.Save(apiKey);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            this._log.Error($"Couldn't save the API key, so it will only be used until the app closes: {exception.Message}");
+        }
         this._log.Info("API key saved to Windows Credential Manager.");
+
         await this._reporter.ChangeApiKeyAsync(apiKey, cancellationToken);
     }
 
