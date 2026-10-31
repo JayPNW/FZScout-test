@@ -18,7 +18,7 @@ $exe = Join-Path $publish 'ResourceHunterBonusScout.exe'
 
 if ($GitHubToken) {
     $env:GH_TOKEN = $GitHubToken
-    $flags = if ($Prerelease) { @('--prerelease') } else { @('--latest') }
-    gh release create "v$version" $exe --title $version --target (git rev-parse HEAD) --generate-notes @flags
+    $flag = if ($Prerelease) { '--prerelease' } else { '--latest' }
+    gh release create "v$version" $exe --title $version --target (git rev-parse HEAD) --generate-notes $flag
     if ($LASTEXITCODE -ne 0) { throw 'release failed' }
 }
