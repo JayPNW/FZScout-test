@@ -314,6 +314,15 @@ public class CharacterScoutTests
         Assert.Equal([ReportNone("Befallen")], Tick(300));
     }
 
+    [Fact]
+    public void ArenaAreasInsideAZoneDontChangeIt()
+    {
+        Log(0, Befallen);
+        Log(100, "You have entered an Arena (PvP) area.");
+
+        Assert.Equal([ReportNone("Befallen")], Tick(300));
+    }
+
     static ReportBonusAction Report(string zone, string bonus) => new(Bob, new BonusReport(Server.Frostreaver, zone, new BonusKey(bonus)));
 
     static ReportNoBonusAction ReportNone(string zone) => new(Bob, zone);
