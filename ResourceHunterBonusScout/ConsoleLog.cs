@@ -7,6 +7,7 @@ class ConsoleLog(Action<string, ConsoleColor?> write, TimeProvider timeProvider)
     public const ConsoleColor ErrorColor = ConsoleColor.Red;
 
     public const ConsoleColor HilightColor = ConsoleColor.Yellow;
+    public const ConsoleColor WarningColor = ConsoleColor.Cyan;
 
     /// <summary>Plain text, for tests.</summary>
     public ConsoleLog(TextWriter writer, TimeProvider timeProvider)
@@ -21,7 +22,7 @@ class ConsoleLog(Action<string, ConsoleColor?> write, TimeProvider timeProvider)
     /// <summary>Something worked that the user cares about, like a bonus uploaded to the site.</summary>
     public void Success(string message) => Write(message, HilightColor);
 
-    public void Warning(string message) => Write($"WARNING: {message}", null);
+    public void Warning(string message) => Write($"WARNING: {message}", WarningColor);
 
     public void Error(string message) => Write($"ERROR: {message}", ErrorColor);
 

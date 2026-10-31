@@ -29,11 +29,11 @@ public class LogTests
     }
 
     [Fact]
-    public void WarningIsPlain()
+    public void WarningIsCyan()
     {
         this._log.Warning("Hmm");
 
-        Assert.Equal([("12:00:00 WARNING: Hmm", null)], this._lines);
+        Assert.Equal([("12:00:00 WARNING: Hmm", ConsoleColor.Cyan)], this._lines);
     }
 
     [Fact]
