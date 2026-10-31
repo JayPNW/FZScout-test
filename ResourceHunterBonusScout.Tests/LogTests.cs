@@ -5,11 +5,11 @@ namespace ResourceHunterBonusScout.Tests;
 public class LogTests
 {
     readonly List<(string Line, ConsoleColor? Color)> _lines = [];
-    readonly Log _log;
+    readonly ConsoleLog _log;
 
     public LogTests()
     {
-        this._log = new Log((line, color) => this._lines.Add((line, color)), new FakeTimeProvider(new DateTimeOffset(2026, 10, 29, 12, 0, 0, TimeSpan.Zero)));
+        this._log = new ConsoleLog((line, color) => this._lines.Add((line, color)), new FakeTimeProvider(new DateTimeOffset(2026, 10, 29, 12, 0, 0, TimeSpan.Zero)));
     }
 
     [Fact]

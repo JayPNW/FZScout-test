@@ -7,7 +7,7 @@ namespace ResourceHunterBonusScout;
 /// Releases are numbered 1, 2, 3... and a CI build of release N is <c>N-ci.99</c>, which comes before release N.
 /// Asks GitHub for the latest release (never a prerelease) and tells the user if it is newer than this build.
 /// </summary>
-class UpdateChecker(Log log, HttpMessageHandler httpMessageHandler)
+class UpdateChecker(ConsoleLog log, HttpMessageHandler httpMessageHandler)
 {
     private readonly HttpClient _githubApiHttpClient = new GitHubApiHttpClient(httpMessageHandler);
 

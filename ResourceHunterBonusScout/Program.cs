@@ -10,7 +10,7 @@ static class Program
     static async Task Main()
     {
         var timeProvider = TimeProvider.System;
-        var log = Log.ForConsole(timeProvider);
+        var log = ConsoleLog.ForConsole(timeProvider);
 
         using var mutex = new Mutex(true, "ResourceHunterBonusScout", out var isOnlyInstance);
         if (!isOnlyInstance)
@@ -60,7 +60,7 @@ static class Program
     }
 
     /// <summary>One bad tick is logged, not fatal: the next one gets a fresh start.</summary>
-    static async Task TickAsync(Scout scout, TimeProvider timeProvider, Log log, CancellationToken cancellationToken)
+    static async Task TickAsync(Scout scout, TimeProvider timeProvider, ConsoleLog log, CancellationToken cancellationToken)
     {
         try
         {
@@ -72,7 +72,7 @@ static class Program
         }
     }
 
-    static void PrintWatchedLogs(LogWatcher logWatcher, Log log)
+    static void PrintWatchedLogs(LogWatcher logWatcher, ConsoleLog log)
     {
         if (logWatcher.WatchedLogs.Count == 0)
         {

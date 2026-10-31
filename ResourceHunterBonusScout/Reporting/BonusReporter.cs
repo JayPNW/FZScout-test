@@ -4,7 +4,7 @@ using ResourceHunterBonusScout.Site;
 namespace ResourceHunterBonusScout.Reporting;
 
 /// <summary>Carries out what the scouts decide, following the Reporting section of InternalDocumentation/SPEC.md.</summary>
-class BonusReporter(FangbreakerZoneClient fangbreakerZoneClient, ServerListCache serverListCache, Log log)
+class BonusReporter(FangbreakerZoneClient fangbreakerZoneClient, ServerListCache serverListCache, ConsoleLog log)
 {
     public static readonly TimeSpan RetryDelay = TimeSpan.FromMinutes(1);
 

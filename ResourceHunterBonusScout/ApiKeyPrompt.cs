@@ -10,11 +10,11 @@ namespace ResourceHunterBonusScout;
 class ApiKeyPrompt
 {
     readonly BonusReporter _reporter;
-    readonly Log _log;
+    readonly ConsoleLog _log;
     bool _needed;
     Task<string>? _answer;
 
-    public ApiKeyPrompt(BonusReporter bonusReporter, Log log)
+    public ApiKeyPrompt(BonusReporter bonusReporter, ConsoleLog log)
     {
         this._reporter = bonusReporter;
         this._log = log;
