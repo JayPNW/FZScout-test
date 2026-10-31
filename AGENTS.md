@@ -21,12 +21,7 @@ Avoid ternary (`?:`) except for very simple cases.
 
 Don't use `sealed` on classes or records.
 
-### MVVM
-
-WPF ViewModels should not contain logic and should not need to be tested.
-It contains only properties and commands that the view binds to.
-Everything should either be in the view or the application model it sits on.
-
-### Testing
-
-Most UI tests should be of this form: populate w ViewModel with test data, bind it to a View, render the View, and verify the rendered view.
+The most important thing about a name is that it not be misleading.
+A reader should never need to look at how a variable or method is used/implemented to understand what it represents.
+It is OK to make the name long to achieve this.
+If you see a comment explaining what a function or variable does/is, rename it to make it more obvious.
