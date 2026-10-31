@@ -7,9 +7,9 @@ namespace ResourceHunterBonusScout;
 /// Releases are numbered 1, 2, 3... and a CI build of release N is <c>N-ci.99</c>, which comes before release N.
 /// Asks GitHub for the latest release (never a prerelease) and tells the user if it is newer than this build.
 /// </summary>
-class UpdateChecker(HttpClient httpClient, Log log)
+class UpdateChecker(Log log, HttpMessageHandler httpMessageHandler)
 {
-    public static readonly Uri LatestReleaseApi = new("https://api.github.com/repos/JayBazuzi/ResourceHunterBonusScout/releases/latest");
+    private readonly HttpClient _githubApiHttpClient = new GitHubApiHttpClient(httpMessageHandler);
 
     public async Task CheckAsync(string? currentVersion, CancellationToken cancellationToken = default)
     {
@@ -20,9 +20,10 @@ class UpdateChecker(HttpClient httpClient, Log log)
 
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, LatestReleaseApi);
-            request.Headers.UserAgent.ParseAdd("ResourceHunterBonusScout");
-            using var response = await httpClient.SendAsync(request, cancellationToken);
+            var latestReleaseApi = new Uri("/repos/JayBazuzi/ResourceHunterBonusScout/releases/latest", UriKind.Relative);
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, latestReleaseApi);
+            using var response = await _githubApiHttpClient.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 return;
@@ -48,7 +49,7 @@ class UpdateChecker(HttpClient httpClient, Log log)
     }
 
     /// <summary>Reads <c>1</c>, <c>v2</c>, <c>3-ci.99</c> or <c>3-ci.99+abc123</c>.</summary>
-    internal static bool TryParseVersion(string? text, out int number, out bool isPrerelease)
+    public static bool TryParseVersion(string? text, out int number, out bool isPrerelease)
     {
         number = 0;
         isPrerelease = false;
@@ -61,6 +62,17 @@ class UpdateChecker(HttpClient httpClient, Log log)
         var parts = core.Split('-', 2);
         isPrerelease = parts.Length > 1;
         return int.TryParse(parts[0], out number);
+    }
+
+    class GitHubApiHttpClient : HttpClient
+    {
+        public GitHubApiHttpClient(HttpMessageHandler httpMessageHandler)
+            : base(httpMessageHandler, disposeHandler: false)
+        {
+            BaseAddress = new Uri("https://api.github.com");
+            Timeout = TimeSpan.FromSeconds(30);
+            DefaultRequestHeaders.UserAgent.ParseAdd("ResourceHunterBonusScout");
+        }
     }
 
     record ReleaseDto(

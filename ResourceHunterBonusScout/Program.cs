@@ -24,7 +24,8 @@ static class Program
         var version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         log.Info($"Resource Hunter Bonus Scout v{version}");
 
-        using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        using var httpClientHandler = new HttpClientHandler();
+        using var httpClient = new HttpClient(httpClientHandler, disposeHandler: false) { Timeout = TimeSpan.FromSeconds(30) };
         var fangbreakerZoneClient = new FangbreakerZoneClient(httpClient);
         var serverListCache = new ServerListCache(fangbreakerZoneClient, log);
         var bonusReporter = new BonusReporter(fangbreakerZoneClient, serverListCache, log);
@@ -38,7 +39,7 @@ static class Program
             cancel.Cancel();
         };
 
-        await new UpdateChecker(httpClient, log).CheckAsync(version, cancel.Token);
+        await new UpdateChecker(log, httpClientHandler).CheckAsync(version, cancel.Token);
         await bonusReporter.ChangeApiKeyAsync(ApiKeyStore.Load(), cancel.Token);
         await TickAsync(scout, timeProvider, log, cancel.Token);
         PrintWatchedLogs(scout.Watcher, log);
