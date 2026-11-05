@@ -6,6 +6,7 @@ using Velopack;
 
 namespace FZScout.ViewModels;
 
+/// <summary>Everything the windows show. Holds no behavior of its own: whoever creates it supplies the commands.</summary>
 partial class AppViewModel(
     string? runningVersion,
     string apiKey,
@@ -37,6 +38,7 @@ partial class AppViewModel(
     [ObservableProperty]
     public partial string ApiKey { get; set; } = apiKey;
 
+    /// <summary>About <see cref="ApiKey"/> as it is now, so editing it forgets how an earlier key did.</summary>
     [ObservableProperty]
     public partial ApiKeyVerificationStatus ApiKeyVerificationStatus { get; set; } = ApiKeyVerificationStatus.NotVerified;
 
@@ -46,11 +48,13 @@ partial class AppViewModel(
     [ObservableProperty]
     public partial bool ShowsToastNotifications { get; set; } = showsToastNotifications;
 
-    public ICommand VerifyApiKeyCommand { get; } = new RelayCommand(() => { });
+    public ICommand VerifyApiKeyCommand { get; init; } = new RelayCommand(() => { });
 
-    public ICommand CheckForUpdatesCommand { get; } = new RelayCommand(() => { });
+    public ICommand CheckForUpdatesCommand { get; init; } = new RelayCommand(() => { });
 
-    public ICommand RestartToUpdateCommand { get; } = new RelayCommand(() => { });
+    public ICommand RestartToUpdateCommand { get; init; } = new RelayCommand(() => { });
 
-    public ICommand ExitCommand { get; } = new RelayCommand(() => { });
+    public ICommand ExitCommand { get; init; } = new RelayCommand(() => { });
+
+    partial void OnApiKeyChanged(string value) => ApiKeyVerificationStatus = ApiKeyVerificationStatus.NotVerified;
 }

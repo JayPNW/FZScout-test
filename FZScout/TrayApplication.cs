@@ -1,43 +1,100 @@
-﻿namespace FZScout;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Windows.Threading;
+using CommunityToolkit.Mvvm.Input;
+using FZScout.Site;
+using FZScout.ViewModels;
+
+namespace FZScout;
 
 /// <summary>
-/// Runs the app in the background behind a system tray icon, starting with the window hidden. Exits when the user chooses Exit,
-/// or when the user closes the window after the app has stopped on its own.
+/// Runs the app in the background behind a system tray icon, starting with the window hidden. Shuts WPF down when the user chooses Exit,
+/// or when the user closes the window after the app has stopped on its own. Gives the windows' <see cref="AppViewModel"/> its behavior.
 /// </summary>
-class TrayApplicationContext : ApplicationContext
+class TrayApplication : IDisposable
 {
+    readonly App _app;
+    readonly AppDependencies _dependencies;
+    readonly MessageBoxUserInput _userInput;
+    readonly GitHubUpdateChecker _updateChecker;
+    readonly Dispatcher _uiThread = Dispatcher.CurrentDispatcher;
+    readonly AppViewModel _viewModel;
     readonly MainWindow _window;
     readonly NotifyIcon _trayIcon;
     readonly Dictionary<ScoutingStatus, Icon> _trayIcons = Enum.GetValues<ScoutingStatus>().ToDictionary(scoutingStatus => scoutingStatus, AppIcon.LoadForTray);
-    readonly Dictionary<ScoutingStatus, Icon> _windowIcons = Enum.GetValues<ScoutingStatus>().ToDictionary(scoutingStatus => scoutingStatus, AppIcon.Load);
     readonly AppStatus _status;
-
-    readonly System.Windows.Forms.Timer _showStatusWhenItChangesByItself = new();
-
-    readonly TimeProvider _timeProvider;
-    readonly AppDependencies _dependencies;
+    readonly DispatcherTimer _showStatusWhenItChangesByItself = new();
+    readonly LaunchAtLogin _launchAtLogin = new();
     readonly ShowToastNotifications _showToastNotifications = new();
+    readonly ApiKeyVerifier _apiKeyVerifier;
+    readonly AsyncRelayCommand _verifyApiKeyCommand;
     bool _hasExplainedHidingToTray;
-    readonly GitHubUpdateChecker _updateChecker;
     SettingsWindow? _openSettingsWindow;
     AboutWindow? _openAboutWindow;
 
-    /// <summary>The window isn't the context's main form, because Application.Run would show it.</summary>
-    public TrayApplicationContext(MainWindow window, App app, GitHubUpdateChecker updateChecker)
+    /// <summary>Call on the UI thread, before WPF starts running. Nothing happens until <see cref="Start"/>.</summary>
+    public TrayApplication(App app, MessageBoxUserInput userInput, GitHubUpdateChecker updateChecker)
     {
-        this._window = window;
+        this._app = app;
         this._dependencies = app.Dependencies;
+        this._userInput = userInput;
         this._updateChecker = updateChecker;
-        this._window.FormClosed += (_, _) => ExitThread();
-        this._trayIcon = CreateTrayIconWithMenu();
+        this._status = new AppStatus(this._dependencies.TimeProvider);
+        this._apiKeyVerifier = new ApiKeyVerifier(this._dependencies.ApiKeyStore, this._dependencies.FangbreakerZoneClient, this._dependencies.Log);
+        this._apiKeyVerifier.ApiKeySaved += () => UpdateStatus(status => status.HadProblemSinceLastSuccess = false);
+        this._verifyApiKeyCommand = new AsyncRelayCommand(VerifyThenSaveApiKeyAsync, CanVerifyApiKey);
+        this._viewModel = CreateViewModel();
+        this._viewModel.PropertyChanged += (_, e) => ApplyChangedSetting(e);
+        ShowLogLinesInWindow(this._dependencies.Log);
+        this._window = new MainWindow(this._viewModel);
+        this._window.Closed += (_, _) => System.Windows.Application.Current.Shutdown();
         this._window.HiddenToTray += ExplainHidingToTrayTheFirstTime;
-        ShowLogSuccessesAndErrorsInToastsAndStatus(app.Dependencies.Log);
-        this._timeProvider = app.Dependencies.TimeProvider;
-        this._status = new AppStatus(this._timeProvider);
-        ShowStatusNowAndWheneverItChanges(app);
+        this._trayIcon = CreateTrayIconWithMenu();
+        ShowLogSuccessesAndErrorsInToastsAndStatus(this._dependencies.Log);
+        this._showStatusWhenItChangesByItself.Tick += (_, _) => ShowStatus();
+        ShowStatus();
+        app.WaitingForBonusMessageUntilChanged += waitingUntil => UpdateStatus(status => status.WaitingForBonusMessageUntil = waitingUntil);
+        app.ScoutingStarted += () => UpdateStatus(status => status.IsScouting = true);
+    }
+
+    string ApiKeyBeingEdited => this._viewModel.ApiKey.Trim();
+
+    /// <summary>Call once WPF is running, so the app's work can come back to the UI thread.</summary>
+    public void Start()
+    {
         StartInTrayOrOnTaskbarAndSayWhere();
         ShowSettingsIfThereIsNoApiKey();
-        RunAppThenStop(app);
+        RunAppThenStop();
+    }
+
+    public void Dispose()
+    {
+        this._showStatusWhenItChangesByItself.Stop();
+        this._trayIcon.Visible = false;
+        this._trayIcon.Dispose();
+        foreach (var icon in this._trayIcons.Values)
+        {
+            icon.Dispose();
+        }
+    }
+
+    AppViewModel CreateViewModel()
+    {
+        return new AppViewModel(this._dependencies.GetVersion(), this._apiKeyVerifier.SavedApiKey, this._launchAtLogin.IsOn, this._showToastNotifications.IsOn)
+        {
+            DownloadedVersionToInstallAfterExit = this._updateChecker.DownloadedVersionToInstallAfterExit,
+            VerifyApiKeyCommand = this._verifyApiKeyCommand,
+            CheckForUpdatesCommand = new AsyncRelayCommand(CheckForUpdatesAsync),
+            RestartToUpdateCommand = new RelayCommand(ExitToInstallUpdateThenRestart),
+            ExitCommand = new RelayCommand(Exit),
+        };
+    }
+
+    /// <summary>Safe to write from any thread, since each line is added on the UI thread.</summary>
+    void ShowLogLinesInWindow(Log log)
+    {
+        log.LineWritten += (line, severity) => this._uiThread.BeginInvoke(() => this._viewModel.LogLines.Add(new LogLine(line, severity)));
     }
 
     NotifyIcon CreateTrayIconWithMenu()
@@ -47,7 +104,7 @@ class TrayApplicationContext : ApplicationContext
         showItem.Font = new Font(showItem.Font, FontStyle.Bold);
         menu.Items.Add("Settings...", null, (_, _) => ShowSettings());
         menu.Items.Add("About FZScout...", null, (_, _) => ShowAbout());
-        menu.Items.Add("Exit", null, (_, _) => this._window.RequestExit());
+        menu.Items.Add("Exit", null, (_, _) => this._viewModel.ExitCommand.Execute(null));
 
         var trayIcon = new NotifyIcon
         {
@@ -68,19 +125,10 @@ class TrayApplicationContext : ApplicationContext
         log.ErrorWritten += _ => UpdateStatus(status => status.HadProblemSinceLastSuccess = true);
     }
 
-    void ShowStatusNowAndWheneverItChanges(App app)
-    {
-        this._showStatusWhenItChangesByItself.Tick += (_, _) => ShowStatus();
-        ShowStatus();
-        app.WaitingForBonusMessageUntilChanged += waitingUntil => UpdateStatus(status => status.WaitingForBonusMessageUntil = waitingUntil);
-        app.ScoutingStarted += () => UpdateStatus(status => status.IsScouting = true);
-    }
-
     void StartInTrayOrOnTaskbarAndSayWhere()
     {
         var trayIconReachability = new TrayIconReachability();
         this._window.CanUserReachTrayIcon = () => trayIconReachability.CanUserReachTrayIcon(Environment.ProcessPath!);
-        this._window.CreateWithoutShowing();
         this._hasExplainedHidingToTray = true;
         if (this._window.CanUserReachTrayIcon())
         {
@@ -110,11 +158,10 @@ class TrayApplicationContext : ApplicationContext
             return;
         }
 
-        var settings = new SettingsWindow(new LaunchAtLogin(), this._showToastNotifications, this._dependencies.ApiKeyStore, this._dependencies.FangbreakerZoneClient, this._dependencies.Log);
-        settings.ApiKeySaved += () => UpdateStatus(status => status.HadProblemSinceLastSuccess = false);
-        settings.FormClosed += (_, _) => this._openSettingsWindow = null;
+        var settings = new SettingsWindow(this._viewModel) { Owner = this._window };
+        settings.Closed += (_, _) => this._openSettingsWindow = null;
         this._openSettingsWindow = settings;
-        settings.ShowCenteredOver(this._window);
+        settings.Show();
     }
 
     /// <summary>Brings an already open About window to the front, instead of opening a second one.</summary>
@@ -127,32 +174,98 @@ class TrayApplicationContext : ApplicationContext
             return;
         }
 
-        var about = new AboutWindow(this._dependencies.GetVersion(), this._updateChecker, ExitToInstallUpdateThenRestart);
-        about.FormClosed += (_, _) => this._openAboutWindow = null;
+        var about = new AboutWindow(this._viewModel) { Owner = this._window };
+        about.Closed += (_, _) => this._openAboutWindow = null;
         this._openAboutWindow = about;
-        about.ShowCenteredOver(this._window);
+        about.Show();
     }
 
-    /// <summary>
-    /// Exits the same way as choosing Exit, so the app shuts down cleanly before the update is installed. If the app has already
-    /// stopped on its own, nothing is left to notice the exit request, so this exits directly.
-    /// </summary>
-    void ExitToInstallUpdateThenRestart()
+    void ApplyChangedSetting(PropertyChangedEventArgs e)
     {
-        this._updateChecker.RestartAfterInstallingAtExit = true;
-        this._window.RequestExit();
-        if (this._status.HasStopped)
+        if (e.PropertyName == nameof(AppViewModel.ApiKey))
         {
-            ExitThread();
+            this._verifyApiKeyCommand.NotifyCanExecuteChanged();
+        }
+
+        if (e.PropertyName == nameof(AppViewModel.LaunchesAtLogin))
+        {
+            ApplyLaunchAtLogin(this._viewModel.LaunchesAtLogin);
+        }
+
+        if (e.PropertyName == nameof(AppViewModel.ShowsToastNotifications))
+        {
+            ApplyShowToastNotifications(this._viewModel.ShowsToastNotifications);
         }
     }
 
-    protected override void ExitThreadCore()
+    void ApplyLaunchAtLogin(bool wantsLaunchAtLogin)
     {
-        this._showStatusWhenItChangesByItself.Dispose();
-        this._trayIcon.Visible = false;
-        this._trayIcon.Dispose();
-        base.ExitThreadCore();
+        if (wantsLaunchAtLogin == this._launchAtLogin.IsOn)
+        {
+            return;
+        }
+
+        if (wantsLaunchAtLogin)
+        {
+            this._launchAtLogin.TurnOn(Environment.ProcessPath!);
+            return;
+        }
+
+        this._launchAtLogin.TurnOff();
+    }
+
+    void ApplyShowToastNotifications(bool wantsToastNotifications)
+    {
+        if (wantsToastNotifications)
+        {
+            this._showToastNotifications.TurnOn();
+            return;
+        }
+
+        this._showToastNotifications.TurnOff();
+    }
+
+    bool CanVerifyApiKey() => ApiKeyBeingEdited.Length > 0 && ApiKeyBeingEdited != this._apiKeyVerifier.SavedApiKey;
+
+    async Task VerifyThenSaveApiKeyAsync()
+    {
+        this._viewModel.ApiKeyVerificationStatus = ApiKeyVerificationStatus.Verifying;
+        this._viewModel.ApiKeyVerificationStatus = await this._apiKeyVerifier.VerifyThenSaveAsync(new ApiKey(ApiKeyBeingEdited));
+    }
+
+    /// <summary>Lets the download finish even if the About window closes first, so it still gets installed when FZScout exits.</summary>
+    async Task CheckForUpdatesAsync()
+    {
+        this._viewModel.IsCheckingForUpdates = true;
+        this._viewModel.LatestUpdateCheckResult = await this._updateChecker.DownloadNewestRelease();
+        this._viewModel.DownloadedVersionToInstallAfterExit = this._updateChecker.DownloadedVersionToInstallAfterExit;
+        this._viewModel.IsCheckingForUpdates = false;
+    }
+
+    void ExitToInstallUpdateThenRestart()
+    {
+        this._updateChecker.RestartAfterInstallingAtExit = true;
+        Exit();
+    }
+
+    /// <summary>
+    /// Asks the app to shut down cleanly, and shuts WPF down once it has. If the app has already stopped on its own, nothing is left
+    /// to notice the exit request, so this shuts WPF down directly.
+    /// </summary>
+    void Exit()
+    {
+        this._userInput.RequestExit();
+        if (this._status.HasStopped)
+        {
+            ShutDown();
+        }
+    }
+
+    /// <summary>Closing the window shuts WPF down; shutting down too covers a window that was never shown.</summary>
+    void ShutDown()
+    {
+        this._window.CloseToExit();
+        System.Windows.Application.Current.Shutdown();
     }
 
     void ExplainHidingToTrayTheFirstTime()
@@ -169,7 +282,7 @@ class TrayApplicationContext : ApplicationContext
     /// <summary>Safe to call from any thread.</summary>
     void UpdateStatus(Action<AppStatus> update)
     {
-        this._window.BeginInvoke(() =>
+        this._uiThread.BeginInvoke(() =>
         {
             update(this._status);
             ShowStatus();
@@ -178,14 +291,16 @@ class TrayApplicationContext : ApplicationContext
 
     void ShowStatus()
     {
+        this._viewModel.ScoutingStatus = this._status.ScoutingStatus;
+        this._viewModel.WaitingForBonusMessageUntil = this._status.WaitingForBonusMessageUntil;
+        this._viewModel.ApplicationHasStopped = this._status.HasStopped;
         this._trayIcon.Icon = this._trayIcons[this._status.ScoutingStatus];
-        this._window.Icon = this._windowIcons[this._status.ScoutingStatus];
         this._trayIcon.Text = this._status.Description;
         this._showStatusWhenItChangesByItself.Stop();
         if (this._status.ChangesByItselfAt is { } changesAt)
         {
-            var timeUntilChange = changesAt - this._timeProvider.GetUtcNow();
-            this._showStatusWhenItChangesByItself.Interval = Math.Max(1, (int)Math.Ceiling(timeUntilChange.TotalMilliseconds));
+            var timeUntilChange = changesAt - this._dependencies.TimeProvider.GetUtcNow();
+            this._showStatusWhenItChangesByItself.Interval = TimeSpan.FromMilliseconds(Math.Max(1, Math.Ceiling(timeUntilChange.TotalMilliseconds)));
             this._showStatusWhenItChangesByItself.Start();
         }
     }
@@ -196,12 +311,12 @@ class TrayApplicationContext : ApplicationContext
     void ShowToast(string message, ToolTipIcon icon)
     {
         var firstLine = message.Split('\n')[0].TrimEnd('\r');
-        this._window.BeginInvoke(() => ShowToastIfTurnedOn("FZScout", firstLine, icon));
+        this._uiThread.BeginInvoke(() => ShowToastIfTurnedOn("FZScout", firstLine, icon));
     }
 
     void ShowToastIfTurnedOn(string title, string text, ToolTipIcon icon)
     {
-        if (!this._showToastNotifications.IsOn)
+        if (!this._viewModel.ShowsToastNotifications)
         {
             return;
         }
@@ -210,26 +325,25 @@ class TrayApplicationContext : ApplicationContext
     }
 
     /// <summary>Runs off the UI thread, so watching logs never makes the window unresponsive.</summary>
-    async void RunAppThenStop(App app)
+    async void RunAppThenStop()
     {
         try
         {
-            await Task.Run(app.RunAsync);
+            await Task.Run(this._app.RunAsync);
         }
         catch (Exception exception)
         {
-            app.Dependencies.Log.Error($"Unexpected problem: {exception}");
+            this._dependencies.Log.Error($"Unexpected problem: {exception}");
         }
 
-        if (this._window.ExitRequested.IsCancellationRequested)
+        if (this._userInput.ExitRequested.IsCancellationRequested)
         {
-            ExitThread();
+            ShutDown();
             return;
         }
 
         this._status.HasStopped = true;
         ShowStatus();
-        this._window.HidesInsteadOfClosing = false;
         this._window.ShowAndActivate();
     }
 }

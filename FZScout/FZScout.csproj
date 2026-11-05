@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <!-- Only for the system tray icon, which WPF doesn't have. -->
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>FZScout.ico</ApplicationIcon>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -21,6 +23,14 @@
     <DebugType>embedded</DebugType>
     <PublishDocumentationFile>false</PublishDocumentationFile>
   </PropertyGroup>
+
+  <!-- Windows Forms names clash with WPF's, so the few files that use them say so. WPF drops these two, though nothing here clashes with them. -->
+  <ItemGroup>
+    <Using Remove="System.Drawing" />
+    <Using Remove="System.Windows.Forms" />
+    <Using Include="System.IO" />
+    <Using Include="System.Net.Http" />
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="FZScout.Tests" />
