@@ -5,7 +5,7 @@ using FZScout.ViewModels;
 namespace FZScout;
 
 /// <summary>Checkboxes apply as soon as they change. The API key is saved only when Verify finds the site accepts it.</summary>
-partial class SettingsWindow : Window
+partial class SettingsWindow : FixedSizeDialog
 {
     readonly AppViewModel _viewModel;
 

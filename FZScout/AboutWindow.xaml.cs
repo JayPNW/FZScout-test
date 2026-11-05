@@ -7,7 +7,7 @@ namespace FZScout;
 /// Shows which version is running. Checks for a newer release every time it opens, downloading it to install when FZScout exits.
 /// Once one is downloaded, offers to restart into it right away.
 /// </summary>
-partial class AboutWindow : Window
+partial class AboutWindow : FixedSizeDialog
 {
     public AboutWindow(AppViewModel viewModel)
     {
