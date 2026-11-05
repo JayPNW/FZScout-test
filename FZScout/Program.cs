@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Windows;
 using FZScout.Site;
 using Velopack;
@@ -13,7 +13,6 @@ static class Program
         InstallUpdates();
         using var updates = new WatchForNewUpdates(TimeProvider.System);
 
-        System.Windows.Forms.Application.EnableVisualStyles();
         var application = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         using var userInput = new MessageBoxUserInput();
         using var trayApplication = new TrayApplication(CreateApp(userInput), userInput, updates.UpdateChecker);

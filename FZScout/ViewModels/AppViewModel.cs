@@ -18,6 +18,10 @@ partial class AppViewModel(
     [ObservableProperty]
     public partial ScoutingStatus ScoutingStatus { get; set; } = ScoutingStatus.NotScouting;
 
+    /// <summary>Short enough for a tray icon's tooltip.</summary>
+    [ObservableProperty]
+    public partial string StatusDescription { get; set; } = "FZScout";
+
     [ObservableProperty]
     public partial DateTimeOffset? WaitingForBonusMessageUntil { get; set; }
 
@@ -47,6 +51,12 @@ partial class AppViewModel(
 
     [ObservableProperty]
     public partial bool ShowsToastNotifications { get; set; } = showsToastNotifications;
+
+    public ICommand ShowLogCommand { get; init; } = new RelayCommand(() => { });
+
+    public ICommand ShowSettingsCommand { get; init; } = new RelayCommand(() => { });
+
+    public ICommand ShowAboutCommand { get; init; } = new RelayCommand(() => { });
 
     public ICommand VerifyApiKeyCommand { get; init; } = new RelayCommand(() => { });
 

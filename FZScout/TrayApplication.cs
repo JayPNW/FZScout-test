@@ -1,10 +1,11 @@
 using System.ComponentModel;
 using System.Drawing;
-using System.Windows.Forms;
+using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.Input;
 using FZScout.Site;
 using FZScout.ViewModels;
+using Hardcodet.Wpf.TaskbarNotification;
 
 namespace FZScout;
 
@@ -21,7 +22,7 @@ class TrayApplication : IDisposable
     readonly Dispatcher _uiThread = Dispatcher.CurrentDispatcher;
     readonly AppViewModel _viewModel;
     readonly MainWindow _window;
-    readonly NotifyIcon _trayIcon;
+    readonly TrayIcon _trayIcon;
     readonly Dictionary<ScoutingStatus, Icon> _trayIcons = Enum.GetValues<ScoutingStatus>().ToDictionary(scoutingStatus => scoutingStatus, AppIcon.LoadForTray);
     readonly AppStatus _status;
     readonly DispatcherTimer _showStatusWhenItChangesByItself = new();
@@ -48,9 +49,9 @@ class TrayApplication : IDisposable
         this._viewModel.PropertyChanged += (_, e) => ApplyChangedSetting(e);
         ShowLogLinesInWindow(this._dependencies.Log);
         this._window = new MainWindow(this._viewModel);
-        this._window.Closed += (_, _) => System.Windows.Application.Current.Shutdown();
+        this._window.Closed += (_, _) => Application.Current.Shutdown();
         this._window.HiddenToTray += ExplainHidingToTrayTheFirstTime;
-        this._trayIcon = CreateTrayIconWithMenu();
+        this._trayIcon = new TrayIcon(this._viewModel);
         ShowLogSuccessesAndErrorsInToastsAndStatus(this._dependencies.Log);
         this._showStatusWhenItChangesByItself.Tick += (_, _) => ShowStatus();
         ShowStatus();
@@ -71,7 +72,6 @@ class TrayApplication : IDisposable
     public void Dispose()
     {
         this._showStatusWhenItChangesByItself.Stop();
-        this._trayIcon.Visible = false;
         this._trayIcon.Dispose();
         foreach (var icon in this._trayIcons.Values)
         {
@@ -84,6 +84,9 @@ class TrayApplication : IDisposable
         return new AppViewModel(this._dependencies.GetVersion(), this._apiKeyVerifier.SavedApiKey, this._launchAtLogin.IsOn, this._showToastNotifications.IsOn)
         {
             DownloadedVersionToInstallAfterExit = this._updateChecker.DownloadedVersionToInstallAfterExit,
+            ShowLogCommand = new RelayCommand(ShowLog),
+            ShowSettingsCommand = new RelayCommand(ShowSettings),
+            ShowAboutCommand = new RelayCommand(ShowAbout),
             VerifyApiKeyCommand = this._verifyApiKeyCommand,
             CheckForUpdatesCommand = new AsyncRelayCommand(CheckForUpdatesAsync),
             RestartToUpdateCommand = new RelayCommand(ExitToInstallUpdateThenRestart),
@@ -97,30 +100,10 @@ class TrayApplication : IDisposable
         log.LineWritten += (line, severity) => this._uiThread.BeginInvoke(() => this._viewModel.LogLines.Add(new LogLine(line, severity)));
     }
 
-    NotifyIcon CreateTrayIconWithMenu()
-    {
-        var menu = new ContextMenuStrip();
-        var showItem = menu.Items.Add("Show FZScout", null, (_, _) => this._window.ShowAndActivate());
-        showItem.Font = new Font(showItem.Font, FontStyle.Bold);
-        menu.Items.Add("Settings...", null, (_, _) => ShowSettings());
-        menu.Items.Add("About FZScout...", null, (_, _) => ShowAbout());
-        menu.Items.Add("Exit", null, (_, _) => this._viewModel.ExitCommand.Execute(null));
-
-        var trayIcon = new NotifyIcon
-        {
-            Icon = this._trayIcons[ScoutingStatus.NotScouting],
-            Text = "FZScout",
-            ContextMenuStrip = menu,
-            Visible = true,
-        };
-        trayIcon.DoubleClick += (_, _) => this._window.ShowAndActivate();
-        return trayIcon;
-    }
-
     void ShowLogSuccessesAndErrorsInToastsAndStatus(Log log)
     {
-        log.SuccessWritten += message => ShowToast(message, ToolTipIcon.Info);
-        log.ErrorWritten += message => ShowToast(message, ToolTipIcon.Error);
+        log.SuccessWritten += message => ShowToast(message, BalloonIcon.Info);
+        log.ErrorWritten += message => ShowToast(message, BalloonIcon.Error);
         log.SuccessWritten += _ => UpdateStatus(status => status.HadProblemSinceLastSuccess = false);
         log.ErrorWritten += _ => UpdateStatus(status => status.HadProblemSinceLastSuccess = true);
     }
@@ -132,12 +115,12 @@ class TrayApplication : IDisposable
         this._hasExplainedHidingToTray = true;
         if (this._window.CanUserReachTrayIcon())
         {
-            ShowToastIfTurnedOn("FZScout is running", "Double-click this icon to see the log. To exit, right-click it and choose Exit.", ToolTipIcon.Info);
+            ShowToastIfTurnedOn("FZScout is running", "Double-click this icon to see the log. To exit, right-click it and choose Exit.", BalloonIcon.Info);
             return;
         }
 
         this._window.ShowMinimizedOnTaskbar();
-        ShowToastIfTurnedOn("FZScout is running", "Windows is hiding its tray icon, so it stays on the taskbar. To show the icon, go to Settings > Personalization > Taskbar > Other system tray icons.", ToolTipIcon.Info);
+        ShowToastIfTurnedOn("FZScout is running", "Windows is hiding its tray icon, so it stays on the taskbar. To show the icon, go to Settings > Personalization > Taskbar > Other system tray icons.", BalloonIcon.Info);
     }
 
     void ShowSettingsIfThereIsNoApiKey()
@@ -147,6 +130,9 @@ class TrayApplication : IDisposable
             ShowSettings();
         }
     }
+
+    /// <summary>The window is created after the view model, so this looks it up when the command runs.</summary>
+    void ShowLog() => this._window.ShowAndActivate();
 
     /// <summary>Brings an already open Settings window to the front, instead of opening a second one.</summary>
     void ShowSettings()
@@ -265,7 +251,7 @@ class TrayApplication : IDisposable
     void ShutDown()
     {
         this._window.CloseToExit();
-        System.Windows.Application.Current.Shutdown();
+        Application.Current.Shutdown();
     }
 
     void ExplainHidingToTrayTheFirstTime()
@@ -276,7 +262,7 @@ class TrayApplication : IDisposable
         }
 
         this._hasExplainedHidingToTray = true;
-        ShowToastIfTurnedOn("FZScout is still running", "To exit, right-click this icon and choose Exit.", ToolTipIcon.Info);
+        ShowToastIfTurnedOn("FZScout is still running", "To exit, right-click this icon and choose Exit.", BalloonIcon.Info);
     }
 
     /// <summary>Safe to call from any thread.</summary>
@@ -295,7 +281,7 @@ class TrayApplication : IDisposable
         this._viewModel.WaitingForBonusMessageUntil = this._status.WaitingForBonusMessageUntil;
         this._viewModel.ApplicationHasStopped = this._status.HasStopped;
         this._trayIcon.Icon = this._trayIcons[this._status.ScoutingStatus];
-        this._trayIcon.Text = this._status.Description;
+        this._viewModel.StatusDescription = this._status.Description;
         this._showStatusWhenItChangesByItself.Stop();
         if (this._status.ChangesByItselfAt is { } changesAt)
         {
@@ -308,20 +294,20 @@ class TrayApplication : IDisposable
     /// <summary>
     /// Safe to call from any thread. Shows only the first line, so an exception's stack trace doesn't fill the toast.
     /// </summary>
-    void ShowToast(string message, ToolTipIcon icon)
+    void ShowToast(string message, BalloonIcon icon)
     {
         var firstLine = message.Split('\n')[0].TrimEnd('\r');
         this._uiThread.BeginInvoke(() => ShowToastIfTurnedOn("FZScout", firstLine, icon));
     }
 
-    void ShowToastIfTurnedOn(string title, string text, ToolTipIcon icon)
+    void ShowToastIfTurnedOn(string title, string text, BalloonIcon icon)
     {
         if (!this._viewModel.ShowsToastNotifications)
         {
             return;
         }
 
-        this._trayIcon.ShowBalloonTip(5000, title, text, icon);
+        this._trayIcon.ShowBalloonTip(title, text, icon);
     }
 
     /// <summary>Runs off the UI thread, so watching logs never makes the window unresponsive.</summary>

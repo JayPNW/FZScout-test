@@ -1,5 +1,5 @@
 using System.Drawing;
-using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace FZScout;
 
@@ -7,6 +7,10 @@ namespace FZScout;
 static class AppIcon
 {
     const string GemResourceName = "FZScout.ico";
+
+    const int SmallIconWidthMetric = 49;
+
+    const int SmallIconHeightMetric = 50;
 
     /// <summary>All sizes; Windows picks the one it needs.</summary>
     public static Icon Load(ScoutingStatus scoutingStatus)
@@ -19,7 +23,7 @@ static class AppIcon
     public static Icon LoadForTray(ScoutingStatus scoutingStatus)
     {
         using var icon = Load(scoutingStatus);
-        return new Icon(icon, SystemInformation.SmallIconSize);
+        return new Icon(icon, GetSystemMetrics(SmallIconWidthMetric), GetSystemMetrics(SmallIconHeightMetric));
     }
 
     public static Stream OpenGemResource() => OpenResource(GemResourceName);
@@ -36,6 +40,9 @@ static class AppIcon
         ScoutingStatus.WaitingForBonusMessageAfterProblem => "FZScoutWaitingProblem.ico",
         _ => throw new ArgumentOutOfRangeException(nameof(scoutingStatus), scoutingStatus, null),
     };
+
+    [DllImport("user32.dll")]
+    static extern int GetSystemMetrics(int metric);
 
     static Stream OpenResource(string resourceName) => typeof(AppIcon).Assembly.GetManifestResourceStream(resourceName)!;
 }
