@@ -134,7 +134,10 @@ class TrayApplication : IDisposable
     /// <summary>The window is created after the view model, so this looks it up when the command runs.</summary>
     void ShowLog() => this._window.ShowAndActivate();
 
-    /// <summary>Brings an already open Settings window to the front, instead of opening a second one.</summary>
+    /// <summary>
+    /// Brings an already open Settings window to the front, instead of opening a second one. A new one starts from the saved API key,
+    /// rather than one typed earlier that was never saved.
+    /// </summary>
     void ShowSettings()
     {
         this._window.ShowAndActivate();
@@ -144,6 +147,7 @@ class TrayApplication : IDisposable
             return;
         }
 
+        this._viewModel.ApiKey = this._apiKeyVerifier.SavedApiKey;
         var settings = new SettingsWindow(this._viewModel) { Owner = this._window };
         settings.Closed += (_, _) => this._openSettingsWindow = null;
         this._openSettingsWindow = settings;
